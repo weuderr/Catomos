@@ -1,0 +1,15 @@
+{
+  "name": "catomos",
+  "version": "1.0.0",
+  "description": "Cast Json to Model Sequelize",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "weuder",
+  "license": "MIT",
+  "dependencies": {
+    "write": "^2.0.0"
+  }
+}
