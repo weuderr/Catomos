@@ -1,10 +1,9 @@
 const fs = require('fs');
 
-const testFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/cld/docs/';
+const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/gftm/docs/json/';
 
-fs.readdir(testFolder, async (err, files) => {
+fs.readdir(readFolder, async (err, files) => {
     for (const file of files) {
-        console.log(file)
         if (file)
             await makeModel(file);
     }
@@ -36,7 +35,27 @@ function getValidate(e) {
 }
 
 function getType(e) {
-    return (e.Tipo === 'number') ? 'DataTypes.INTEGER' : e.Tipo === 'varchar' ? 'DataTypes.STRING(' + e.Tamanho + ')' : 'DataTypes.date';
+    let type = '';
+    switch (e.Tipo) {
+        case 'numeric' :
+            type = 'DataTypes.INTEGER';
+            break;
+        case 'number' :
+            type = 'DataTypes.INTEGER';
+            break;
+        case 'varchar' :
+            type = 'DataTypes.STRING(' + e.Tamanho + ')';
+            break;
+        case 'date' :
+            console.log(e.Tipo)
+            console.log(e['Observation'])
+            if( !e['Observation'] || e['Observation'].length >= 16)
+                type =  'DataTypes.DATE';
+            else
+                type =  'DataTypes.DATEONLY';
+            break;
+    }
+    return type;
 }
 
 function getAllowNull(e) {
@@ -48,41 +67,44 @@ function getRequired(e) {
 }
 
 function fieldsForModel(e) {
-    if (e['Observações'] === 'primary key')
-        return {
-            field: e.Atributo,
-            type: getType(e),
-            allowNull: getAllowNull(e),
-            required: getRequired(e),
-            primaryKey: true,
-            autoIncrement: true,
-            unique: true,
-            comment: e.Descrição
+    let model = {}
+    model.field = e['Atributo']
+    model.type = getType(e)
+    model.allowNull = getAllowNull(e)
+    model.required = getRequired(e)
+    if(e['Descrição'] !== "")
+        model.comment = e['Descrição']
 
-        }
-    else
-        return {
-            field: e.Atributo,
-            type: getType(e),
-            allowNull: getAllowNull(e),
-            required: getRequired(e),
-            validate: getValidate(e),
-            comment: e.Descrição
-        };
+    if (e['Observações'] === 'primary key')
+    {
+        model.primaryKey= true
+        model.autoIncrement= true
+        model.unique= true
+    }
+    return model
+}
+
+function upFistLetter(parseName) {
+    let fistWord = parseName[0].toUpperCase();
+    let lastWord = parseName.substr(1, parseName.length);
+    let fileName = fistWord + lastWord
+    return fileName;
 }
 
 async function makeModel(file) {
     // console.log('Make init file: '+ file)
-    let parseName = file.replace('.json', '').replace(' ', '_');
-    let fistWord = parseName[0].toUpperCase();
-    let lastWord = parseName.substr(1, parseName.length);
-    let fileName = fistWord + lastWord
-    await fs.readFile('/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/cld/docs/' + file, 'utf8', async function (err, data) {
+    let parseName = file.replace('.json', '').replace(' ', '_').toLowerCase();
+    let fileName = upFistLetter(parseName);
+    console.log(parseName+" - "+fileName)
+    await fs.readFile(readFolder + file, 'utf8', async function (err, data) {
 
         function structureUp() {
             return "import ApiConfig from '../../config/api.conf';\n" +
+                "import { BasicFields } from '../fields/postgres/basicFields';\n" +
                 "\n" +
-                "const Item = (sequelize, DataTypes) => {\n" +
+                "const "+fileName+" = (sequelize, DataTypes) => {\n" +
+                "\n" +
+                "    const basicFields = new BasicFields(DataTypes);\n" +
                 "\n" +
                 "    // Define environment object\n" +
                 "    const config = new ApiConfig();\n" +
@@ -90,6 +112,15 @@ async function makeModel(file) {
                 "    let schema = environment.databases.postgres.schema;\n" +
                 "\n" +
                 "    const model = sequelize.define('" + fileName + "',";
+        }
+
+        function structureMiddle() {
+            return "     {\n" +
+                "            paranoid: true,\n" +
+                "            tableName: '"+parseName+"'\n" +
+                "        }).schema(schema);\n" +
+                "\n" +
+                "    model.associate = (models) => {\n";
         }
 
         function structureDown() {
@@ -100,13 +131,7 @@ async function makeModel(file) {
                 "\n" +
                 "};\n" +
                 "\n" +
-                "module.exports = Item;";
-        }
-
-        function structureMiddle() {
-            return "    ).schema(schema);\n" +
-                "\n" +
-                "    model.associate = (models) => {\n";
+                "module.exports = "+fileName+";";
         }
 
         var pattern0 = new RegExp(/"([^"]+)":/g);
@@ -122,7 +147,7 @@ async function makeModel(file) {
 
                 model[e.Atributo] = fieldsForModel(e);
                 if (e['Observações'] === 'foreign key') {
-                    foreignKey += `model.hasMany( models.${e.Atributo}, { foreignKey: \'${e.Atributo}\' });`
+                    foreignKey += `model.hasMany( models.${upFistLetter(e.Atributo.replace('_id',''))}, { foreignKey: \'${e.Atributo}\' });`
                 }
 
             });
@@ -131,9 +156,9 @@ async function makeModel(file) {
             let stringFy = JSON.stringify(model)
             let stringMod = stringFy.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"').replace(',', ',\n')
 
-            let fileWrite = structureUp + stringMod + structureMiddle + foreignKey + structureDown
+            let fileWrite = structureUp + stringMod +','+ structureMiddle + foreignKey + structureDown
 
-            await fs.writeFile('models/_' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
+            await fs.writeFile('models/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
                 if (err) {
                     return console.log(err);
                 }

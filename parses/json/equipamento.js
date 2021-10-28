@@ -1,0 +1,2 @@
+[{"equipamento_id":951, 
+"desc_equipamento":"FmGEVKHe8JK2uwhKZhyi","letra_ident_eqpmt":"Sy","usuario":305,"dat_creac_item":"2021-10-27T22:33:53.852Z","dat_ultim_atualz":"2021-10-27T22:33:53.852Z","deletedat":"2021-10-27T22:33:53.852Z","cod_situa_registro":"E"}]

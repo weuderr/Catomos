@@ -1,0 +1,2 @@
+[{"Restrição_id":6, 
+"descricao":"lKvru6capVekTcZlnJjzGNrg8xTiKD7be8WrJmhUnw0um9RWv4VZbRMiPp3yWcQqTZBZDT","usuario":208,"dat_creac_item":"2021-10-27T22:33:53.854Z","dat_ultim_atualz":"2021-10-27T22:33:53.854Z","deletedat":"2021-10-27T22:33:53.854Z","cod_situa_registro":"N"}]

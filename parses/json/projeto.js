@@ -1,0 +1,2 @@
+[{"projeto_id":"h62u", 
+"nome_projeto":"OuPiMpRrGEBeIZ12suR2b3v1h718OA28c1L82ojnCwGirhJ8JYFL26BdgyUcjkZnn1tcfLVB7WX8zcsItrkt9Te3Vce0GLpvVxQZ","sigla":"64z","cod_centro":234,"usuario":189,"dat_creac_item":"2021-10-27T22:33:53.854Z","dat_ultim_atualz":"2021-10-27T22:33:53.854Z","deletedat":"2021-10-27T22:33:53.854Z","cod_situa_registro":"j"}]
