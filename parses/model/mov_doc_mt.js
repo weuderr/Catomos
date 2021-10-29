@@ -1,0 +1,2 @@
+export class Mov_doc_mt{mov_doc_mt_id:string;  
+tipo_documento:number; documento:number; dat_atualzacao:Date; vol_carvao:string; vol_madeira:string; status_id:string; regiao_id:string; usuario_id:string; fator_conversao:string; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

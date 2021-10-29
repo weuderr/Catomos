@@ -1,0 +1,2 @@
+export class Sol_transporte{id_sol_transpote:string;  
+data_solicitacao:Date; tallhao_id:number; id_doc_derrubada:string; dat_transporte:Date; vol_transporte:string; tipo_transporte:number; tipo_transporte_outro:number; bitola_m3:string; umidade:string; tempo_secagem:string; mat_gen:number; tipo_descarga:number; status_id:string; usuario:string; solic_derrubada_id:string; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

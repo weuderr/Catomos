@@ -1,0 +1,2 @@
+export class Sol_derrubada_mt{id_solic_derrubada:string;  
+data_solicitacao:Date; tallhao_id:number; id_doc_planejado:string; dat_derrubada:Date; status_id:string; usuario:string; restricao_id:string; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

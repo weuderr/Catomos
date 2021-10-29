@@ -1,2 +1,2 @@
-[{"uper_id":374, 
-"projeto_id":"JePW","desc_upe":"jKNx3aKCKGcaue2GeSXCsOmtzaBjhJitWPag4qrCWSfFYIKk8MpP52CM19CfPw2mXk5Q4gVP5STVTLOCWgJUcJAcY7LwXPSAI2UG","data_hora_sinc":"2021-10-27T22:33:53.855Z","usuario":776,"dat_creac_item":"2021-10-27T22:33:53.855Z","dat_ultim_atualz":"2021-10-27T22:33:53.855Z","deletedat":"2021-10-27T22:33:53.855Z","cod_situa_registro":"W"}]
+[{"uper_id":535, 
+"projeto_id":"swRD","desc_upe":"uO4ZKp912ScWY8Zwf689d7naBGi5rGRtgBO8PbCmtbtV6qqGZeeifXalCQ89UeNxukHbsD85JDZthwDqMVMVUDJOzKsTR7QTDgDb","data_hora_sinc":"2021-10-29T00:12:20.969Z","usuario":442,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"R"}]

@@ -1,0 +1,2 @@
+export class Usuarios_offline{id:string;  
+nome:number; email:number; telefone:string; talhao_id:string; whatszap:string; id_upc:string; status_id:number; id_perfil:string; reset_senha:Date; supervisor:string; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

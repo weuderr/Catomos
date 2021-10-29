@@ -1,0 +1,2 @@
+export class Talhao{talhao_id:number;  
+projeto_id:number; cha_talhao_pla:string; latitude:number; logitude:number; area_talhao:string; id_upc:string; usuario:string; dat_sinc_sistemas:Date; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

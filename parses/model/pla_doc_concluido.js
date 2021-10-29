@@ -1,0 +1,2 @@
+export class Pla_doc_concluido{pla_doc_concluido_id:string;  
+status_id:string; projeto_id:number; mov_doc_mt_id:string; talhao_id:string; tipo_doc:number; documento:number; usuario:string; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

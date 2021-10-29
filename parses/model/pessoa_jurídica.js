@@ -1,0 +1,2 @@
+export class Pessoa_jurídica{pessoa_juridica_id:number;  
+nome_projeto:number; sigla:number; cod_centro:number; usuario:string; dat_sinc_sistemas:Date; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

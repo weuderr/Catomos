@@ -47,13 +47,13 @@ async function makeModel(file) {
             values.forEach(function (e) {
                 switch (e.Tipo) {
                     case "number" :
-                        model[e.Atributo] = parseInt(Math.random()*1001)
+                        model[e.Atributo] = 'string;'
                         break
                     case "varchar" :
-                        model[e.Atributo] = makeid(e.Tamanho)
+                        model[e.Atributo] = 'number;'
                         break
                     case "date" :
-                        model[e.Atributo] = new Date()
+                        model[e.Atributo] = 'Date;'
                         break
                 }
             });
@@ -61,11 +61,12 @@ async function makeModel(file) {
             let pattern = new RegExp(/"([^"]+)":/g);
             let stringFy = JSON.stringify(model)
             let stringMod = stringFy.replace(',', ', \n')
-            // stringMod = stringMod.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"')
+            stringMod = stringMod.replace(pattern, '$1:')
+            stringMod = stringMod.replace(/,/g, ' ')
 
-            let fileWrite = "["+stringMod+"]"
+            let fileWrite = "export class "+ fileName + stringMod
 
-            await fs.writeFile('parses/json/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
+            await fs.writeFile('parses/model/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
                 if (err) {
                     return console.log(err);
                 }

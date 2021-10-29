@@ -1,2 +1,2 @@
-[{"talhao_id":"QrJsM", 
-"projeto_id":"eanW","cha_talhao_pla":220,"latitude":"WtHJiqOvaaysmALuQSdl","logitude":"6P29ZpL4D8avHfWkLili","area_talhao":313,"id_upc":309,"usuario":151,"dat_sinc_sistemas":"2021-10-27T22:33:53.855Z","dat_creac_item":"2021-10-27T22:33:53.855Z","dat_ultim_atualz":"2021-10-27T22:33:53.855Z","deletedat":"2021-10-27T22:33:53.855Z","cod_situa_registro":"o"}]
+[{"talhao_id":"HVrpL", 
+"projeto_id":"wDJG","cha_talhao_pla":856,"latitude":"xJy2yix2HWW0nUUvdAAV","logitude":"ks38voG2VZxcqwFzp755","area_talhao":360,"id_upc":974,"usuario":111,"dat_sinc_sistemas":"2021-10-29T00:12:20.969Z","dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"o"}]

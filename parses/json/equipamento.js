@@ -1,2 +1,2 @@
-[{"equipamento_id":951, 
-"desc_equipamento":"FmGEVKHe8JK2uwhKZhyi","letra_ident_eqpmt":"Sy","usuario":305,"dat_creac_item":"2021-10-27T22:33:53.852Z","dat_ultim_atualz":"2021-10-27T22:33:53.852Z","deletedat":"2021-10-27T22:33:53.852Z","cod_situa_registro":"E"}]
+[{"equipamento_id":416, 
+"desc_equipamento":"optYSbS5SkBo3YzxIjHe","letra_ident_eqpmt":"V6","usuario":843,"dat_creac_item":"2021-10-29T00:12:20.967Z","dat_ultim_atualz":"2021-10-29T00:12:20.967Z","deletedat":"2021-10-29T00:12:20.967Z","cod_situa_registro":"v"}]
