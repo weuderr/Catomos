@@ -1,6 +1,7 @@
 const fs = require('fs');
 
-const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/gftm/docs/json/';
+// const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/gftm/docs/json/';
+const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/cld/docs/json/';
 
 fs.readdir(readFolder, async (err, files) => {
     for (const file of files) {

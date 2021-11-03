@@ -1,2 +1,0 @@
-export class Mov_doc_dt{mov_doc_dt_id:string;  
-moc_doc_mt_id:string; talhao_id:string; endereco_img_talhao:number; usuario_id:string; dat_atualzacao:Date; tipo_documento:number; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

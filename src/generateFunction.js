@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require("path");
 
 // const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/gftm/docs/json/';
-const readFolder = '/home/weuder/Trabalho/Freelance/Tellurianstudio/aperam/cld/docs/json/';
+// const readFolder = '/home/weuder/Trabalho/Freelance/Tellurianstudio/aperam/cld/docs/json/';
+const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/cld/docs/json/';
 
 fs.readdir(readFolder, async (err, files) => {
     for (const file of files) {
@@ -33,23 +34,25 @@ function makeFunction(model, parseName, fileName) {
     let pattern = new RegExp(/_/g);
     let setValues = '';
     let modalFields = '';
-    let datatableFields;
+    let datatableFields = '';
+    let editValues;
     model.forEach(function (e) {
         setValues += `$$('ch_${e.Atributo}').setValue(val.data.${e.Atributo});\n`
+
         modalFields += `new WebixInput('${e.Atributo}', '${e.Atributo.replace(pattern, ' ')}', {required: true}, {
             id: 'ch_${e.Atributo}',
             width: 280
           }).getField(),\n`
-
         datatableFields += `{
         id: '${e.Atributo}',
-        editor: ${model[e.Tipo] === 'varchar' ? 'text' : e.Tipo === 'number' ? 'numeric' : 'date'},
+        editor: '${model[e.Tipo] === 'varchar' ? 'text' : e.Tipo === 'number' ? 'numeric' : 'date'}',
         header: ['${e.Atributo.replace(pattern, ' ')}}', {content: 'textFilter'}],
         fillspace: true,
         sort: '${model[e.Tipo] === 'numeric' ? 'int' : 'text'}'
       },\n`
-    });
+        editValues += `${e.Atributo}: $$('ch_${e.Atributo}').getValue(),\n`
 
+    });
     let funcDef = `async _${fileName}() {
     let $$ = this.$$;
     let webix = this.webix;
@@ -84,8 +87,7 @@ function makeFunction(model, parseName, fileName) {
       {
         view: 'button', value: 'Confirm', click: function (id) {
           let values = {
-            previous_name: $$('ch_previous_name').getValue(),
-            change_date: $$('ch_change_date').getValue(),
+            ${editValues}
             company_id: companyId,
             user: userId,
           }

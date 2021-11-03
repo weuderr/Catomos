@@ -1,2 +1,0 @@
-export class Equipamento{equipamento_id:string;  
-desc_equipamento:number; letra_ident_eqpmt:number; usuario:string; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}

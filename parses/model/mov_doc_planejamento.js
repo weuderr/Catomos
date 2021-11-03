@@ -1,2 +1,0 @@
-export class Mov_doc_planejamento{status_id:string;  
-tallhao_id:number; vol_lpc:string; data_planj_derrubada:Date; uper_id:string; mov_doc_mt_id:string; usuario:string; data_atualzacao:Date; restricao_id:string; restricao_outra:number; Combate_Formiga_pre_corte:number; dat_creac_item:Date; dat_ultim_atualz:Date; deletedat:Date; cod_situa_registro:number;}
