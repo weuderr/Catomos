@@ -1,2 +1,0 @@
-[{"id_solic_derrubada":591, 
-"data_solicitacao":"2021-10-29T00:12:20.969Z","tallhao_id":"GfNgO","id_doc_planejado":465,"dat_derrubada":"2021-10-29T00:12:20.969Z","status_id":665,"usuario":811,"restricao_id":284,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"Q"}]

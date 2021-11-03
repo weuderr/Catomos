@@ -1,2 +1,0 @@
-[{"pessoa_juridica_id":"uwVP", 
-"nome_projeto":"9zPDf82frDBiaZVSDLAZuTTQPapETWNKcc5akKhKuChwbiE6Oq","sigla":"oD1","cod_centro":"dfWm","usuario":887,"dat_sinc_sistemas":"2021-10-29T00:12:20.964Z","dat_creac_item":"2021-10-29T00:12:20.964Z","dat_ultim_atualz":"2021-10-29T00:12:20.964Z","deletedat":"2021-10-29T00:12:20.964Z","cod_situa_registro":"m"}]

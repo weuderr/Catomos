@@ -1,2 +1,0 @@
-[{"pla_doc_concluido_id":795, 
-"status_id":417,"projeto_id":"w8SC","mov_doc_mt_id":686,"talhao_id":187,"tipo_doc":"8PF","documento":"N3xZgwW0iYhGAPC0qtIYet6yHxf0kq","usuario":589,"dat_creac_item":"2021-10-29T00:12:20.968Z","dat_ultim_atualz":"2021-10-29T00:12:20.968Z","deletedat":"2021-10-29T00:12:20.968Z","cod_situa_registro":"l"}]

@@ -1,2 +1,0 @@
-[{"uper_id":535, 
-"projeto_id":"swRD","desc_upe":"uO4ZKp912ScWY8Zwf689d7naBGi5rGRtgBO8PbCmtbtV6qqGZeeifXalCQ89UeNxukHbsD85JDZthwDqMVMVUDJOzKsTR7QTDgDb","data_hora_sinc":"2021-10-29T00:12:20.969Z","usuario":442,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"R"}]

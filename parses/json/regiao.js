@@ -1,2 +1,0 @@
-[{"regiao_id":795, 
-"nome_regiao":"Zu7i5nKOrLNf1DOyCL69ODhPap8MaMPwTOFfJ5t3Wy1MW66idK","status":272,"usuario":365,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"W"}]

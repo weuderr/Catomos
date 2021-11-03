@@ -1,2 +1,0 @@
-[{"id":142, 
-"nome":"VkrbFc3FW889McyqJetj7RdutVpFNFpKkxssytSFTHzIs7XMiN","email":"T5YULT5GwiAMYpZTaxryQ5pPg2AV5McJ8gNxIybU0W8TjBI3BILpzJhVlk6rVdyW5x2Ivty7L5TkkOd07CA88OQmbRCwtnIXf0nZ","telefone":281,"talhao_id":784,"whatszap":143,"id_upc":993,"status_id":"3","id_perfil":83,"reset_senha":"2021-10-29T00:12:20.970Z","supervisor":440,"dat_creac_item":"2021-10-29T00:12:20.970Z","dat_ultim_atualz":"2021-10-29T00:12:20.970Z","deletedat":"2021-10-29T00:12:20.970Z","cod_situa_registro":"u"}]

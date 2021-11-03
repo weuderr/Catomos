@@ -1,2 +1,0 @@
-[{"mov_doc_mt_id":822, 
-"tipo_documento":"9PH","documento":"fdaqf0ooWSr0J6c3CHqRzfEmSjfXL7","dat_atualzacao":"2021-10-29T00:12:20.968Z","vol_carvao":488,"vol_madeira":831,"status_id":285,"regiao_id":866,"usuario_id":738,"fator_conversao":599,"dat_creac_item":"2021-10-29T00:12:20.968Z","dat_ultim_atualz":"2021-10-29T00:12:20.968Z","deletedat":"2021-10-29T00:12:20.968Z","cod_situa_registro":"g"}]

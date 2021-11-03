@@ -1,2 +1,0 @@
-[{"projeto_id":"Yb10", 
-"nome_projeto":"rMjBksDUdwc77T0vY118EwlTJnhJZoVVIH2mDRl5LO6S3jfmgP3RO2MfQw2Vag2OSAmj5wXkLpzHYxbaR6j15Emfrm1OnFIj4RDx","sigla":"0t8","cod_centro":618,"usuario":364,"dat_creac_item":"2021-10-29T00:12:20.968Z","dat_ultim_atualz":"2021-10-29T00:12:20.968Z","deletedat":"2021-10-29T00:12:20.968Z","cod_situa_registro":"q"}]

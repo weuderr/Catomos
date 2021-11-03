@@ -1,2 +1,0 @@
-[{"status_id":756, 
-"tallhao_id":"brgYR","vol_lpc":318,"data_planj_derrubada":"2021-10-29T00:12:20.968Z","uper_id":325,"mov_doc_mt_id":782,"usuario":63,"data_atualzacao":"2021-10-29T00:12:20.968Z","restricao_id":552,"restricao_outra":"i3RpMTi7DpBYpzpvqCV1pRqC8JLy8yQhXRpAUEerEWEkSz4sAh","Combate_Formiga_pre_corte":"7V1gzvNsaI3sbzJQ8T3wWlZr0IQVTGwIMfmgAyUgR3xsqg184q","dat_creac_item":"2021-10-29T00:12:20.968Z","dat_ultim_atualz":"2021-10-29T00:12:20.968Z","deletedat":"2021-10-29T00:12:20.968Z","cod_situa_registro":"7"}]
