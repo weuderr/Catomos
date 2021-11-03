@@ -1,6 +1,7 @@
 const fs = require('fs');
 
-const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/cld/docs/json/';
+// const readFolder = '/home/weuder/Trabalho/Freelancer/Thellurian/Aperam/gftm/docs/json/';
+const readFolder = '/home/weuder/Trabalho/Freelance/Tellurianstudio/aperam/gftm/docs/json/';
 
 fs.readdir(readFolder, async (err, files) => {
     for (const file of files) {
@@ -63,7 +64,7 @@ async function makeModel(file) {
             let stringMod = stringFy.replace(',', ', \n')
             // stringMod = stringMod.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"')
 
-            let fileWrite = "["+stringMod+"]"
+            let fileWrite = stringMod
 
             await fs.writeFile('parses/json/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
                 if (err) {
