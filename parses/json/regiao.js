@@ -1,2 +1,2 @@
-[{"regiao_id":795, 
-"nome_regiao":"Zu7i5nKOrLNf1DOyCL69ODhPap8MaMPwTOFfJ5t3Wy1MW66idK","status":272,"usuario":365,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"W"}]
+{"regiao_id":477, 
+"nome_regiao":"RnRQWBe6QKhSdfp8eAsiBWO5wZ9KHAdJaaabx8w19mhaOtqR4D","status":433,"usuario":899,"dat_creac_item":"2021-11-03T01:45:04.883Z","dat_ultim_atualz":"2021-11-03T01:45:04.883Z","deletedat":"2021-11-03T01:45:04.883Z","cod_situa_registro":"w"}

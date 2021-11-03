@@ -8,7 +8,7 @@
     "start": "node index.js",
     "startSimpleJson": "node src/simpleJsonRequest.js",
     "startModels": "node src/model.js",
-    "createRequest": "node src/makeRequest.js"
+    "createRequest": "node src/sendRequest.js"
   },
   "author": "weuder",
   "license": "MIT",

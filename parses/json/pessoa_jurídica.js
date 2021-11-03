@@ -1,2 +1,2 @@
-[{"pessoa_juridica_id":"uwVP", 
-"nome_projeto":"9zPDf82frDBiaZVSDLAZuTTQPapETWNKcc5akKhKuChwbiE6Oq","sigla":"oD1","cod_centro":"dfWm","usuario":887,"dat_sinc_sistemas":"2021-10-29T00:12:20.964Z","dat_creac_item":"2021-10-29T00:12:20.964Z","dat_ultim_atualz":"2021-10-29T00:12:20.964Z","deletedat":"2021-10-29T00:12:20.964Z","cod_situa_registro":"m"}]
+{"pessoa_juridica_id":"X0xw", 
+"nome_projeto":"leTYeDNsNOgpiaSteST8aljeXzSDxQMAPMK8ozqPJuo2O0RmAf","sigla":"cwx","cod_centro":"YlNI","usuario":388,"dat_sinc_sistemas":"2021-11-03T01:45:04.891Z","dat_creac_item":"2021-11-03T01:45:04.891Z","dat_ultim_atualz":"2021-11-03T01:45:04.892Z","deletedat":"2021-11-03T01:45:04.892Z","cod_situa_registro":"V"}

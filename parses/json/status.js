@@ -1,2 +1,2 @@
-[{"id":211, 
-"status":"h","usuario":917,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"0"}]
+{"id":400, 
+"status":"u","usuario":220,"dat_creac_item":"2021-11-03T01:45:04.888Z","dat_ultim_atualz":"2021-11-03T01:45:04.888Z","deletedat":"2021-11-03T01:45:04.888Z","cod_situa_registro":"k"}

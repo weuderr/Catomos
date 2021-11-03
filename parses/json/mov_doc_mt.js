@@ -1,2 +1,2 @@
-[{"mov_doc_mt_id":822, 
-"tipo_documento":"9PH","documento":"fdaqf0ooWSr0J6c3CHqRzfEmSjfXL7","dat_atualzacao":"2021-10-29T00:12:20.968Z","vol_carvao":488,"vol_madeira":831,"status_id":285,"regiao_id":866,"usuario_id":738,"fator_conversao":599,"dat_creac_item":"2021-10-29T00:12:20.968Z","dat_ultim_atualz":"2021-10-29T00:12:20.968Z","deletedat":"2021-10-29T00:12:20.968Z","cod_situa_registro":"g"}]
+{"mov_doc_mt_id":639, 
+"tipo_documento":"FCL","documento":"XwpnbBa8l8hIi9dmsQLSMu4ldnF1yZ","dat_atualzacao":"2021-11-03T01:45:04.883Z","vol_carvao":566,"vol_madeira":248,"status_id":745,"regiao_id":833,"usuario_id":759,"fator_conversao":755,"dat_creac_item":"2021-11-03T01:45:04.883Z","dat_ultim_atualz":"2021-11-03T01:45:04.883Z","deletedat":"2021-11-03T01:45:04.883Z","cod_situa_registro":"W"}

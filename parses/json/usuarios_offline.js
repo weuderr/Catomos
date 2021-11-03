@@ -1,2 +1,2 @@
-[{"id":142, 
-"nome":"VkrbFc3FW889McyqJetj7RdutVpFNFpKkxssytSFTHzIs7XMiN","email":"T5YULT5GwiAMYpZTaxryQ5pPg2AV5McJ8gNxIybU0W8TjBI3BILpzJhVlk6rVdyW5x2Ivty7L5TkkOd07CA88OQmbRCwtnIXf0nZ","telefone":281,"talhao_id":784,"whatszap":143,"id_upc":993,"status_id":"3","id_perfil":83,"reset_senha":"2021-10-29T00:12:20.970Z","supervisor":440,"dat_creac_item":"2021-10-29T00:12:20.970Z","dat_ultim_atualz":"2021-10-29T00:12:20.970Z","deletedat":"2021-10-29T00:12:20.970Z","cod_situa_registro":"u"}]
+{"id":444, 
+"nome":"0p3J5PcaKSiQPjnhinLvcNMJqvYr9AFpLByl5yufssuHDGeBCB","email":"174pCpArlRf4rGxlb4PKMvWsfRLR7OPtr38c0cCRmp5eMmJjd5mas5fTxZbH6ZDxpB5ETZAkbwmwo9FkVBS8Ys2q3tK7hWq5WKQu","telefone":733,"talhao_id":862,"whatszap":216,"id_upc":565,"status_id":"8","id_perfil":84,"reset_senha":"2021-11-03T01:45:04.891Z","supervisor":322,"dat_creac_item":"2021-11-03T01:45:04.891Z","dat_ultim_atualz":"2021-11-03T01:45:04.891Z","deletedat":"2021-11-03T01:45:04.891Z","cod_situa_registro":"e"}

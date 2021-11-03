@@ -1,2 +1,2 @@
-[{"id_solic_derrubada":591, 
-"data_solicitacao":"2021-10-29T00:12:20.969Z","tallhao_id":"GfNgO","id_doc_planejado":465,"dat_derrubada":"2021-10-29T00:12:20.969Z","status_id":665,"usuario":811,"restricao_id":284,"dat_creac_item":"2021-10-29T00:12:20.969Z","dat_ultim_atualz":"2021-10-29T00:12:20.969Z","deletedat":"2021-10-29T00:12:20.969Z","cod_situa_registro":"Q"}]
+{"id_solic_derrubada":469, 
+"data_solicitacao":"2021-11-03T01:45:04.886Z","tallhao_id":"F1HWy","id_doc_planejado":838,"dat_derrubada":"2021-11-03T01:45:04.886Z","status_id":88,"usuario":323,"restricao_id":836,"dat_creac_item":"2021-11-03T01:45:04.886Z","dat_ultim_atualz":"2021-11-03T01:45:04.886Z","deletedat":"2021-11-03T01:45:04.886Z","cod_situa_registro":"Z"}

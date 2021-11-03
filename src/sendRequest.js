@@ -21,13 +21,9 @@ async function generateNewFiles() {
 
 async function sendRequest() {
     await generateNewFiles();
-    let urlFileRead = path.resolve(__dirname, '../parses/json/descarregamento.js')
+    let urlFileRead = path.resolve(__dirname, '../parses/json/sol_transporte.js')
     await fs.readFile(urlFileRead, 'utf8', async function (err, data) {
-        let url = 'http://localhost:4003/api/descarregamento'
-        // let values = []
-        // JSON.parse(data).forEach(function (e) {
-        //     values.push(e)
-        // });
+        let url = 'http://localhost:4003/api/solicitacaotransporte'
 
         await request.post({
                 url,
@@ -38,16 +34,6 @@ async function sendRequest() {
                 }
             }
         );
-        //
-        // await request.post(
-        //     url,
-        //     {body: values}
-        //     , function (error, response, body) {
-        //         if (!error && response.statusCode === 200) {
-        //             console.log(body);
-        //         }
-        //     }
-        // );
     });
 }
 
