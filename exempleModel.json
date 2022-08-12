@@ -1,0 +1,26 @@
+[
+  {
+    "Atributo": "cod_carregamento",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descrição": "Código do carregamento",
+    "Obrigatoriedade": "sim",
+    "Observações": "primary key"
+  },
+  {
+    "Atributo": "tipo_documento",
+    "Tipo": "varchar",
+    "Tamanho": 50,
+    "Descrição": "Tipo de documento",
+    "Obrigatoriedade": "sim",
+    "Observações": ""
+  },
+  {
+    "Atributo": "dth_carregamento",
+    "Tipo": "date",
+    "Tamanho": "",
+    "Descrição": "Designation Date",
+    "Obrigatoriedade": "sim",
+    "Observações": "yyyy-mm-dd hh:mm:ss"
+  }
+]
