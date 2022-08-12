@@ -96,7 +96,8 @@ function ensureDirectoryExistence(filePath) {
         return true;
     }
     fs.mkdirSync(filePath);
-    fs.mkdirSync(filePath+'/validates');
+    if(filePath.includes('models'))
+        fs.mkdirSync(filePath+'/validates');
 }
 
 async function makeModel(name, parseName) {
@@ -634,10 +635,35 @@ export default (req, res, next) => {
     });
 }
 
-async function makeFileService(file) {
+async function makeFileService(fileName, parseName) {
+    const structure = () => {
+        return `import {Injectable} from '@angular/core';
+import {SarcService} from '../sarc-service/sarc-api.service';
+import {HttpClient} from '@angular/common/http';
 
+@Injectable({
+  providedIn: 'root'
+})
+export class ${parseName}Service extends SarcService<\any> {
+  constructor(http: HttpClient) {
+    super('api/${parseName}', http)
+  }
+}
+`;
+    }
+
+    let fileWrite = structure()
+
+    let nameOfPath = 'docs/final/front/service/'+ fileName +'_service/'
+    ensureDirectoryExistence(nameOfPath);
+    await fs.writeFile(nameOfPath + parseName + 'Service.js', fileWrite, {flag: 'w'}, function (err) {
+        if (err) {
+            return console.log(err);
+        }
+        console.log("Saved api: ", parseName + ".js");
+    });
 }
 
-async function makeFileFront(file) {
+async function makeFileFront(fileName, parseName) {
 
 }
