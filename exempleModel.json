@@ -2,7 +2,7 @@
   {
     "Atributo": "cod_carregamento",
     "Tipo": "number",
-    "Tamanho": 15,
+    "Tamanho": 0,
     "Descrição": "Código do carregamento",
     "Obrigatoriedade": "sim",
     "Observações": "primary key"
