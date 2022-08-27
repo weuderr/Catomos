@@ -680,6 +680,7 @@ export default (req, res, next) => {
             modelCreate['unit'] = "Joi.string().min(1).max(150).required()";
             modelCreate['user'] = "Joi.string().min(1).max(150).required()";
 
+            modelUpdate['situation'] = "Joi.string().optional()";
             modelUpdate['unit'] = "Joi.string().min(1).max(150).optional()";
             modelUpdate['user'] = "Joi.string().min(1).max(150).required()";
 
@@ -807,7 +808,7 @@ async function makeFileFront(fileName, parseName) {
             });
             if (doFile) {
                 const nameFileFront = fileName.replace('_', '-').toLocaleString();
-                const structure = (inputs, datatable, form, select) => {
+                const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable) => {
                     return `import { Component } from '@angular/core';
 import { MessageService } from '../../../services/message/message.service';
 import { WebixInput } from 'src/app/classes/webix.input';
@@ -827,6 +828,10 @@ import * as moment from 'moment';
 import { AtivoInativoFilter } from '../../enum/AtivoInativo';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 import { I18nService } from 'src/app/services/i18n/i18n.service';
+import {WebixSelect} from 'src/app/classes/webix.select';
+import {WebixSuggest} from "../../../classes/webix.suggest";
+import {WebixInputDate} from "../../../classes/webix.inputDate";
+${importService}
 
 @Component({
   selector: 'app-${nameFileFront}',
@@ -840,6 +845,7 @@ export class ${parseName}Component {
   webixUi: any;
   webix: any;
   $$: any;
+  ${declareVariable}
 
   /*
     Esse array faz a busca nas informações que estão no banco, é o mesmo select que se faz na tabela
@@ -938,13 +944,15 @@ export class ${parseName}Component {
 
   constructor(
     private _webixService: WebixService,
-    private _service: ${parseName}Service,
     private _profileService: ProfileService,
     private _i18nService: I18nService,
     private _googleSheetsService: GoogleSheetsService,
     private _querysBuilderService: QuerysBuilderService,
     private _localStorageService: LocalStorageService,
-    private _messageService: MessageService) {
+    private _messageService: MessageService,
+    private _service: ${parseName}Service,
+    ${importConstructor}
+    ) {
     this.init()
   }
 
@@ -1012,6 +1020,7 @@ export class ${parseName}Component {
         ]
       });
       await this._loadData();
+      await this.loadSuggests();
     })
   }
 
@@ -1041,6 +1050,8 @@ export class ${parseName}Component {
     loadingHide();
     this.subscribeEvents();
   }
+  
+  ${setLoadSuggest}
 
   subscribeEvents() {
     this.$$(this.datatable.getId()).attachEvent("onAfterSelect", (elem) => {
@@ -1114,6 +1125,7 @@ export class ${parseName}Component {
     const isValid = form.validate();
 
     if (isValid) {
+      ${resgateSuggestToSave}
       if (values.id > 0) {
         this._update(values);
       } else {
@@ -1312,6 +1324,11 @@ export class ${parseName}Component {
                 let cont = 0;
                 let close = true
                 let select = '';
+                let loadSuggest =""
+                let importConstructor =""
+                let importService = ""
+                let declareVariable = ""
+                let resgateSuggestToSave = ""
                 fields.forEach(function (field, index) {
 
                     const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
@@ -1336,8 +1353,35 @@ export class ${parseName}Component {
                             inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
                         } else if(field['Tipo'] === 'enum'){
                             inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${nameHeader}'), [${field['Observacoes'].split(',')}],{ required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-                        } else if(field['Tipo'] === 'number' && field['Observacoes'] === 'foring key'){
-                                inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+                        } else if(field['Observacoes'] === 'foreign key'){
+                            inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+                            const nameService = field['Tabela'].replace(' ', '')
+                            importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
+                            //Replace up letter for same letter lower and underscore not can start with underscore
+                            const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '_$1').toLowerCase();
+                            importService += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}_service/${nameService}Service';\n`;
+                            declareVariable += `${nameAttribute}Data: any = [];\n`;
+                            resgateSuggestToSave += `this.suggestValues.${nameAttribute}Id ? values.${nameAttribute}Id = this.suggestValues.${nameAttribute}Id : null;\n`;
+                            //    Suggest
+                            loadSuggest += `
+                                    //Start load ${nameService}
+                                    let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
+                                    if (${nameService}Resp.data.length > 0) {
+                                        // this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
+                                        //     return {
+                                        //         id: ${nameService}.id,
+                                        //         value: ${nameService}.description
+                                        //     };
+                                        // });
+                                        this.${nameAttribute}Data = ${nameService}Resp.data;
+                                        await this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
+                                            onValueSuggest: (item) => {
+                                                this.suggestValues.${nameAttribute}Id = item.id;
+                                            },
+                                        });
+                                    }
+                                    //End load ${nameService}
+                                    `
                         } else {
                             inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
                         }
@@ -1349,12 +1393,19 @@ export class ${parseName}Component {
                         form += `] },\n`;
                     }
 
+
                 }.bind(this));
                 if (!close) {
                     form += `] },\n`;
                 }
                 inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
-                let fileWrite = structure(inputs, datatable, form, select)
+                declareVariable += `suggestValues: any;\n`;
+                const setLoadSuggest = `async loadSuggests() {
+                    const simpleWhere = "where="+JSON.stringify({situation: 'A'});\n
+                    ${loadSuggest}\n
+                    loadingHide();\n
+                }`
+                let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, importService,declareVariable, resgateSuggestToSave)
 
                 let nameOfPath = 'docs/final/front/tables/' + nameFileFront + '/'
                 ensureDirectoryExistence(nameOfPath);
