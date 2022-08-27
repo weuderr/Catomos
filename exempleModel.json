@@ -9,7 +9,7 @@
   },
   {
     "Atributo": "tipo_documento",
-    "Tipo": "varchar",
+    "Tipo": "number",
     "Tamanho": 50,
     "Descrição": "Tipo de documento",
     "Obrigatoriedade": "sim",

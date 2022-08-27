@@ -16,6 +16,8 @@ fs.readdir(readFolder, async (err, files) => {
                 await makeInterfaceDatabase(fileName, parseName);
                 await makeValidates(fileName, parseName);
                 await makeModelFront(fileName, parseName);
+                let nameOfPath = 'docs/final/front/services';
+                ensureDirectoryExistence(nameOfPath);
                 await makeFileService(fileName, parseName);
                 await makeFileFront(fileName, parseName);
             }
@@ -71,6 +73,32 @@ function fieldsForModel(e) {
     return model
 }
 
+function castValues(parseNameArray) {
+    return parseNameArray.map(value => {
+        value = value.toLowerCase();
+        switch (value) {
+            case 'dat':
+                value = "data";
+                break;
+            case 'sta':
+                value = "status";
+                break;
+            case 'aplic':
+                value = "aplicação";
+                break;
+            case 'desc':
+                value = "descricao";
+                break;
+            case 'cod':
+                value = "codigo"
+                break;
+            case 'qtd':
+                value = "quantidade"
+        }
+        return value
+    });
+}
+
 function upAllFistLetter(parseName) {
     if(!parseName) return '';
     // camelCase in all first letters of the string after space or underline
@@ -93,11 +121,31 @@ function upLetter(parseName) {
     if(!(parseNameArray.length > 1)) {
         parseNameArray = parseName.split('_');
     }
+
     for (let i = 0; i < parseNameArray.length; i++) {
         newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
     }
 
     return newParseName.charAt(0).toLowerCase() + newParseName.slice(1);
+}
+
+function upSpaceLetter(parseName) {
+    if(!parseName) return '';
+    // camelCase in all first letters of the string after space or underline
+    let newParseName = '';
+    let parseNameArray = parseName.split(' ');
+    if(!(parseNameArray.length > 1)) {
+        parseNameArray = parseName.split('_');
+    }
+    parseNameArray = castValues(parseNameArray);
+    for (let i = 0; i < parseNameArray.length; i++) {
+        if(i+1 < parseNameArray.length )
+            newParseName += parseNameArray[i]+" ";
+        else
+            newParseName += parseNameArray[i];
+    }
+
+    return newParseName.charAt(0).toUpperCase() + newParseName.slice(1);
 }
 
 function ensureDirectoryExistence(filePath) {
@@ -720,14 +768,14 @@ async function makeFileService(fileName, parseName) {
                     return `import {Injectable} from '@angular/core';
 import {SarcService} from '../sarc-service/sarc-api.service';
 import {HttpClient} from '@angular/common/http';
-import {${parseName}} from '../../models/${fileName}';;
+import {${parseName}} from '../../models/${fileName.replace(/_/g, "-")}';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ${parseName}Service extends SarcService< ${parseName} > {
   constructor(http: HttpClient) {
-    super('${parseName.toLocaleLowerCase()}', http)
+    super('api/${parseName.toLocaleLowerCase()}', http)
   }
 }
 `;
@@ -735,7 +783,7 @@ export class ${parseName}Service extends SarcService< ${parseName} > {
 
                 let fileWrite = structure()
 
-                let nameOfPath = 'docs/final/front/service/' + fileName + '_service/'
+                let nameOfPath = 'docs/final/front/services/' + fileName + '_service/'
                 ensureDirectoryExistence(nameOfPath);
                 await fs.writeFile(nameOfPath + parseName + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
                     if (err) {
@@ -766,8 +814,8 @@ import { WebixInput } from 'src/app/classes/webix.input';
 import { WebixToolbar } from 'src/app/classes/webix.toolbar';
 import { WebixSelect } from 'src/app/classes/webix.select';
 import { WebixDatatable } from 'src/app/classes/webix.datatable';
-import { ${parseName}Service } from '../../services/${fileName}/${parseName}Service';
-import { QuerysBuilderService } from '../../services/querys-builder/querys-builder.service';
+import { ${parseName}Service } from '../../services/${fileName}_service/${parseName}Service';
+import { QuerysBuilderService } from '../../../services/querys-builder/querys-builder.service';
 import { WebixService } from '../../../services/webix/webix.service';
 import { WebixPaginate } from 'src/app/classes/webix.paginate';
 import { WebixVideo } from 'src/app/classes/webix.video';
@@ -1066,7 +1114,6 @@ export class ${parseName}Component {
     const isValid = form.validate();
 
     if (isValid) {
-
       if (values.id > 0) {
         this._update(values);
       } else {
@@ -1269,6 +1316,7 @@ export class ${parseName}Component {
 
                     const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
                     const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
+                    const nameHeader = upSpaceLetter(field['Atributo']);
                     select += ` '${nameAttribute}',`
                     if (cont++ === 0) {
                         close = false
@@ -1276,18 +1324,30 @@ export class ${parseName}Component {
                     }
                     if (index === 0) {
                         form += `this.inputId.getField(),\n`;
-                        inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${nameAttributeAllUp}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao']}') });\n`;
+                        //regex to remove break lines
+                        // const parten = /\n/g;
+                        datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: false, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
+                        inputs += `    inputId = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
                     } else {
-                        form += `this.input${nameAttributeAllUp}.getField(),\n`;
-                        inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${nameAttributeAllUp}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao']}') });\n`;
+                        form += `    this.input${nameAttributeAllUp}.getField(),\n`;
+                        datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
+
+                        if(field['Tipo'] === 'date'){
+                            inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+                        } else if(field['Tipo'] === 'enum'){
+                            inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${nameHeader}'), [${field['Observacoes'].split(',')}],{ required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+                        } else if(field['Tipo'] === 'number' && field['Observacoes'] === 'foring key'){
+                                inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+                        } else {
+                            inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+                        }
+
                     }
                     if (cont === 3) {
                         close = true
                         cont = 0;
                         form += `] },\n`;
                     }
-                    datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameAttributeAllUp}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
-
 
                 }.bind(this));
                 if (!close) {
