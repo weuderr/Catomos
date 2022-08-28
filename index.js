@@ -4,253 +4,252 @@ const path = require("path");
 const readFolder = 'docs/cast/';
 
 fs.readdir(readFolder, async (err, files) => {
-    if(files)
-        for (const file of files) {
-            if (file) {
-                const name = file.replace('.json', '');
-                let fileName = name.replace(' ', '_').toLowerCase(); //name of file without extension
-                let parseName = upAllFistLetter(name); // name if camelCase
+  if (files)
+    for (const file of files) {
+      if (file) {
+        const name = file.replace('.json', '');
+        let fileName = name.replace(' ', '_').toLowerCase(); //name of file without extension
+        let parseName = upAllFistLetter(name); // name if camelCase
 
-                await makeModel(fileName, parseName);
-                await makeEndPoint(fileName, parseName);
-                await makeInterfaceDatabase(fileName, parseName);
-                await makeValidates(fileName, parseName);
-                await makeModelFront(fileName, parseName);
-                let nameOfPath = 'docs/final/front/services';
-                ensureDirectoryExistence(nameOfPath);
-                await makeFileService(fileName, parseName);
-                await makeFileFront(fileName, parseName);
-            }
-        }
-    else {
-        console.log("########## INSIRA UM ARQUIVO ###########")
+        await makeModel(fileName, parseName);
+        await makeEndPoint(fileName, parseName);
+        await makeInterfaceDatabase(fileName, parseName);
+        await makeValidates(fileName, parseName);
+        await makeModelFront(fileName, parseName);
+        let nameOfPath = 'docs/final/front/services';
+        ensureDirectoryExistence(nameOfPath);
+        await makeFileService(fileName, parseName);
+        await makeFileFront(fileName, parseName);
+      }
     }
+  else {
+    console.log("########## INSIRA UM ARQUIVO ###########")
+  }
 });
 
 function getType(e) {
-    let type = '';
-    switch (e['Tipo']) {
-        case 'enum' :
-            type = `DataTypes.ENUM(${e['Observacoes']})`;
-            break;
-        case 'numeric' :
-            type = 'DataTypes.INTEGER';
-            break;
-        case 'number' :
-            type = 'DataTypes.INTEGER';
-            break;
-        case ('varchar' || 'string') :
-            type = 'DataTypes.STRING(' + e['Tamanho'] + ')';
-            break;
-        case 'date' :
-            if( !e['Observacoes'] || e['Observacoes'].length >= 16)
-                type =  'DataTypes.DATE';
-            else
-                type =  'DataTypes.DATEONLY';
-            break;
-    }
-    return type;
+  let type = '';
+  switch (e['Tipo']) {
+    case 'enum' :
+      type = `DataTypes.ENUM(${e['Observacoes']})`;
+      break;
+    case 'numeric' :
+      type = 'DataTypes.INTEGER';
+      break;
+    case 'number' :
+      type = 'DataTypes.INTEGER';
+      break;
+    case ('varchar' || 'string') :
+      type = 'DataTypes.STRING(' + e['Tamanho'] + ')';
+      break;
+    case 'date' :
+      if (!e['Observacoes'] || e['Observacoes'].length >= 16)
+        type = 'DataTypes.DATE';
+      else
+        type = 'DataTypes.DATEONLY';
+      break;
+  }
+  return type;
 }
 
 function fieldsForModel(e) {
-    let model = {}
-    model.field = e['Atributo']
+  let model = {}
+  model.field = e['Atributo']
 
-    e['Descricao'] !== "" ? model.comment = e['Descricao'] : '';
-    model.type = getType(e)
+  e['Descricao'] !== "" ? model.comment = e['Descricao'] : '';
+  model.type = getType(e)
 
-    if (e['Observacoes'] === 'primary key')
-    {
-        model.allowNull = false
-        model.required = true
-        model.autoIncrement= !(e['Tipo'] === 'varchar')
-        model.primaryKey= true
-        model.unique= true
-    } else {
-        model.allowNull = e['Obrigatoriedade'] !== 'sim'
-        model.required = e['Obrigatoriedade'] === 'sim'
-    }
-    return model
+  if (e['Observacoes'] === 'primary key') {
+    model.allowNull = false
+    model.required = true
+    model.autoIncrement = !(e['Tipo'] === 'varchar')
+    model.primaryKey = true
+    model.unique = true
+  } else {
+    model.allowNull = e['Obrigatoriedade'] !== 'sim'
+    model.required = e['Obrigatoriedade'] === 'sim'
+  }
+  return model
 }
 
 function castValues(parseNameArray) {
-    return parseNameArray.map(value => {
-        value = value.toLowerCase();
-        switch (value) {
-            case 'dat':
-                value = "data";
-                break;
-            case 'sta':
-                value = "status";
-                break;
-            case 'aplic':
-                value = "aplicação";
-                break;
-            case 'desc':
-                value = "descricao";
-                break;
-            case 'cod':
-                value = "codigo"
-                break;
-            case 'qtd':
-                value = "quantidade"
-        }
-        return value
-    });
+  return parseNameArray.map(value => {
+    value = value.toLowerCase();
+    switch (value) {
+      case 'dat':
+        value = "data";
+        break;
+      case 'sta':
+        value = "status";
+        break;
+      case 'aplic':
+        value = "aplicação";
+        break;
+      case 'desc':
+        value = "descricao";
+        break;
+      case 'cod':
+        value = "codigo"
+        break;
+      case 'qtd':
+        value = "quantidade"
+    }
+    return value
+  });
 }
 
 function upAllFistLetter(parseName) {
-    if(!parseName) return '';
-    // camelCase in all first letters of the string after space or underline
-    let newParseName = '';
-    let parseNameArray = parseName.split(' ');
-    if(!(parseNameArray.length > 1)) {
-        parseNameArray = parseName.split('_');
-    }
-    for (let i = 0; i < parseNameArray.length; i++) {
-        newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
-    }
-    return newParseName;
+  if (!parseName) return '';
+  // camelCase in all first letters of the string after space or underline
+  let newParseName = '';
+  let parseNameArray = parseName.split(' ');
+  if (!(parseNameArray.length > 1)) {
+    parseNameArray = parseName.split('_');
+  }
+  for (let i = 0; i < parseNameArray.length; i++) {
+    newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
+  }
+  return newParseName;
 }
 
 function upLetter(parseName) {
-    if(!parseName) return '';
-    // camelCase in all first letters of the string after space or underline
-    let newParseName = '';
-    let parseNameArray = parseName.split(' ');
-    if(!(parseNameArray.length > 1)) {
-        parseNameArray = parseName.split('_');
-    }
+  if (!parseName) return '';
+  // camelCase in all first letters of the string after space or underline
+  let newParseName = '';
+  let parseNameArray = parseName.split(' ');
+  if (!(parseNameArray.length > 1)) {
+    parseNameArray = parseName.split('_');
+  }
 
-    for (let i = 0; i < parseNameArray.length; i++) {
-        newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
-    }
+  for (let i = 0; i < parseNameArray.length; i++) {
+    newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
+  }
 
-    return newParseName.charAt(0).toLowerCase() + newParseName.slice(1);
+  return newParseName.charAt(0).toLowerCase() + newParseName.slice(1);
 }
 
 function upSpaceLetter(parseName) {
-    if(!parseName) return '';
-    // camelCase in all first letters of the string after space or underline
-    let newParseName = '';
-    let parseNameArray = parseName.split(' ');
-    if(!(parseNameArray.length > 1)) {
-        parseNameArray = parseName.split('_');
-    }
-    parseNameArray = castValues(parseNameArray);
-    for (let i = 0; i < parseNameArray.length; i++) {
-        if(i+1 < parseNameArray.length )
-            newParseName += parseNameArray[i]+" ";
-        else
-            newParseName += parseNameArray[i];
-    }
+  if (!parseName) return '';
+  // camelCase in all first letters of the string after space or underline
+  let newParseName = '';
+  let parseNameArray = parseName.split(' ');
+  if (!(parseNameArray.length > 1)) {
+    parseNameArray = parseName.split('_');
+  }
+  parseNameArray = castValues(parseNameArray);
+  for (let i = 0; i < parseNameArray.length; i++) {
+    if (i + 1 < parseNameArray.length)
+      newParseName += parseNameArray[i] + " ";
+    else
+      newParseName += parseNameArray[i];
+  }
 
-    return newParseName.charAt(0).toUpperCase() + newParseName.slice(1);
+  return newParseName.charAt(0).toUpperCase() + newParseName.slice(1);
 }
 
 function ensureDirectoryExistence(filePath) {
-    if (fs.existsSync(filePath)) {
-        return true;
-    }
-    fs.mkdirSync(filePath);
-    if(filePath.includes('models'))
-        fs.mkdirSync(filePath+'/validates');
+  if (fs.existsSync(filePath)) {
+    return true;
+  }
+  fs.mkdirSync(filePath);
+  if (filePath.includes('models'))
+    fs.mkdirSync(filePath + '/validates');
 }
 
 async function makeModel(fileName, parseName) {
-    await fs.readFile(readFolder + fileName +'.json', 'utf8', async function (err, data) {
+  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
 
-        function structureUp() {
-            return "import ApiConfig from '../../config/api.conf';\n" +
-                "import { BasicFields } from '../fields/postgres/basicFields';\n" +
-                "\n" +
-                "const "+parseName+" = (sequelize, DataTypes) => {\n" +
-                "\n" +
-                "    const basicFields = new BasicFields(DataTypes);\n" +
-                "\n" +
-                "    // Define environment object\n" +
-                "    const config = new ApiConfig();\n" +
-                "    const environment = config.getEnv();\n" +
-                "    let schema = environment.databases.postgres.schema;\n" +
-                "\n" +
-                "    const model = sequelize.define('" + parseName + "',";
+    function structureUp() {
+      return "import ApiConfig from '../../config/api.conf';\n" +
+        "import { BasicFields } from '../fields/postgres/basicFields';\n" +
+        "\n" +
+        "const " + parseName + " = (sequelize, DataTypes) => {\n" +
+        "\n" +
+        "    const basicFields = new BasicFields(DataTypes);\n" +
+        "\n" +
+        "    // Define environment object\n" +
+        "    const config = new ApiConfig();\n" +
+        "    const environment = config.getEnv();\n" +
+        "    let schema = environment.databases.postgres.schema;\n" +
+        "\n" +
+        "    const model = sequelize.define('" + parseName + "',";
+    }
+
+    function structureMiddle() {
+      return "     {\n" +
+        "            paranoid: true,\n" +
+        "            freezeTableName: true,\n" +
+        "            tableName: '" + fileName + "'\n" +
+        "        }).schema(schema);\n" +
+        "\n" +
+        "    model.associate = (models) => {\n";
+    }
+
+    function structureDown() {
+      return "   \n" +
+        "    };\n" +
+        "\n" +
+        "    return model;\n" +
+        "\n" +
+        "};\n" +
+        "\n" +
+        "module.exports = " + parseName + ";";
+    }
+
+    if (data) {
+      let fields = JSON.parse(data)
+      structureUp = structureUp()
+      structureDown = structureDown()
+      structureMiddle = structureMiddle()
+      let model = {};
+      let foreignKey = '';
+
+      fields.forEach(function (field, index) {
+
+        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+        model[nameAttribute] = fieldsForModel(field);
+
+        if (field['Observacoes'] === 'foreign key') {
+          // foreignKey += `model.hasMany( models.${upLetter(nameAttribute.replace('Id',''))}, { foreignKey: \'${nameAttribute}\' });`
+          foreignKey += `model.belongsTo( models.${field['Tabela']}, { foreignKey: \'${upLetter(nameAttribute)}\' } );`
+
+          //TODO Buscar refrencia em todas as outra tabelas, para encontrar a chave estrangeira Hasmany
         }
 
-        function structureMiddle() {
-            return "     {\n" +
-                "            paranoid: true,\n" +
-                "            freezeTableName: true,\n" +
-                "            tableName: '"+fileName+"'\n" +
-                "        }).schema(schema);\n" +
-                "\n" +
-                "    model.associate = (models) => {\n";
+      });
+      model['unit'] = 'basicFields.setFieldUnit()';
+      model['user'] = 'basicFields.setFieldUser()';
+      model['situation'] = 'basicFields.setFieldSituation()';
+      model['createdAt'] = 'basicFields.setFieldCreatedAt()';
+      model['updatedAt'] = 'basicFields.setFieldUpdatedAt()';
+      model['deletedAt'] = 'basicFields.setFieldDeletedAt()';
+
+      let pattern = new RegExp(/"([^"]+)":/g);
+      let stringFy = JSON.stringify(model);
+      //remove " with regex of all name fields
+      let stringMod = stringFy.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"').replace(',', ',\n');
+      //remove double quotes before beginning of phrase DataTypes and end of the same phrase
+      stringMod = stringMod.replace(/\"DataTypes/g, 'DataTypes').replace(/\",allowNull/g, ',allowNull');
+      stringMod = stringMod.replace(/\"basicFields/g, 'basicFields').replace(/\(\)\"/g, '()');
+
+
+      let fileWrite = structureUp + stringMod + ',' + structureMiddle + foreignKey + structureDown
+
+      await fs.writeFile('docs/final/models/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
         }
+        console.log("Saved " + fileName + ".js");
+      });
+    }
 
-        function structureDown() {
-            return "   \n" +
-                "    };\n" +
-                "\n" +
-                "    return model;\n" +
-                "\n" +
-                "};\n" +
-                "\n" +
-                "module.exports = "+parseName+";";
-        }
-
-        if (data) {
-            let fields = JSON.parse(data)
-            structureUp = structureUp()
-            structureDown = structureDown()
-            structureMiddle = structureMiddle()
-            let model = {};
-            let foreignKey = '';
-
-            fields.forEach( function (field, index) {
-
-                const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-                model[nameAttribute] = fieldsForModel(field);
-
-                if (field['Observacoes'] === 'foreign key') {
-                    // foreignKey += `model.hasMany( models.${upLetter(nameAttribute.replace('Id',''))}, { foreignKey: \'${nameAttribute}\' });`
-                    foreignKey += `model.belongsTo( models.${field['Tabela']}, { foreignKey: \'${upLetter(nameAttribute)}\' } );`
-
-                    //TODO Buscar refrencia em todas as outra tabelas, para encontrar a chave estrangeira Hasmany
-                }
-
-            });
-            model['unit'] = 'basicFields.setFieldUnit()';
-            model['user'] = 'basicFields.setFieldUser()';
-            model['situation'] = 'basicFields.setFieldSituation()';
-            model['createdAt'] = 'basicFields.setFieldCreatedAt()';
-            model['updatedAt'] = 'basicFields.setFieldUpdatedAt()';
-            model['deletedAt'] = 'basicFields.setFieldDeletedAt()';
-
-            let pattern = new RegExp(/"([^"]+)":/g);
-            let stringFy = JSON.stringify(model);
-            //remove " with regex of all name fields
-            let stringMod = stringFy.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"').replace(',', ',\n');
-            //remove double quotes before beginning of phrase DataTypes and end of the same phrase
-            stringMod = stringMod.replace(/\"DataTypes/g, 'DataTypes').replace(/\",allowNull/g, ',allowNull');
-            stringMod = stringMod.replace(/\"basicFields/g, 'basicFields').replace(/\(\)\"/g, '()');
-
-
-            let fileWrite = structureUp + stringMod +','+ structureMiddle + foreignKey + structureDown
-
-            await fs.writeFile('docs/final/models/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
-                if (err) {
-                    return console.log(err);
-                }
-                console.log("Saved "+fileName + ".js");
-            });
-        }
-
-    });
-    // console.log('Make finish file: '+ file)
+  });
+  // console.log('Make finish file: '+ file)
 }
 
 async function makeEndPoint(fileName, parseName) {
-    function structure() {
-        return `import { ${parseName}Aplication } from './${parseName}Aplication';
+  function structure() {
+    return `import { ${parseName}Aplication } from './${parseName}Aplication';
 import createValidate from './validates/create.validate';
 import updateValidate from './validates/update.validate';
 
@@ -519,20 +518,21 @@ route.delete('/api/${parseName.toLocaleLowerCase()}', delete${parseName}MiddleWa
 
 export default ${parseName}Routes
 `;
+  }
+
+  let fileWrite = structure()
+  ensureDirectoryExistence('docs/final/api/' + fileName + '/');
+  await fs.writeFile('docs/final/api/' + fileName + '/index' + '.js', fileWrite, {flag: 'w'}, function (err) {
+    if (err) {
+      return console.log(err);
     }
-    let fileWrite = structure()
-    ensureDirectoryExistence('docs/final/api/'+fileName+'/');
-    await fs.writeFile('docs/final/api/'+ fileName + '/index' + '.js', fileWrite, {flag: 'w'}, function (err) {
-        if (err) {
-            return console.log(err);
-        }
-        console.log("Saved api: ", parseName + ".js");
-    });
+    console.log("Saved api: ", parseName + ".js");
+  });
 }
 
 async function makeInterfaceDatabase(fileName, parseName) {
-    function structure() {
-        return `import { BaseCrudApplication } from '../../core/BaseCrudAplication'
+  function structure() {
+    return `import { BaseCrudApplication } from '../../core/BaseCrudAplication'
 import config from '../../config/sequelize/sequelize.conf';
 
 export class ${parseName}Aplication extends BaseCrudApplication {
@@ -607,166 +607,166 @@ delete(id${parseName}, Where) {
 
 }
 `;
+  }
+
+  let fileWrite = structure()
+
+  await fs.writeFile('docs/final/api/' + fileName + '/' + parseName + 'Aplication.js', fileWrite, {flag: 'w'}, function (err) {
+    if (err) {
+      return console.log(err);
     }
-
-    let fileWrite = structure()
-
-    await fs.writeFile('docs/final/api/'+ fileName +'/'+ parseName + 'Aplication.js', fileWrite, {flag: 'w'}, function (err) {
-        if (err) {
-            return console.log(err);
-        }
-        console.log("Saved api: ", parseName + ".js");
-    });
+    console.log("Saved api: ", parseName + ".js");
+  });
 }
 
 async function makeValidates(fileName, parseName) {
 
-    await fs.readFile(readFolder + fileName +'.json', 'utf8', async function (err, data) {
+  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
 
-        const structure =  () => {
-            return `import Joi from 'joi';
+    const structure = () => {
+      return `import Joi from 'joi';
 export default (req, res, next) => {
     return Joi
         .object(
-`};
+`
+    };
 
-        const structureDown =  () => {
-            return `).validate(req.body, err => {
+    const structureDown = () => {
+      return `).validate(req.body, err => {
             if (err)
                 return res.api.send(err.details, res.api.codes.UNPROCESSABLE_ENTITY);
 
             return next();
         });
 } 
-`};
+`
+    };
 
-        if (data) {
-            //Fields of validation with Joi
-            const fields = JSON.parse(data);
-            let modelCreate = {};
-            let modelUpdate = {};
-            fields.forEach( function (field, index) {
-                const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-                modelCreate[nameAttribute] = 'Joi.';
-                if(field['Tipo'] === 'varchar') {
-                    modelCreate[nameAttribute] += 'string().';
-                    modelCreate[nameAttribute] += `max(${field['Tamanho']}).`;
-                }
-                else if(field['Tipo'] === 'number')
-                    modelCreate[nameAttribute] += 'number().';
-                else
-                    modelCreate[nameAttribute] += 'string().';
+    if (data) {
+      //Fields of validation with Joi
+      const fields = JSON.parse(data);
+      let modelCreate = {};
+      let modelUpdate = {};
+      fields.forEach(function (field, index) {
+        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+        modelCreate[nameAttribute] = 'Joi.';
+        if (field['Tipo'] === 'varchar') {
+          modelCreate[nameAttribute] += 'string().';
+          modelCreate[nameAttribute] += `max(${field['Tamanho']}).`;
+        } else if (field['Tipo'] === 'number')
+          modelCreate[nameAttribute] += 'number().';
+        else
+          modelCreate[nameAttribute] += 'string().';
 
-                if(field['Obrigatoriedade'] === "sim" && index !== 0)
-                    modelCreate[nameAttribute] += 'required()'
-                else
-                    modelCreate[nameAttribute] += 'optional()';
+        if (field['Obrigatoriedade'] === "sim" && index !== 0)
+          modelCreate[nameAttribute] += 'required()'
+        else
+          modelCreate[nameAttribute] += 'optional()';
 
 
-                // const nameAttribute = upLetter(field['Atributo']);
-                modelUpdate[nameAttribute] = 'Joi.';
-                if(field['Tipo'] === 'varchar') {
-                    modelUpdate[nameAttribute] += 'string().';
-                    modelUpdate[nameAttribute] += `max(${field['Tamanho']}).`;
-                }
-                else if(field['Tipo'] === 'number')
-                    modelUpdate[nameAttribute] += 'number().';
-                else
-                    modelUpdate[nameAttribute] += 'string().';
+        // const nameAttribute = upLetter(field['Atributo']);
+        modelUpdate[nameAttribute] = 'Joi.';
+        if (field['Tipo'] === 'varchar') {
+          modelUpdate[nameAttribute] += 'string().';
+          modelUpdate[nameAttribute] += `max(${field['Tamanho']}).`;
+        } else if (field['Tipo'] === 'number')
+          modelUpdate[nameAttribute] += 'number().';
+        else
+          modelUpdate[nameAttribute] += 'string().';
 
-                modelUpdate[nameAttribute] += 'optional()';
-            });
+        modelUpdate[nameAttribute] += 'optional()';
+      });
 
-            modelCreate['unit'] = "Joi.string().min(1).max(150).required()";
-            modelCreate['user'] = "Joi.string().min(1).max(150).required()";
+      modelCreate['unit'] = "Joi.string().min(1).max(150).required()";
+      modelCreate['user'] = "Joi.string().min(1).max(150).required()";
 
-            modelUpdate['situation'] = "Joi.string().optional()";
-            modelUpdate['unit'] = "Joi.string().min(1).max(150).optional()";
-            modelUpdate['user'] = "Joi.string().min(1).max(150).required()";
+      modelUpdate['situation'] = "Joi.string().optional()";
+      modelUpdate['unit'] = "Joi.string().min(1).max(150).optional()";
+      modelUpdate['user'] = "Joi.string().min(1).max(150).required()";
 
-            const parseModelCreate = JSON.stringify(modelCreate);
-            const parseModelUpdate = JSON.stringify(modelUpdate);
-            //Clear parseModel of double quotes
-            const parseModelCreateClear = parseModelCreate.replace(/\"/g, '');
-            const parseModelUpdateClear = parseModelUpdate.replace(/\"/g, '');
+      const parseModelCreate = JSON.stringify(modelCreate);
+      const parseModelUpdate = JSON.stringify(modelUpdate);
+      //Clear parseModel of double quotes
+      const parseModelCreateClear = parseModelCreate.replace(/\"/g, '');
+      const parseModelUpdateClear = parseModelUpdate.replace(/\"/g, '');
 
-            let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
-            let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
+      let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
+      let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
 
-            const namePath = 'docs/final/api/'+ fileName +'/validates/';
-            ensureDirectoryExistence(namePath);
-            await fs.writeFile(namePath+'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
-                if (err) {
-                    return console.log(err);
-                }
-                console.log("Saved endPointValidateCreate: ", parseName + ".js");
-            });
-            await fs.writeFile(namePath+'update.validate.js', fileWriteUpdate, {flag: 'w'}, function (err) {
-                if (err) {
-                    return console.log(err);
-                }
-                console.log("Saved endPointValidateUpdate: ", parseName + ".js");
-            });
+      const namePath = 'docs/final/api/' + fileName + '/validates/';
+      ensureDirectoryExistence(namePath);
+      await fs.writeFile(namePath + 'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
         }
-    });
+        console.log("Saved endPointValidateCreate: ", parseName + ".js");
+      });
+      await fs.writeFile(namePath + 'update.validate.js', fileWriteUpdate, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("Saved endPointValidateUpdate: ", parseName + ".js");
+      });
+    }
+  });
 }
 
 async function makeModelFront(fileName, parseName) {
 
-    await fs.readFile(readFolder + fileName +'.json', 'utf8', async function (err, data) {
-        if(data) {
-            const fields = JSON.parse(data);
-            let doFile = false
-            fields.forEach(function (field, index) {
-                if (index === 0 && field['Observacoes'] === 'primary key')
-                    doFile = true
-            });
-            if (doFile) {
-                const nameFileFront = fileName.replace('_', '-').toLocaleString();
-                const structure = (fileName, fields) => {
-                    return `export class ${fileName} ${fields}`;
-                }
-
-                let fields = JSON.parse(data)
-                let inputs = {}
-                fields.forEach(function (field, index) {
-
-                    const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-                    let tipo = ''
-                    field['Tipo'] === 'varchar' ? tipo = 'string' : field['Tipo'] === 'number' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
-                    inputs[nameAttribute] = tipo
-                }.bind(this));
-
-                let stringFy = JSON.stringify(inputs);
-                let stringMod = stringFy.replace(/\"/g, '').replace(/,/g, ';');
-                let fileWrite = structure(parseName, stringMod)
-
-                let nameOfPath = 'docs/final/front/model/'
-                ensureDirectoryExistence(nameOfPath);
-                await fs.writeFile(nameOfPath + nameFileFront + '.ts', fileWrite, {flag: 'w'}, function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    console.log("Saved Model API: ", parseName.replace('_', '-') + ".js");
-                });
-            }
+  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
+    if (data) {
+      const fields = JSON.parse(data);
+      let doFile = false
+      fields.forEach(function (field, index) {
+        if (index === 0 && field['Observacoes'] === 'primary key')
+          doFile = true
+      });
+      if (doFile) {
+        const nameFileFront = fileName.replace('_', '-').toLocaleString();
+        const structure = (fileName, fields) => {
+          return `export class ${fileName} ${fields}`;
         }
-    });
+
+        let fields = JSON.parse(data)
+        let inputs = {}
+        fields.forEach(function (field, index) {
+
+          const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+          let tipo = ''
+          field['Tipo'] === 'varchar' ? tipo = 'string' : field['Tipo'] === 'number' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
+          inputs[nameAttribute] = tipo
+        }.bind(this));
+
+        let stringFy = JSON.stringify(inputs);
+        let stringMod = stringFy.replace(/\"/g, '').replace(/,/g, ';');
+        let fileWrite = structure(parseName, stringMod)
+
+        let nameOfPath = 'docs/final/front/model/'
+        ensureDirectoryExistence(nameOfPath);
+        await fs.writeFile(nameOfPath + nameFileFront + '.ts', fileWrite, {flag: 'w'}, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("Saved Model API: ", parseName.replace('_', '-') + ".js");
+        });
+      }
+    }
+  });
 }
 
 async function makeFileService(fileName, parseName) {
-    await fs.readFile(readFolder + fileName +'.json', 'utf8', async function (err, data) {
-        if(data) {
-            const fields = JSON.parse(data);
-            let doFile = false
-            fields.forEach(function (field, index) {
-                if (index === 0 && field['Observacoes'] === 'primary key')
-                    doFile = true
-            });
-            if(doFile) {
+  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
+    if (data) {
+      const fields = JSON.parse(data);
+      let doFile = false
+      fields.forEach(function (field, index) {
+        if (index === 0 && field['Observacoes'] === 'primary key')
+          doFile = true
+      });
+      if (doFile) {
 
-                const structure = () => {
-                    return `import {Injectable} from '@angular/core';
+        const structure = () => {
+          return `import {Injectable} from '@angular/core';
 import {SarcService} from '../sarc-service/sarc-api.service';
 import {HttpClient} from '@angular/common/http';
 import {${parseName}} from '../../models/${fileName.replace(/_/g, "-")}';
@@ -780,42 +780,42 @@ export class ${parseName}Service extends SarcService< ${parseName} > {
   }
 }
 `;
-                }
-
-                let fileWrite = structure()
-
-                let nameOfPath = 'docs/final/front/services/' + fileName + '_service/'
-                ensureDirectoryExistence(nameOfPath);
-                await fs.writeFile(nameOfPath + parseName + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    console.log("Saved api: ", parseName + ".js");
-                });
-            }
         }
-    });
+
+        let fileWrite = structure()
+
+        let nameOfPath = 'docs/final/front/services/' + fileName + '_service/'
+        ensureDirectoryExistence(nameOfPath);
+        await fs.writeFile(nameOfPath + parseName + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("Saved api: ", parseName + ".js");
+        });
+      }
+    }
+  });
 }
 
-async function makeFileFront(fileName, parseName) {
-    await fs.readFile(readFolder + fileName +'.json', 'utf8', async function (err, data) {
-        if(data) {
-            const fields = JSON.parse(data);
-            let doFile = false
-            fields.forEach(function (field, index) {
-                if (index === 0 && field['Observacoes'] === 'primary key')
-                    doFile = true
-            });
-            if (doFile) {
-                const nameFileFront = fileName.replace('_', '-').toLocaleString();
-                const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable) => {
-                    return `import { Component } from '@angular/core';
+async function makeFileFront(fileName, className) {
+  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
+    if (data) {
+      const fields = JSON.parse(data);
+      let doFile = false
+      fields.forEach(function (field, index) {
+        if (index === 0 && field['Observacoes'] === 'primary key')
+          doFile = true
+      });
+      if (doFile) {
+        const nameFileFront = fileName.replace('_', '-').toLocaleString();
+        const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, conditionRender, reMapFoDataTable) => {
+          return `import { Component } from '@angular/core';
 import { MessageService } from '../../../services/message/message.service';
 import { WebixInput } from 'src/app/classes/webix.input';
 import { WebixToolbar } from 'src/app/classes/webix.toolbar';
 import { WebixSelect } from 'src/app/classes/webix.select';
 import { WebixDatatable } from 'src/app/classes/webix.datatable';
-import { ${parseName}Service } from '../../services/${fileName}_service/${parseName}Service';
+import { ${className}Service } from '../../services/${fileName}_service/${className}Service';
 import { QuerysBuilderService } from '../../../services/querys-builder/querys-builder.service';
 import { WebixService } from '../../../services/webix/webix.service';
 import { WebixPaginate } from 'src/app/classes/webix.paginate';
@@ -838,7 +838,7 @@ ${importService}
   templateUrl: './${nameFileFront}.component.html',
   styleUrls: ['./${nameFileFront}.component.scss']
 })
-export class ${parseName}Component {
+export class ${className}Component {
   /*
    Declaração das variaveis do Webix, as mesmas são setadas pelo serviço WebixService
  */
@@ -865,12 +865,12 @@ export class ${parseName}Component {
   /*
     Id do formulário é colocado em uma variável para poder ser reutilizado no código abaixo
   */
-  formId: string = 'Frm${parseName}';
+  formId: string = 'Frm${className}';
 
   /*
     Id do accordion onde tem o formulário é colocado em uma variável para poder ser utilizado no código abaixo
   */
-  accordionFormId: string = 'accordionItemForm${parseName}';
+  accordionFormId: string = 'accordionItemForm${className}';
 
   /**
   * Variavel de leitura/edição dos campos
@@ -899,7 +899,7 @@ export class ${parseName}Component {
     Declaração da tabela
   */
   datatable = new WebixDatatable(
-    'dt${parseName}',
+    'dt${className}',
     this.formId,
     [
         ${datatable}
@@ -918,7 +918,7 @@ export class ${parseName}Component {
             this.$$(this.accordionFormId).expand();
             this.$$(this.inputId.getId()).show();
             this.$$(this.inputId.getId()).setValue(item.id);
-            // this.$$(this.inputSituation.getId()).show();
+            this.$$(this.inputSituation.getId()).show();
             this._edit(item);
           });
         },
@@ -950,7 +950,7 @@ export class ${parseName}Component {
     private _querysBuilderService: QuerysBuilderService,
     private _localStorageService: LocalStorageService,
     private _messageService: MessageService,
-    private _service: ${parseName}Service,
+    private _service: ${className}Service,
     ${importConstructor}
     ) {
     this.init()
@@ -993,7 +993,7 @@ export class ${parseName}Component {
                 collapsed: true,
                 body: {
                   rows: [
-                    await this.setFormAgentInputs()
+                    this.setFormAgentInputs()
                   ]
                 }
               },
@@ -1009,18 +1009,18 @@ export class ${parseName}Component {
                     this.datatable.getField(),
                     {
                       cols: [
-                        this.paginate.getField()
+                        this.paginate.getField(),
                       ]
                     }
                   ]
                 }
-              }
+              },
             ]
           }
         ]
       });
-      await this._loadData();
       await this.loadSuggests();
+      await this._loadData();
     })
   }
 
@@ -1044,9 +1044,11 @@ export class ${parseName}Component {
     loadingShow();
     const query = this._querysBuilderService.getSelect(this.select);
     const result: any = await this._service.get(query).toPromise();
-    this.dataAll = result.data.reverse();
-    this.datatable.setData(this.dataAll);
-    this.$$(this.accordionFormId).collapse();
+    if(result.data.length > 0) {
+        this.dataAll = result.data${reMapFoDataTable}.reverse();
+        this.datatable.setData(this.dataAll);
+        this.$$(this.accordionFormId).collapse();
+    }
     loadingHide();
     this.subscribeEvents();
   }
@@ -1086,7 +1088,7 @@ export class ${parseName}Component {
     form.setValues(item);
     this.$$(this.inputId.getId()).show();
     this.$$(this.inputId.getId()).setValue(item.id);
-    // this.$$(this.inputSituation.getId()).show();
+    this.$$(this.inputSituation.getId()).show();
     this.$$(this.accordionFormId).expand();
     form.setDirty(false);
   }
@@ -1249,7 +1251,7 @@ export class ${parseName}Component {
     this.$$(this.formId).clearValidation();
     this.$$(this.formId).clear();
     this.$$(this.inputId.getId()).hide();
-    // this.$$(this.inputSituation.getId()).hide();
+    this.$$(this.inputSituation.getId()).hide();
     this.setReadOnly(true)
   }
 
@@ -1314,127 +1316,145 @@ export class ${parseName}Component {
         return this._i18nService.translate(key);
     }
 }`;
-                }
+        }
 
 
-                let fields = JSON.parse(data)
-                let inputs = ``
-                let datatable = ``
-                let form = ``;
-                let cont = 0;
-                let close = true
-                let select = '';
-                let loadSuggest =""
-                let importConstructor =""
-                let importService = ""
-                let declareVariable = ""
-                let resgateSuggestToSave = ""
-                fields.forEach(function (field, index) {
+        let fields = JSON.parse(data)
+        let inputs = ``
+        let datatable = ``
+        let form = ``;
+        let cont = 0;
+        let close = true
+        let select = '';
+        let loadSuggest = ""
+        let importConstructor = ""
+        let importService = ""
+        let declareVariable = ""
+        let resgateSuggestToSave = ""
+        let mapFoDataTable = ""
+        fields.forEach(function (field, index) {
 
-                    const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-                    const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
-                    const nameHeader = upSpaceLetter(field['Atributo']);
-                    select += ` '${nameAttribute}',`
-                    if (cont++ === 0) {
-                        close = false
-                        form += `{ cols: [\n`;
-                    }
-                    if (index === 0) {
-                        form += `this.inputId.getField(),\n`;
-                        //regex to remove break lines
-                        // const parten = /\n/g;
-                        datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: false, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
-                        inputs += `    inputId = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-                    } else {
-                        form += `    this.input${nameAttributeAllUp}.getField(),\n`;
-                        datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
+          const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+          const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
+          const nameHeader = upSpaceLetter(field['Atributo']);
+          select += ` '${nameAttribute}',`
+          if (cont++ === 0) {
+            close = false
+            form += `{ cols: [\n`;
+          }
+          if (index === 0) {
+            form += `this.inputId.getField(),\n`;
+            //regex to remove break lines
+            // const parten = /\n/g;
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: false, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
+            inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+          } else {
+            form += `this.input${nameAttributeAllUp}.getField(),\n`;
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
 
-                        if(field['Tipo'] === 'date'){
-                            inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-                        } else if(field['Tipo'] === 'enum'){
-                            inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${nameHeader}'), [${field['Observacoes'].split(',')}],{ required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-                        } else if(field['Observacoes'] === 'foreign key'){
-                            inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-                            const nameService = field['Tabela'].replace(' ', '')
-                            importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
-                            //Replace up letter for same letter lower and underscore not can start with underscore
-                            const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '_$1').toLowerCase();
-                            importService += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}_service/${nameService}Service';\n`;
-                            declareVariable += `${nameAttribute}Data: any = [];\n`;
-                            resgateSuggestToSave += `this.suggestValues.${nameAttribute}Id ? values.${nameAttribute}Id = this.suggestValues.${nameAttribute}Id : null;\n`;
-                            //    Suggest
-                            loadSuggest += `
-                                    //Start load ${nameService}
-                                    let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
-                                    if (${nameService}Resp.data.length > 0) {
-                                        // this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
-                                        //     return {
-                                        //         id: ${nameService}.id,
-                                        //         value: ${nameService}.description
-                                        //     };
-                                        // });
-                                        this.${nameAttribute}Data = ${nameService}Resp.data;
-                                        await this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
-                                            onValueSuggest: (item) => {
-                                                this.suggestValues.${nameAttribute}Id = item.id;
-                                            },
-                                        });
-                                    }
-                                    //End load ${nameService}
-                                    `
-                        } else {
-                            inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-                        }
+            if (field['Tipo'] === 'date') {
+              inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              mapFoDataTable += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
+            } else if (field['Tipo'] === 'enum') {
+              inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${nameHeader}'), [${field['Observacoes'].split(',')}],{ required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            } else if (field['Observacoes'] === 'foreign key') {
+              inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              const nameService = field['Tabela'].replace(' ', '')
+              //Replace up letter for same letter lower and underscore not can start with underscore
+              const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '_$1').toLowerCase();
+              importService += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}_service/${nameService}Service';\n`;
+              declareVariable += `${nameAttribute}Data: any = [];\n`;
+              resgateSuggestToSave += `this.suggestValues.${nameAttribute} ? values.${nameAttribute} = this.suggestValues.${nameAttribute} : values.${nameAttribute} = this.${nameAttribute}Data.find(i => i.value == values.${nameAttribute}).id;\n`;
+              if (importConstructor.indexOf(`private _${nameService}Service`) === -1) {
+                importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
+              }
+              //    Suggest
+              //  text //Start load ${nameService} not exit in loadSuggest
+              if (loadSuggest.indexOf(`Start load ${nameService}`) === -1) {
+                loadSuggest += `//Start load ${nameService}
+                            let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
+                            if (${nameService}Resp.data.length > 0) {
+                                this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
+                                    return {
+                                        id: ${nameService}.id,
+                                        value: ${nameService}.desc${field['Tabela']}
+                                    };
+                                });
+                                await this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
+                                    onValueSuggest: (item) => {
+                                        this.suggestValues.${nameAttribute} = item.id;
+                                    },
+                                });
+                            }
+                            //End load ${nameService}
+                            `
+              }
+              //filter in this.${nameAttribute}Data for ${nameAttribute}
+              mapFoDataTable += `const ${nameAttribute} = this.${nameAttribute}Data.filter( i => i.id == item.${nameAttribute});
+                            ${nameAttribute}? item.${nameAttribute} = ${nameAttribute}[0].value : '';\n`;
+            } else {
+              inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            }
 
-                    }
-                    if (cont === 3) {
-                        close = true
-                        cont = 0;
-                        form += `] },\n`;
-                    }
-
-
-                }.bind(this));
-                if (!close) {
-                    form += `] },\n`;
-                }
-                inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
-                declareVariable += `suggestValues: any;\n`;
-                const setLoadSuggest = `async loadSuggests() {
+          }
+          if (cont === 3) {
+            close = true
+            cont = 0;
+            form += `] },`;
+          }
+        }.bind(this));
+        form += `\nthis.inputSituation.getField()`
+        if (!close) {
+          form += `] },\n`;
+        }
+        inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
+        declareVariable += `suggestValues: any = {};\n`;
+        const setLoadSuggest = `async loadSuggests() {
                     const simpleWhere = "where="+JSON.stringify({situation: 'A'});\n
                     ${loadSuggest}\n
                     loadingHide();\n
                 }`
-                let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, importService,declareVariable, resgateSuggestToSave)
+        const conditionRender = `
+                if(this.suggestValues) {
+                    ${resgateSuggestToSave}
+                }\n
+                `
+        const reMapFoDataTable = `.map( (item) => {
+                    ${mapFoDataTable}
+                    return item;
+                })\n`
+        let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, conditionRender, reMapFoDataTable)
 
-                let nameOfPath = 'docs/final/front/tables/' + nameFileFront + '/'
-                ensureDirectoryExistence(nameOfPath);
-                await fs.writeFile(nameOfPath + nameFileFront + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    console.log("Saved api: ", parseName.replace('_', '-') + ".js");
-                });
 
-                //      createfile: './${fileName}.component.html',
-                await fs.writeFile(nameOfPath + nameFileFront + '.component.html', '', {flag: 'w'}, function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    console.log("Saved tables: ", nameFileFront + ".component.html");
-                });
+        //Start write file
+        let nameOfPath = 'docs/final/front/tables/' + nameFileFront + '/'
+        ensureDirectoryExistence(nameOfPath);
+        await fs.writeFile(nameOfPath + nameFileFront + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("Saved api: ", className.replace('_', '-') + ".js");
+        });
 
-                //      createfile: './${fileName}.component.scss'
-                await fs.writeFile(nameOfPath + nameFileFront + '.component.scss', '', {flag: 'w'}, function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
-                    console.log("Saved tables: ", nameFileFront + ".component.scss");
-                });
+        //      createfile: './${fileName}.component.html',
+        await fs.writeFile(nameOfPath + nameFileFront + '.component.html', '', {flag: 'w'}, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("Saved tables: ", nameFileFront + ".component.html");
+        });
 
-            }
-        }
-    });
+        //      createfile: './${fileName}.component.scss'
+        await fs.writeFile(nameOfPath + nameFileFront + '.component.scss', '', {flag: 'w'}, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("Saved tables: ", nameFileFront + ".component.scss");
+        });
+
+      }
+    }
+  });
 }
 
 // Verify fist key of the file is primary key
