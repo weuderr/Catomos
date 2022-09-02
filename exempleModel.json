@@ -1,5 +1,6 @@
 [
   {
+    "displayName": "Id",
     "Atributo": "cod_carregamento",
     "Tipo": "number",
     "Tamanho": 0,
@@ -8,6 +9,7 @@
     "Observações": "primary key"
   },
   {
+    "displayName": "",
     "Atributo": "tipo_documento",
     "Tipo": "number",
     "Tamanho": 50,
@@ -16,6 +18,7 @@
     "Observações": ""
   },
   {
+    "displayName": "",
     "Atributo": "dth_carregamento",
     "Tipo": "date",
     "Tamanho": "",

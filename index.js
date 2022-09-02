@@ -29,8 +29,9 @@ fs.readdir(readFolder, async (err, files) => {
 
         await makeInterfaceDatabase(parsedFileName, camelCaseNameFile, fileName);
         await makeValidates(parsedFileName, camelCaseNameFile, fileName);
-        await makeModelFront(parsedFileName, camelCaseNameFile, fileName);
-        await makeFileService(parsedFileName, camelCaseNameFile, fileName);
+
+        await makeFrontModels(parsedFileName, camelCaseNameFile, fileName);
+        await makeFrontFileService(parsedFileName, camelCaseNameFile, fileName);
         await makeFileFront(parsedFileName, camelCaseNameFile, fileName);
       }
     }
@@ -730,7 +731,7 @@ export default (req, res, next) => {
   });
 }
 
-async function makeModelFront(parsedFileName, camelCaseNameFile, fileName) {
+async function makeFrontModels(parsedFileName, camelCaseNameFile, fileName) {
 
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
     if (data) {
@@ -741,9 +742,8 @@ async function makeModelFront(parsedFileName, camelCaseNameFile, fileName) {
           doFile = true
       });
       if (doFile) {
-        const nameFileFront = parsedFileName.replace(/_/g, '-').toLocaleString();
-        const structure = (nameFileFront, fields) => {
-          return `export class ${nameFileFront} ${fields}`;
+        const structure = (parsedFileName, fields) => {
+          return `export class ${parsedFileName} ${fields}`;
         }
 
         let fields = JSON.parse(data)
@@ -761,7 +761,7 @@ async function makeModelFront(parsedFileName, camelCaseNameFile, fileName) {
         let fileWrite = structure(camelCaseNameFile, stringMod)
 
         let nameOfPath = 'docs/files/front/models/'
-        await fs.writeFile(nameOfPath + nameFileFront + '.ts', fileWrite, {flag: 'w'}, function (err) {
+        await fs.writeFile(nameOfPath + parsedFileName + '.ts', fileWrite, {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
@@ -772,7 +772,7 @@ async function makeModelFront(parsedFileName, camelCaseNameFile, fileName) {
   });
 }
 
-async function makeFileService(parsedFileName, camelCaseNameFile, fileName) {
+async function makeFrontFileService(parsedFileName, camelCaseNameFile, fileName) {
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
     if (data) {
       const fields = JSON.parse(data);
@@ -787,7 +787,7 @@ async function makeFileService(parsedFileName, camelCaseNameFile, fileName) {
           return `import {Injectable} from '@angular/core';
 import {SarcService} from '../sarc-service/sarc-api.service';
 import {HttpClient} from '@angular/common/http';
-import {${camelCaseNameFile}} from '../../models/${parsedFileName.replace(/_/g, "-")}';
+import {${camelCaseNameFile}} from '../../models/${parsedFileName}';
 
 @Injectable({
   providedIn: 'root'
@@ -802,7 +802,7 @@ export class ${camelCaseNameFile}Service extends SarcService< ${camelCaseNameFil
 
         let fileWrite = structure()
 
-        let nameOfPath = 'docs/files/front/services/' + parsedFileName.replace(/_/g, "-") + '_service/'
+        let nameOfPath = 'docs/files/front/services/' + parsedFileName + '-service/'
         ensureDirectoryExistence(nameOfPath);
         await fs.writeFile(nameOfPath + camelCaseNameFile + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
           if (err) {
@@ -825,15 +825,14 @@ async function makeFileFront(parsedFileName, className, fileName) {
           doFile = true
       });
       if (doFile) {
-        const nameFileFront = parsedFileName.replace(/_/g, "-").toLocaleString();
-        const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, conditionRender, reMapFoDataTable) => {
+        const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, reMapToGetIdSuggest, reMapToGetValue, mapToGetIdSelect) => {
           return `import { Component } from '@angular/core';
 import { MessageService } from '../../../services/message/message.service';
 import { WebixInput } from 'src/app/classes/webix.input';
 import { WebixToolbar } from 'src/app/classes/webix.toolbar';
 import { WebixSelect } from 'src/app/classes/webix.select';
 import { WebixDatatable } from 'src/app/classes/webix.datatable';
-import { ${className}Service } from '../../services/${parsedFileName.replace(/_/g, "-")}_service/${className}Service';
+import { ${className}Service } from '../../services/${parsedFileName}-service/${className}Service';
 import { QuerysBuilderService } from '../../../services/querys-builder/querys-builder.service';
 import { WebixService } from '../../../services/webix/webix.service';
 import { WebixPaginate } from 'src/app/classes/webix.paginate';
@@ -852,9 +851,9 @@ import {WebixInputDate} from "../../../classes/webix.inputDate";
 ${importService}
 
 @Component({
-  selector: 'app-${nameFileFront}',
-  templateUrl: './${nameFileFront}.component.html',
-  styleUrls: ['./${nameFileFront}.component.scss']
+  selector: 'app-${parsedFileName}',
+  templateUrl: './${parsedFileName}.component.html',
+  styleUrls: ['./${parsedFileName}.component.scss']
 })
 export class ${className}Component {
   /*
@@ -931,7 +930,7 @@ export class ${className}Component {
         },
         edit: (ev, elem) => {
           this._checkFormDuty(() => {
-            const item = this.dataAll.find(item => item.id === elem.row);
+            const item = this.dataAll.find(select => select.id === elem.row);
             this.$$(this.accordionFormId).expand();
             this.$$(this.inputId.getId()).show();
             this.$$(this.inputId.getId()).setValue(item.id);
@@ -941,7 +940,7 @@ export class ${className}Component {
         },
         remove: (ev, elem) => {
           this._checkFormDuty(() => {
-            const item = this.dataAll.find(item => item.id === elem.row);
+            const item = this.dataAll.find(select => select.id === elem.row);
             this.webix.confirm(this.translate('Tem certeza que deseja remover o registro ') + item.id + ' - ' + item.description + '?', (value) => {
               if (value) {
                 this.remove(item);
@@ -1038,7 +1037,7 @@ export class ${className}Component {
       ${setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
       await this._loadData();
     })
-  }await this.loadSuggests();
+  }
 
   /**
    * Retorna o objeto com as variaveis do formulário para dentro do webixUi
@@ -1061,7 +1060,7 @@ export class ${className}Component {
     const query = this._querysBuilderService.getSelect(this.select);
     const result: any = await this._service.get(query).toPromise();
     if(result.data.length > 0) {
-        this.dataAll = result.data${reMapFoDataTable}.reverse();
+        this.dataAll = result.data${reMapToGetValue}.reverse();
         this.datatable.setData(this.dataAll);
         this.$$(this.accordionFormId).collapse();
     }
@@ -1099,8 +1098,9 @@ export class ${className}Component {
 
   showView(row) {
     this.setReadOnly(true);
-    const item = this.dataAll.find(item => item.id === row);
+    const item = this.dataAll.find(select => select.id === row);
     const form = this.$$(this.formId)
+    ${mapToGetIdSelect ? mapToGetIdSelect : ''}
     form.setValues(item);
     this.$$(this.inputId.getId()).show();
     this.$$(this.inputId.getId()).setValue(item.id);
@@ -1139,15 +1139,16 @@ export class ${className}Component {
    */
   _save = () => {
     const form = this.$$(this.formId);
-    const values = form.getValues();
+    const item = form.getValues();
     const isValid = form.validate();
 
     if (isValid) {
-      ${resgateSuggestToSave}
-      if (values.id > 0) {
-        this._update(values);
+      ${mapToGetIdSuggest}
+      ${mapToGetIdSelect ? mapToGetIdSelect : ''}
+      if (item.id > 0) {
+        this._update(item);
       } else {
-        this._create(values);
+        this._create(item);
       }
       this._loadData();
     } else {
@@ -1158,25 +1159,25 @@ export class ${className}Component {
   /*
   * Envia os valores para API atualizar
   */
-  _update(values) {
-    delete values.deletedAt;
+  _update(item) {
+    delete item.deletedAt;
 
-    if (values.createdAt)
-      delete values.createdAt
+    if (item.createdAt)
+      delete item.createdAt
 
-    if (values.updatedAt)
-      delete values.updatedAt
+    if (item.updatedAt)
+      delete item.updatedAt
 
-    this._service.put(values.id, values).subscribe(
+    this._service.put(item.id, item).subscribe(
       () => _success(),
       (error) => _error(error)
     )
 
     const _success = () => {
       const datatable = this.$$(this.datatable.getId());
-      datatable.updateItem(values.id, values);
-      const index = this.dataAll.findIndex(item => item.id === values.id);
-      this.dataAll[index] = values;
+      datatable.updateItem(item.id, item);
+      const index = this.dataAll.findIndex( select => select.id === item.id);
+      this.dataAll[index] = item;
       this._messageService.show('Atualizado com sucesso', 'success');
       this._cancelOrClear();
       this._loadData();
@@ -1191,11 +1192,11 @@ export class ${className}Component {
   /**
    * Envia os valores para API salvar
    */
-  _create(values) {
-    delete values.id;
-    delete values.situation;
+  _create(item) {
+    delete item.id;
+    delete item.situation;
 
-    this._service.post(values).subscribe(
+    this._service.post(item).subscribe(
       (success) => _success(success),
       (error) => _error(error)
     );
@@ -1219,6 +1220,7 @@ export class ${className}Component {
    */
   _edit(item) {
     const form = this.$$(this.formId)
+    ${mapToGetIdSelect ? mapToGetIdSelect : ''}
     form.setValues(item);
     this.setReadOnly(false);
   }
@@ -1346,8 +1348,10 @@ export class ${className}Component {
         let importConstructor = ""
         let importService = ""
         let declareVariable = ""
-        let resgateSuggestToSave = ""
-        let mapFoDataTable = ""
+        let mapToGetIdSuggest = ""
+        let mapToGetValue = ""
+        let mapToGetIdSelect = ""
+
         fields.forEach(function (field, index) {
 
           const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
@@ -1371,18 +1375,25 @@ export class ${className}Component {
 
             if (field['Tipo'] === 'date') {
               inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-              mapFoDataTable += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
+              mapToGetValue += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
             } else if (field['Tipo'] === 'enum') {
-              inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${JSON.stringify(field['Observacoes'].split(',').map( i => {return {id: i.replace(/'/g, ''), value: i.replace(/'/g, '') }}))},{ required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              declareVariable += `${nameAttribute}Enum = ${JSON.stringify(field['Observacoes'].split(',').map( i => {return {id: i.replace(/'/g, ''), value: i.replace(/'/g, '') }}))}; /*${field['Descricao']}*/\n`;
+              inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), this.${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              //filter datatable by enum
+              mapToGetValue += `const ${nameAttribute}Id = this.${nameAttribute}Enum.find( select => select.id === item.${nameAttribute});
+                                 ${nameAttribute}Id? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
+              mapToGetIdSelect += `const ${nameAttribute}Value = this.${nameAttribute}Enum.find( select => select.value === item.${nameAttribute});
+                                 ${nameAttribute}Value? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
             } else if (field['Observacoes'] === 'foreign key') {
               inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
 
               const nameService = field['Tabela'].replace(' ', '')
               //Replace up letter for same letter lower and underscore not can start with underscore
-              const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '_$1').toLowerCase();
-              importService += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}_service/${nameService}Service';\n`;
+              const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '-$1').toLowerCase();
+              importService += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}-service/${nameService}Service';\n`;
+
               declareVariable += `${nameAttribute}Data: any = [];\n`;
-              resgateSuggestToSave += `this.suggestValues.${nameAttribute} ? values.${nameAttribute} = this.suggestValues.${nameAttribute} : values.${nameAttribute} = this.${nameAttribute}Data.find(i => i.value == values.${nameAttribute}).id;\n`;
+              mapToGetIdSuggest += `this.suggestValues.${nameAttribute} ? item.${nameAttribute} = this.suggestValues.${nameAttribute} : item.${nameAttribute} = this.${nameAttribute}Data.find(select => select.value == item.${nameAttribute}).id;\n`;
               if (importConstructor.indexOf(`private _${nameService}Service`) === -1) {
                 importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
               }
@@ -1404,12 +1415,12 @@ export class ${className}Component {
                                     },
                                 });
                             }
-                            //End load ${nameService}
+                            //End load ${nameService}\n
                             `
               }
               //filter in this.${nameAttribute}Data for ${nameAttribute}
-              mapFoDataTable += `const ${nameAttribute} = this.${nameAttribute}Data.filter( i => i.id == item.${nameAttribute});
-                            ${nameAttribute}? item.${nameAttribute} = ${nameAttribute}[0].value : '';\n`;
+              mapToGetValue += `const ${nameAttribute} = this.${nameAttribute}Data.filter( select => select.id == item.${nameAttribute});\n
+                            ${nameAttribute}? item.${nameAttribute}= ${nameAttribute}[0].value : '';\n`;
             } else {
               inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             }
@@ -1434,42 +1445,42 @@ export class ${className}Component {
                     loadingHide();\n
                 }`: '';
 
-        const conditionRender = `
+        const reMapToGetIdSuggest = `
                 if(this.suggestValues) {
-                    ${resgateSuggestToSave}
+                    ${mapToGetIdSuggest}
                 }\n
                 `
         const reMapFoDataTable = `.map( (item) => {
-                    ${mapFoDataTable}
+                    ${mapToGetValue}
                     return item;
                 })\n`
-        let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, conditionRender, reMapFoDataTable)
+        let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, reMapToGetIdSuggest, reMapFoDataTable, mapToGetIdSelect)
 
 
         //Start write file
-        let nameOfPath = 'docs/files/front/tables/' + nameFileFront + '/'
+        let nameOfPath = 'docs/files/front/tables/' + parsedFileName + '/'
         ensureDirectoryExistence(nameOfPath);
-        await fs.writeFile(nameOfPath + nameFileFront + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
+        await fs.writeFile(nameOfPath + parsedFileName + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved api: ", className.replace('_', '-') + ".js");
+          console.log("Saved api: ", parsedFileName + ".js");
         });
 
         //      createfile: './${parsedFileName}.component.html',
-        await fs.writeFile(nameOfPath + nameFileFront + '.component.html', '', {flag: 'w'}, function (err) {
+        await fs.writeFile(nameOfPath + parsedFileName + '.component.html', '', {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved tables: ", nameFileFront + ".component.html");
+          console.log("Saved tables: ", parsedFileName + ".component.html");
         });
 
         //      createfile: './${parsedFileName}.component.scss'
-        await fs.writeFile(nameOfPath + nameFileFront + '.component.scss', '', {flag: 'w'}, function (err) {
+        await fs.writeFile(nameOfPath + parsedFileName + '.component.scss', '', {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved tables: ", nameFileFront + ".component.scss");
+          console.log("Saved tables: ", parsedFileName + ".component.scss");
         });
 
       }
