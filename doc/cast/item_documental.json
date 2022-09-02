@@ -1,0 +1,78 @@
+[
+  {
+    "Atributo": "cod_item",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do item documental",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "desc_item",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao do item documental",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_nucleo",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do núcleo Doc",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "foreign key",
+    "Tabela": "NucleoDoc"
+  },
+  {
+    "Atributo": "qtd_meses_retencao",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Quantidade de meses de retenção",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "sta_eliminacao",
+    "Tipo": "enum",
+    "Tamanho": 1,
+    "Descricao": "Status Eliminação (‘A’ Ativo, ‘S’ Suspenso)",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'A', 'S'"
+  },
+  {
+    "Atributo": "cod_acesso",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do acesso",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "foreign key",
+    "Tabela": "TipoAcesso"
+  },
+  {
+    "Atributo": "txt_info_acesso",
+    "Tipo": "varchar",
+    "Tamanho": 2000,
+    "Descricao": "Texto de informações de acesso",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_suporte",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do tipo suporte",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "TipoSuporte"
+  },
+    {
+      "Atributo": "cod_index",
+      "Tipo": "number",
+      "Tamanho": 0,
+      "Descricao": "Chave referencial do índice",
+      "Obrigatoriedade": "sim",
+      "Observacoes": "foreign key",
+      "Tabela": "TipoIndex"
+    }
+]

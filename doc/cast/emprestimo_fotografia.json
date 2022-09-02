@@ -1,0 +1,20 @@
+[
+  {
+    "Atributo": "cod_fotografia",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial da fotografia",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Fotografia"
+  },
+  {
+    "Atributo": "cod_emprestimo",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do empréstimo",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Emprestimo"
+  }
+]

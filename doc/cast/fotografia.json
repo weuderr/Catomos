@@ -1,0 +1,109 @@
+[
+  {
+    "Atributo": "cod_fotografia",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código da fotografia",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "num_fotografia",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Número da fotografia",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "ano_fotografia",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Ano da fotografia",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "data_fotografia",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data da fotografia",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "cod_assunto",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do assunto",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "foreign key",
+    "Tabela": "Assunto"
+  },
+  {
+    "Atributo": "cod_sub_assunto",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do sub-assunto",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "foreign key",
+    "Tabela": "SubAssunto"
+  },
+  {
+    "Atributo": "endereco_foto",
+    "Tipo": "number",
+    "Tamanho": 500,
+    "Descricao": "Endereço da fotografia",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "colorac",
+    "Tipo": "enum",
+    "Tamanho": 0,
+    "Descricao": "Coloração - PB - Preto & Branco CO - Colorida SE - Sépia",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'PB', 'CO', 'SE'"
+  },
+  {
+    "Atributo": "negativo",
+    "Tipo": "enum",
+    "Tamanho": 0,
+    "Descricao": "Negativo - S - Sim N - Não",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'S', 'N'"
+  },
+  {
+    "Atributo": "desc_foto",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao da fotografia",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_usuario_digitacao",
+    "Tipo": "varchar",
+    "Tamanho": 7,
+    "Descricao": "Código do usuário que digitou a fotografia",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_digitacao",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data da digitacao da fotografia",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "cod_pasta",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial da pasta",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Pasta"
+  }
+]

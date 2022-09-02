@@ -1,0 +1,36 @@
+[
+  {
+    "Atributo": "cod_caixa",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código da caixa",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "cod_tamanho",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial de tamanho caixa",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "TamanhoCaixa"
+  },
+  {
+    "Atributo": "cod_local",
+    "Tipo": "number",
+    "Tamanho": 50,
+    "Descricao": "Chave referencial de local",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Local"
+  },
+  {
+    "Atributo": "status",
+    "Tipo": "enum",
+    "Tamanho": 0,
+    "Descricao": "Situações que o registro pode assumir V-Vazia, C-Cheia, ao eliminar (colocar status = ‘D’) uma caixa, acrescentar 1 na\nQuantidade disponível do local.\nao incluir uma caixa, reduzir 1 na Quantidade disponível do local",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'V', 'C'"
+  }
+]

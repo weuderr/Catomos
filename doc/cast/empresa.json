@@ -1,0 +1,18 @@
+[
+  {
+    "Atributo": "cod_empresa",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código da caixa",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "desc_empresa",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao da empresa",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  }
+]

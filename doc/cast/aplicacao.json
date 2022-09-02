@@ -1,0 +1,27 @@
+[
+  {
+    "Atributo": "cod_aplicacao",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código da Aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "desc_aplicacao",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao da Aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_tipo_aplic",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do Tipo de Aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "TipoAplicacao"
+  }
+]

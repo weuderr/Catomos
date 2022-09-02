@@ -1,0 +1,135 @@
+[
+  {
+    "Atributo": "cod_microfilmagem",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código de microfilmagem",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "num_microfilmagem",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Número de microfilmagem",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_microfilmagem",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de microfilmagem",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "filme",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Filme",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "lote",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Lote",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "flash",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Flash",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_orgao",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial de tipo órgão",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "TipoOrgao"
+  },
+  {
+    "Atributo": "cod_empresa_inic",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial de empresa",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "foreign key",
+    "Tabela": "Empresa"
+  },
+  {
+    "Atributo": "cod_empresa_fim",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial de empresa",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "foreign key",
+    "Tabela": "Empresa"
+  },
+  {
+    "Atributo": "cod_movim",
+    "Tipo": "varchar",
+    "Tamanho": 1,
+    "Descricao": "Código de movimento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Movimento"
+  },
+  {
+    "Atributo": "dat_desligamento",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de desligamento",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "nome_func",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Nome do funcionário",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_nascimento",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de nascimento",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "cod_reg_emprg",
+    "Tipo": "varchar",
+    "Tamanho": 7,
+    "Descricao": "Código de registro de empregado",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_documento",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de documento",
+    "Obrigatoriedade": "nao",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "cod_tipo_aplic",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial de tipo de aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "TipoAplicacao"
+  }
+]

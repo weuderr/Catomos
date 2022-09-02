@@ -7,19 +7,31 @@ fs.readdir(readFolder, async (err, files) => {
   if (files)
     for (const file of files) {
       if (file) {
-        const name = file.replace('.json', '');
-        let fileName = name.replace(' ', '_').toLowerCase(); //name of file without extension
-        let parseName = upAllFistLetter(name); // name if camelCase
+        const fileName = file.replace('.json', '');
+        let parsedFileName = fileName.replace(/ /g, "_").replace(/_/g, '-').toLowerCase(); //name of file without extension
+        let camelCaseNameFile = upAllFistLetter(fileName); // name if camelCase
 
-        await makeModel(fileName, parseName);
-        await makeEndPoint(fileName, parseName);
-        await makeInterfaceDatabase(fileName, parseName);
-        await makeValidates(fileName, parseName);
-        await makeModelFront(fileName, parseName);
-        let nameOfPath = 'docs/final/front/services';
-        ensureDirectoryExistence(nameOfPath);
-        await makeFileService(fileName, parseName);
-        await makeFileFront(fileName, parseName);
+
+        ensureDirectoryExistence('docs/');
+        ensureDirectoryExistence('docs/files/');
+        ensureDirectoryExistence('docs/files/front/');
+        ensureDirectoryExistence('docs/files/front/services');
+        ensureDirectoryExistence('docs/files/front/tables/');
+        ensureDirectoryExistence('docs/files/front/models/');
+        ensureDirectoryExistence('docs/files/back/');
+        ensureDirectoryExistence('docs/files/back/api/');
+        ensureDirectoryExistence('docs/files/back/models/');
+        ensureDirectoryExistence('docs/files/back/models/postgres/');
+
+
+        await makeModel(parsedFileName, camelCaseNameFile, fileName);
+        await makeEndPoint(parsedFileName, camelCaseNameFile, fileName);
+
+        await makeInterfaceDatabase(parsedFileName, camelCaseNameFile, fileName);
+        await makeValidates(parsedFileName, camelCaseNameFile, fileName);
+        await makeModelFront(parsedFileName, camelCaseNameFile, fileName);
+        await makeFileService(parsedFileName, camelCaseNameFile, fileName);
+        await makeFileFront(parsedFileName, camelCaseNameFile, fileName);
       }
     }
   else {
@@ -72,8 +84,8 @@ function fieldsForModel(e) {
   return model
 }
 
-function castValues(parseNameArray) {
-  return parseNameArray.map(value => {
+function castValues(camelCaseNameFileArray) {
+  return camelCaseNameFileArray.map(value => {
     value = value.toLowerCase();
     switch (value) {
       case 'dat':
@@ -98,53 +110,53 @@ function castValues(parseNameArray) {
   });
 }
 
-function upAllFistLetter(parseName) {
-  if (!parseName) return '';
+function upAllFistLetter(camelCaseNameFile) {
+  if (!camelCaseNameFile) return '';
   // camelCase in all first letters of the string after space or underline
-  let newParseName = '';
-  let parseNameArray = parseName.split(' ');
-  if (!(parseNameArray.length > 1)) {
-    parseNameArray = parseName.split('_');
+  let newcamelCaseNameFile = '';
+  let camelCaseNameFileArray = camelCaseNameFile.split(' ');
+  if (!(camelCaseNameFileArray.length > 1)) {
+    camelCaseNameFileArray = camelCaseNameFile.split('_');
   }
-  for (let i = 0; i < parseNameArray.length; i++) {
-    newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
+  for (let i = 0; i < camelCaseNameFileArray.length; i++) {
+    newcamelCaseNameFile += camelCaseNameFileArray[i].charAt(0).toUpperCase() + camelCaseNameFileArray[i].slice(1);
   }
-  return newParseName;
+  return newcamelCaseNameFile;
 }
 
-function upLetter(parseName) {
-  if (!parseName) return '';
+function upLetter(camelCaseNameFile) {
+  if (!camelCaseNameFile) return '';
   // camelCase in all first letters of the string after space or underline
-  let newParseName = '';
-  let parseNameArray = parseName.split(' ');
-  if (!(parseNameArray.length > 1)) {
-    parseNameArray = parseName.split('_');
+  let newcamelCaseNameFile = '';
+  let camelCaseNameFileArray = camelCaseNameFile.split(' ');
+  if (!(camelCaseNameFileArray.length > 1)) {
+    camelCaseNameFileArray = camelCaseNameFile.split('_');
   }
 
-  for (let i = 0; i < parseNameArray.length; i++) {
-    newParseName += parseNameArray[i].charAt(0).toUpperCase() + parseNameArray[i].slice(1);
+  for (let i = 0; i < camelCaseNameFileArray.length; i++) {
+    newcamelCaseNameFile += camelCaseNameFileArray[i].charAt(0).toUpperCase() + camelCaseNameFileArray[i].slice(1);
   }
 
-  return newParseName.charAt(0).toLowerCase() + newParseName.slice(1);
+  return newcamelCaseNameFile.charAt(0).toLowerCase() + newcamelCaseNameFile.slice(1);
 }
 
-function upSpaceLetter(parseName) {
-  if (!parseName) return '';
+function upSpaceLetter(camelCaseNameFile) {
+  if (!camelCaseNameFile) return '';
   // camelCase in all first letters of the string after space or underline
-  let newParseName = '';
-  let parseNameArray = parseName.split(' ');
-  if (!(parseNameArray.length > 1)) {
-    parseNameArray = parseName.split('_');
+  let newcamelCaseNameFile = '';
+  let camelCaseNameFileArray = camelCaseNameFile.split(' ');
+  if (!(camelCaseNameFileArray.length > 1)) {
+    camelCaseNameFileArray = camelCaseNameFile.split('_');
   }
-  parseNameArray = castValues(parseNameArray);
-  for (let i = 0; i < parseNameArray.length; i++) {
-    if (i + 1 < parseNameArray.length)
-      newParseName += parseNameArray[i] + " ";
+  camelCaseNameFileArray = castValues(camelCaseNameFileArray);
+  for (let i = 0; i < camelCaseNameFileArray.length; i++) {
+    if (i + 1 < camelCaseNameFileArray.length)
+      newcamelCaseNameFile += camelCaseNameFileArray[i] + " ";
     else
-      newParseName += parseNameArray[i];
+      newcamelCaseNameFile += camelCaseNameFileArray[i];
   }
 
-  return newParseName.charAt(0).toUpperCase() + newParseName.slice(1);
+  return newcamelCaseNameFile.charAt(0).toUpperCase() + newcamelCaseNameFile.slice(1);
 }
 
 function ensureDirectoryExistence(filePath) {
@@ -152,18 +164,16 @@ function ensureDirectoryExistence(filePath) {
     return true;
   }
   fs.mkdirSync(filePath);
-  if (filePath.includes('models'))
-    fs.mkdirSync(filePath + '/validates');
 }
 
-async function makeModel(fileName, parseName) {
+async function makeModel(parsedFileName, camelCaseNameFile, fileName) {
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
 
     function structureUp() {
       return "import ApiConfig from '../../config/api.conf';\n" +
         "import { BasicFields } from '../fields/postgres/basicFields';\n" +
         "\n" +
-        "const " + parseName + " = (sequelize, DataTypes) => {\n" +
+        "const " + camelCaseNameFile + " = (sequelize, DataTypes) => {\n" +
         "\n" +
         "    const basicFields = new BasicFields(DataTypes);\n" +
         "\n" +
@@ -172,7 +182,7 @@ async function makeModel(fileName, parseName) {
         "    const environment = config.getEnv();\n" +
         "    let schema = environment.databases.postgres.schema;\n" +
         "\n" +
-        "    const model = sequelize.define('" + parseName + "',";
+        "    const model = sequelize.define('" + camelCaseNameFile + "',";
     }
 
     function structureMiddle() {
@@ -193,7 +203,7 @@ async function makeModel(fileName, parseName) {
         "\n" +
         "};\n" +
         "\n" +
-        "module.exports = " + parseName + ";";
+        "module.exports = " + camelCaseNameFile + ";";
     }
 
     if (data) {
@@ -235,11 +245,11 @@ async function makeModel(fileName, parseName) {
 
       let fileWrite = structureUp + stringMod + ',' + structureMiddle + foreignKey + structureDown
 
-      await fs.writeFile('docs/final/models/' + fileName.toLowerCase() + '.js', fileWrite, {flag: 'w'}, function (err) {
+      await fs.writeFile('docs/files/back/models/postgres/' + camelCaseNameFile + '.js', fileWrite, {flag: 'w'}, function (err) {
         if (err) {
           return console.log(err);
         }
-        console.log("Saved " + fileName + ".js");
+        console.log("Saved " + camelCaseNameFile + ".js");
       });
     }
 
@@ -247,18 +257,18 @@ async function makeModel(fileName, parseName) {
   // console.log('Make finish file: '+ file)
 }
 
-async function makeEndPoint(fileName, parseName) {
+async function makeEndPoint(parsedFileName, camelCaseNameFile) {
   function structure() {
-    return `import { ${parseName}Aplication } from './${parseName}Aplication';
+    return `import { ${camelCaseNameFile}Aplication } from './${camelCaseNameFile}Aplication';
 import createValidate from './validates/create.validate';
 import updateValidate from './validates/update.validate';
 
 /**
-* MiddleWare que obtem os ${parseName}
+* MiddleWare que obtem os ${camelCaseNameFile}
 * @private
 */
-const get${parseName}MiddleWare = async (req, res) => { 
-return new ${parseName}Aplication()
+const get${camelCaseNameFile}MiddleWare = async (req, res) => { 
+return new ${camelCaseNameFile}Aplication()
     .get(req.query.where, req.query.select, req.query.order, req.query.include, req.query.group)
     .then((success) => {
         res.api.send(success, res.api.codes.OK)
@@ -269,12 +279,12 @@ return new ${parseName}Aplication()
 }
 
 /**
-* MiddleWare que obtem um ${parseName} por id
+* MiddleWare que obtem um ${camelCaseNameFile} por id
 * @private
 */
-const get${parseName}ByIdMiddleWare = async (req, res) => {
+const get${camelCaseNameFile}ByIdMiddleWare = async (req, res) => {
 const id = Number(req.params.id)
-return new ${parseName}Aplication()
+return new ${camelCaseNameFile}Aplication()
     .getById(id, req.query.select)
     .then((success) => {
         if (success)
@@ -288,13 +298,13 @@ return new ${parseName}Aplication()
 }
 
 /**
-* MiddleWare que cria uma novo ${parseName}
+* MiddleWare que cria uma novo ${camelCaseNameFile}
 * @private
 */
-const create${parseName}MiddleWare = async (req, res) => {
+const create${camelCaseNameFile}MiddleWare = async (req, res) => {
 const body = req.body;
 
-return new ${parseName}Aplication()
+return new ${camelCaseNameFile}Aplication()
     .create(body)
     .then((success) => {
         if (success)
@@ -308,15 +318,15 @@ return new ${parseName}Aplication()
 }
 
 /**
-* MiddleWare que atualiza um ${parseName}
+* MiddleWare que atualiza um ${camelCaseNameFile}
 * @private
 */
-const update${parseName}MiddleWare = async (req, res) => {
+const update${camelCaseNameFile}MiddleWare = async (req, res) => {
 const id = Number(req.params.id);
 const {where} = req.query;
 const body = req.body;
 
-return new ${parseName}Aplication()
+return new ${camelCaseNameFile}Aplication()
     .update(id, body, where)
     .then((success) => {
         if (success)
@@ -330,15 +340,15 @@ return new ${parseName}Aplication()
 }
 
 /**
-* MiddleWare que atualiza ou cria um ${parseName}
+* MiddleWare que atualiza ou cria um ${camelCaseNameFile}
 * @private
 */
-const updateOrCreate${parseName}MiddleWare = async (req, res) => {
+const updateOrCreate${camelCaseNameFile}MiddleWare = async (req, res) => {
 const id = Number(req.params.id);
 const {where} = req.query;
 const body = req.body;
 
-return new ${parseName}Aplication()
+return new ${camelCaseNameFile}Aplication()
     .upsert(id, body, where)
     .then((success) => {
         if (success)
@@ -352,14 +362,14 @@ return new ${parseName}Aplication()
 }
 
 /**
-* MiddleWare que remove um ${parseName}
+* MiddleWare que remove um ${camelCaseNameFile}
 * @private
 */
-const delete${parseName}MiddleWare = async (req, res) => {
+const delete${camelCaseNameFile}MiddleWare = async (req, res) => {
 const id = Number(req.params.id);
 const {where} = req.query;
 
-return new ${parseName}Aplication()
+return new ${camelCaseNameFile}Aplication()
     .delete(id, where)
     .then((success) => {
         if (success)
@@ -375,167 +385,168 @@ return new ${parseName}Aplication()
 // swagger-jsdoc
 
 /**
-* Endpoints para o recurso ${parseName}
+* Endpoints para o recurso ${camelCaseNameFile}
 * @public
 */
-const ${parseName}Routes = (route) => {
+const ${camelCaseNameFile}Routes = (route) => {
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}all:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}all:
  *   get:
  *     tags:
- *       - ${parseName}s
- *     description: Retorna todos os ${parseName}s
+ *       - ${camelCaseNameFile}s
+ *     description: Retorna todos os ${camelCaseNameFile}s
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto data uma lista de ${parseName}s
+ *         reponse: Response contendo no objeto data uma lista de ${camelCaseNameFile}s
  */
-route.post('/api/${parseName.toLocaleLowerCase()}all', get${parseName}MiddleWare)
+route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}all', get${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}:
  *   get:
  *     tags:
- *       - ${parseName}s
- *     description: Retorna todos os ${parseName}s
+ *       - ${camelCaseNameFile}s
+ *     description: Retorna todos os ${camelCaseNameFile}s
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto data uma lista de ${parseName}s
+ *         reponse: Response contendo no objeto data uma lista de ${camelCaseNameFile}s
  */
-route.get('/api/${parseName.toLocaleLowerCase()}', get${parseName}MiddleWare)
+route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}', get${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}/:id:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}/:id:
  *   get:
  *     tags:
- *       - ${parseName}s
- *     description: Retorna a ${parseName}s pesquisada
+ *       - ${camelCaseNameFile}s
+ *     description: Retorna a ${camelCaseNameFile}s pesquisada
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto data uma lista de ${parseName}s
+ *         reponse: Response contendo no objeto data uma lista de ${camelCaseNameFile}s
  */
-route.get('/api/${parseName.toLocaleLowerCase()}/:id', get${parseName}ByIdMiddleWare)
+route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', get${camelCaseNameFile}ByIdMiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}:
  *   post:
  *     tags:
- *       - ${parseName}s
- *     description: Cria uma nova ${parseName}s
+ *       - ${camelCaseNameFile}s
+ *     description: Cria uma nova ${camelCaseNameFile}s
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto que foi salvo da ${parseName}s
+ *         reponse: Response contendo no objeto que foi salvo da ${camelCaseNameFile}s
  */
-route.post('/api/${parseName.toLocaleLowerCase()}', createValidate, create${parseName}MiddleWare)
+route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}', createValidate, create${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}/:id:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}/:id:
  *   put:
  *     tags:
- *       - ${parseName}s
- *     description: Altera os dados da ${parseName}s pelo id
+ *       - ${camelCaseNameFile}s
+ *     description: Altera os dados da ${camelCaseNameFile}s pelo id
  *     produces:
  *       - application/json
  *     responses:
  *       200:
  *         reponse: Response contendo um array de string onde 1 - alterado 0 - não alterado
  */
-route.put('/api/${parseName.toLocaleLowerCase()}/:id', updateValidate, update${parseName}MiddleWare)
+route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', updateValidate, update${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}:
  *   put:
  *     tags:
- *       - ${parseName}s
- *     description: Altera os dados da ${parseName}s pela query enviada
+ *       - ${camelCaseNameFile}s
+ *     description: Altera os dados da ${camelCaseNameFile}s pela query enviada
  *     produces:
  *       - application/json
  *     responses:
  *       200:
  *         reponse: Response contendo um array de string onde 1 - alterado 0 - não alterado
  */
-route.put('/api/${parseName.toLocaleLowerCase()}', updateValidate, update${parseName}MiddleWare)
+route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}', updateValidate, update${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}UpdateOrCreate:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}UpdateOrCreate:
  *   put:
  *     tags:
- *       - ${parseName}s
- *     description: Altera os dados da ${parseName}s pela query enviada
+ *       - ${camelCaseNameFile}s
+ *     description: Altera os dados da ${camelCaseNameFile}s pela query enviada
  *     produces:
  *       - application/json
  *     responses:
  *       200:
  *         reponse: Response contendo um array de string onde 1 - alterado 0 - não alterado
  */
-route.put('/api/${parseName.toLocaleLowerCase()}UpdateOrCreate', updateValidate, updateOrCreate${parseName}MiddleWare)
+route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}UpdateOrCreate', updateValidate, updateOrCreate${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}/:id:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}/:id:
  *   delete:
  *     tags:
- *       - ${parseName}s
- *     description: Remove uma ${parseName}s baseada no id
+ *       - ${camelCaseNameFile}s
+ *     description: Remove uma ${camelCaseNameFile}s baseada no id
  *     produces:
  *       - application/json
  *     responses:
  *       200:
  *         reponse: Response contendo 1 - deletado 0 - não deletado
  */
-route.delete('/api/${parseName.toLocaleLowerCase()}/:id', delete${parseName}MiddleWare)
+route.delete('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', delete${camelCaseNameFile}MiddleWare)
 
 /**
  * @swagger
- * /api/${parseName.toLocaleLowerCase()}:
+ * /api/${camelCaseNameFile.toLocaleLowerCase()}:
  *   delete:
  *     tags:
- *       - ${parseName}s
- *     description: Renive yna ${parseName}s baseado na query enviada
+ *       - ${camelCaseNameFile}s
+ *     description: Renive yna ${camelCaseNameFile}s baseado na query enviada
  *     produces:
  *       - application/json
  *     responses:
  *       200:
  *         reponse: Response contendo 1 - deletado 0 - não deletado
  */
-route.delete('/api/${parseName.toLocaleLowerCase()}', delete${parseName}MiddleWare)
+route.delete('/api/${camelCaseNameFile.toLocaleLowerCase()}', delete${camelCaseNameFile}MiddleWare)
 }
 
-export default ${parseName}Routes
+export default ${camelCaseNameFile}Routes
 `;
   }
 
   let fileWrite = structure()
-  ensureDirectoryExistence('docs/final/api/' + fileName + '/');
-  await fs.writeFile('docs/final/api/' + fileName + '/index' + '.js', fileWrite, {flag: 'w'}, function (err) {
+  const pathName = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/'
+  ensureDirectoryExistence(pathName);
+  await fs.writeFile(pathName + 'index' + '.js', fileWrite, {flag: 'w'}, function (err) {
     if (err) {
       return console.log(err);
     }
-    console.log("Saved api: ", parseName + ".js");
+    console.log("Saved api: ", camelCaseNameFile + ".js");
   });
 }
 
-async function makeInterfaceDatabase(fileName, parseName) {
+async function makeInterfaceDatabase(parsedFileName, camelCaseNameFile) {
   function structure() {
     return `import { BaseCrudApplication } from '../../core/BaseCrudAplication'
 import config from '../../config/sequelize/sequelize.conf';
 
-export class ${parseName}Aplication extends BaseCrudApplication {
+export class ${camelCaseNameFile}Aplication extends BaseCrudApplication {
 
 /**
   * Método construtor
@@ -543,18 +554,18 @@ export class ${parseName}Aplication extends BaseCrudApplication {
   * @public
   */
 constructor() {
-    let { ${parseName} } = config.postgres.DB;
-    super(${parseName});
+    let { ${camelCaseNameFile} } = config.postgres.DB;
+    super(${camelCaseNameFile});
 }
 
 /**
- * Método que obtem o ${parseName}
+ * Método que obtem o ${camelCaseNameFile}
  * @param {object} where - Filtro
  * @param select - Campos a serem selecionados
  * @param order - Ordenação
  * @param include - Relacionamentos
  * @param group - Agrupamento
- * @returns {${parseName}[]}
+ * @returns {${camelCaseNameFile}[]}
  * @public
  */
 get(where, select, order, include, group) {
@@ -562,47 +573,47 @@ get(where, select, order, include, group) {
 }
 
 /**
- * Método que obtem a ${parseName} por id
- * @param {number} id${parseName} - Id da (${parseName})s
+ * Método que obtem a ${camelCaseNameFile} por id
+ * @param {number} id${camelCaseNameFile} - Id da (${camelCaseNameFile})s
  * @param select - Filtro
- * @returns {${parseName}}
+ * @returns {${camelCaseNameFile}}
  * @public
  */
-getById(id${parseName}, select) {
-    return super.getById(id${parseName}, select)
+getById(id${camelCaseNameFile}, select) {
+    return super.getById(id${camelCaseNameFile}, select)
 } 
 
 /**
-* Método que cria um nova ${parseName}
-* @param {object} ${parseName} - novos dados da (${parseName}) que será criado
-* @returns {${parseName}}
+* Método que cria um nova ${camelCaseNameFile}
+* @param {object} ${camelCaseNameFile} - novos dados da (${camelCaseNameFile}) que será criado
+* @returns {${camelCaseNameFile}}
 * @public
 */
-create(${parseName}) { 
-    return super.create(${parseName})
+create(${camelCaseNameFile}) { 
+    return super.create(${camelCaseNameFile})
 }
 
 /**
-* Método que atualiza uma ${parseName}
-* @param {number} id${parseName} - Id da ${parseName}
-* @param {object} ${parseName} - dados da (${parseName}) que será atualizado
+* Método que atualiza uma ${camelCaseNameFile}
+* @param {number} id${camelCaseNameFile} - Id da ${camelCaseNameFile}
+* @param {object} ${camelCaseNameFile} - dados da (${camelCaseNameFile}) que será atualizado
 * @param Where
-* @returns {${parseName}}
+* @returns {${camelCaseNameFile}}
 * @public
 */
-update(id${parseName}, ${parseName}, Where) {
-    return super.update(id${parseName}, ${parseName}, Where)
+update(id${camelCaseNameFile}, ${camelCaseNameFile}, Where) {
+    return super.update(id${camelCaseNameFile}, ${camelCaseNameFile}, Where)
 }
 
 /**
-* Método que remove um ${parseName}
-* @param {number} id${parseName} - Id da (${parseName})
+* Método que remove um ${camelCaseNameFile}
+* @param {number} id${camelCaseNameFile} - Id da (${camelCaseNameFile})
 * @param Where
 * @returns {boolean}
 * @public
 */
-delete(id${parseName}, Where) {
-    return super.delete(id${parseName}, Where)
+delete(id${camelCaseNameFile}, Where) {
+    return super.delete(id${camelCaseNameFile}, Where)
 }
 
 }
@@ -611,15 +622,15 @@ delete(id${parseName}, Where) {
 
   let fileWrite = structure()
 
-  await fs.writeFile('docs/final/api/' + fileName + '/' + parseName + 'Aplication.js', fileWrite, {flag: 'w'}, function (err) {
+  await fs.writeFile('docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/' + camelCaseNameFile + 'Aplication.js', fileWrite, {flag: 'w'}, function (err) {
     if (err) {
       return console.log(err);
     }
-    console.log("Saved api: ", parseName + ".js");
+    console.log("Saved api: ", camelCaseNameFile + ".js");
   });
 }
 
-async function makeValidates(fileName, parseName) {
+async function makeValidates(parsedFileName, camelCaseNameFile, fileName) {
 
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
 
@@ -649,11 +660,15 @@ export default (req, res, next) => {
       let modelUpdate = {};
       fields.forEach(function (field, index) {
         const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+        // Values for create
         modelCreate[nameAttribute] = 'Joi.';
         if (field['Tipo'] === 'varchar') {
           modelCreate[nameAttribute] += 'string().';
           modelCreate[nameAttribute] += `max(${field['Tamanho']}).`;
-        } else if (field['Tipo'] === 'number')
+        }
+        else if (field['Tipo'] === 'enum')
+          modelCreate[nameAttribute] += 'valid(['+ field['Observacoes'] +']).';
+        else if (field['Tipo'] === 'number')
           modelCreate[nameAttribute] += 'number().';
         else
           modelCreate[nameAttribute] += 'string().';
@@ -664,12 +679,16 @@ export default (req, res, next) => {
           modelCreate[nameAttribute] += 'optional()';
 
 
+        //Values for update
         // const nameAttribute = upLetter(field['Atributo']);
         modelUpdate[nameAttribute] = 'Joi.';
         if (field['Tipo'] === 'varchar') {
           modelUpdate[nameAttribute] += 'string().';
           modelUpdate[nameAttribute] += `max(${field['Tamanho']}).`;
-        } else if (field['Tipo'] === 'number')
+        }
+        else if (field['Tipo'] === 'enum')
+          modelUpdate[nameAttribute] += 'valid(['+ field['Observacoes'] +']).';
+        else if (field['Tipo'] === 'number')
           modelUpdate[nameAttribute] += 'number().';
         else
           modelUpdate[nameAttribute] += 'string().';
@@ -693,25 +712,25 @@ export default (req, res, next) => {
       let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
       let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
 
-      const namePath = 'docs/final/api/' + fileName + '/validates/';
+      const namePath = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/validates/';
       ensureDirectoryExistence(namePath);
       await fs.writeFile(namePath + 'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
         if (err) {
           return console.log(err);
         }
-        console.log("Saved endPointValidateCreate: ", parseName + ".js");
+        console.log("Saved endPointValidateCreate: ", camelCaseNameFile + ".js");
       });
       await fs.writeFile(namePath + 'update.validate.js', fileWriteUpdate, {flag: 'w'}, function (err) {
         if (err) {
           return console.log(err);
         }
-        console.log("Saved endPointValidateUpdate: ", parseName + ".js");
+        console.log("Saved endPointValidateUpdate: ", camelCaseNameFile + ".js");
       });
     }
   });
 }
 
-async function makeModelFront(fileName, parseName) {
+async function makeModelFront(parsedFileName, camelCaseNameFile, fileName) {
 
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
     if (data) {
@@ -722,9 +741,9 @@ async function makeModelFront(fileName, parseName) {
           doFile = true
       });
       if (doFile) {
-        const nameFileFront = fileName.replace('_', '-').toLocaleString();
-        const structure = (fileName, fields) => {
-          return `export class ${fileName} ${fields}`;
+        const nameFileFront = parsedFileName.replace(/_/g, '-').toLocaleString();
+        const structure = (nameFileFront, fields) => {
+          return `export class ${nameFileFront} ${fields}`;
         }
 
         let fields = JSON.parse(data)
@@ -739,22 +758,21 @@ async function makeModelFront(fileName, parseName) {
 
         let stringFy = JSON.stringify(inputs);
         let stringMod = stringFy.replace(/\"/g, '').replace(/,/g, ';');
-        let fileWrite = structure(parseName, stringMod)
+        let fileWrite = structure(camelCaseNameFile, stringMod)
 
-        let nameOfPath = 'docs/final/front/model/'
-        ensureDirectoryExistence(nameOfPath);
+        let nameOfPath = 'docs/files/front/models/'
         await fs.writeFile(nameOfPath + nameFileFront + '.ts', fileWrite, {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved Model API: ", parseName.replace('_', '-') + ".js");
+          console.log("Saved Model API: ", camelCaseNameFile.replace('_', '-') + ".js");
         });
       }
     }
   });
 }
 
-async function makeFileService(fileName, parseName) {
+async function makeFileService(parsedFileName, camelCaseNameFile, fileName) {
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
     if (data) {
       const fields = JSON.parse(data);
@@ -769,14 +787,14 @@ async function makeFileService(fileName, parseName) {
           return `import {Injectable} from '@angular/core';
 import {SarcService} from '../sarc-service/sarc-api.service';
 import {HttpClient} from '@angular/common/http';
-import {${parseName}} from '../../models/${fileName.replace(/_/g, "-")}';
+import {${camelCaseNameFile}} from '../../models/${parsedFileName.replace(/_/g, "-")}';
 
 @Injectable({
   providedIn: 'root'
 })
-export class ${parseName}Service extends SarcService< ${parseName} > {
+export class ${camelCaseNameFile}Service extends SarcService< ${camelCaseNameFile} > {
   constructor(http: HttpClient) {
-    super('api/${parseName.toLocaleLowerCase()}', http)
+    super('api/${camelCaseNameFile.toLocaleLowerCase()}', http)
   }
 }
 `;
@@ -784,20 +802,20 @@ export class ${parseName}Service extends SarcService< ${parseName} > {
 
         let fileWrite = structure()
 
-        let nameOfPath = 'docs/final/front/services/' + fileName + '_service/'
+        let nameOfPath = 'docs/files/front/services/' + parsedFileName.replace(/_/g, "-") + '_service/'
         ensureDirectoryExistence(nameOfPath);
-        await fs.writeFile(nameOfPath + parseName + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
+        await fs.writeFile(nameOfPath + camelCaseNameFile + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved api: ", parseName + ".js");
+          console.log("Saved api: ", camelCaseNameFile + ".js");
         });
       }
     }
   });
 }
 
-async function makeFileFront(fileName, className) {
+async function makeFileFront(parsedFileName, className, fileName) {
   await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
     if (data) {
       const fields = JSON.parse(data);
@@ -807,7 +825,7 @@ async function makeFileFront(fileName, className) {
           doFile = true
       });
       if (doFile) {
-        const nameFileFront = fileName.replace('_', '-').toLocaleString();
+        const nameFileFront = parsedFileName.replace(/_/g, "-").toLocaleString();
         const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, conditionRender, reMapFoDataTable) => {
           return `import { Component } from '@angular/core';
 import { MessageService } from '../../../services/message/message.service';
@@ -815,7 +833,7 @@ import { WebixInput } from 'src/app/classes/webix.input';
 import { WebixToolbar } from 'src/app/classes/webix.toolbar';
 import { WebixSelect } from 'src/app/classes/webix.select';
 import { WebixDatatable } from 'src/app/classes/webix.datatable';
-import { ${className}Service } from '../../services/${fileName}_service/${className}Service';
+import { ${className}Service } from '../../services/${parsedFileName.replace(/_/g, "-")}_service/${className}Service';
 import { QuerysBuilderService } from '../../../services/querys-builder/querys-builder.service';
 import { WebixService } from '../../../services/webix/webix.service';
 import { WebixPaginate } from 'src/app/classes/webix.paginate';
@@ -863,12 +881,12 @@ export class ${className}Component {
   dataAll: any = [];
 
   /*
-    Id do formulário é colocado em uma variável para poder ser reutilizado no código abaixo
+    Id do formulário é colocado numa variável para poder ser reutilizado no código abaixo
   */
   formId: string = 'Frm${className}';
 
   /*
-    Id do accordion onde tem o formulário é colocado em uma variável para poder ser utilizado no código abaixo
+    Id do accordion onde tem o formulário é colocado numa variável para poder ser utilizado no código abaixo
   */
   accordionFormId: string = 'accordionItemForm${className}';
 
@@ -908,11 +926,10 @@ export class ${className}Component {
       pager: this.paginate.getId(),
       footer: true,
       onClick: {
-        view: (ev, elem, html) => {
+        view: (ev, elem) => {
           this.viewElement(elem.row);
         },
-
-        edit: (ev, elem, html) => {
+        edit: (ev, elem) => {
           this._checkFormDuty(() => {
             const item = this.dataAll.find(item => item.id === elem.row);
             this.$$(this.accordionFormId).expand();
@@ -922,8 +939,7 @@ export class ${className}Component {
             this._edit(item);
           });
         },
-
-        remove: (ev, elem, html) => {
+        remove: (ev, elem) => {
           this._checkFormDuty(() => {
             const item = this.dataAll.find(item => item.id === elem.row);
             this.webix.confirm(this.translate('Tem certeza que deseja remover o registro ') + item.id + ' - ' + item.description + '?', (value) => {
@@ -968,7 +984,7 @@ export class ${className}Component {
   }
 
   /**
-   * Configura o layout com os componentes webix utilizando as variaveis declaradas acima
+   * Configura a disposição com os componentes webix utilizando as variaveis declaradas acima
    */
   async setWebixUi() {
     this.webix.ready(async () => {
@@ -1019,10 +1035,10 @@ export class ${className}Component {
           }
         ]
       });
-      await this.loadSuggests();
+      ${setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
       await this._loadData();
     })
-  }
+  }await this.loadSuggests();
 
   /**
    * Retorna o objeto com as variaveis do formulário para dentro do webixUi
@@ -1093,7 +1109,7 @@ export class ${className}Component {
     form.setDirty(false);
   }
   /*
-  * Desativa o formulário de acordo com a regra de negocio necessaria
+  * Desativa o formulário conforme a regra de negocio necessaria
   */
   setReadOnly(value) {
     this.$$(this.formId).clearValidation();
@@ -1152,11 +1168,11 @@ export class ${className}Component {
       delete values.updatedAt
 
     this._service.put(values.id, values).subscribe(
-      (success) => _success(success),
+      () => _success(),
       (error) => _error(error)
     )
 
-    const _success = (success) => {
+    const _success = () => {
       const datatable = this.$$(this.datatable.getId());
       datatable.updateItem(values.id, values);
       const index = this.dataAll.findIndex(item => item.id === values.id);
@@ -1208,15 +1224,15 @@ export class ${className}Component {
   }
 
   /**
-   * Confirma se realmente é pra remover e exclui as informações na API
+   * Confirma se realmente é para remover e exclui as informações na API
    */
   remove(item) {
     this._service.delete(item.id).subscribe(
-      (success) => _success(success),
+      () => _success(),
       (error) => _error(error)
     )
 
-    const _success = (success) => {
+    const _success = () => {
       this.$$(this.datatable.getId()).remove(item.id);
       this._cancelOrClear();
       this._messageService.show('Removido com sucesso', 'success');
@@ -1300,7 +1316,7 @@ export class ${className}Component {
     loadingShow();
 
     this._googleSheetsService.createSheetFromDatatableAndOpen(this.$$(this.datatable.getId()),
-      \`Registros - Locais \${moment(new Date()).format('DD/MM/YYYY hh:mm:ss')}\`,
+      \`Registros - ${parsedFileName} \${moment(new Date()).format('DD/MM/YYYY hh:mm:ss')}\`,
       \`Exportacao/SAIA/Registros\`,
       this._localStorageService.getItem('user').email,
       'Locais', undefined, undefined, () => loadingHide(), () => {
@@ -1336,7 +1352,7 @@ export class ${className}Component {
 
           const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
           const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
-          const nameHeader = upSpaceLetter(field['Atributo']);
+          const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
           select += ` '${nameAttribute}',`
           if (cont++ === 0) {
             close = false
@@ -1346,19 +1362,21 @@ export class ${className}Component {
             form += `this.inputId.getField(),\n`;
             //regex to remove break lines
             // const parten = /\n/g;
-            datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: false, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
-            inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: false, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },\n`;
+            //TODO INSERT TITLE
+            inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { width: 200, disabled: true, ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
           } else {
             form += `this.input${nameAttributeAllUp}.getField(),\n`;
-            datatable += `{ id: "${nameAttribute}", header: [this.translate("${nameHeader}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },`;
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },\n`;
 
             if (field['Tipo'] === 'date') {
-              inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
               mapFoDataTable += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
             } else if (field['Tipo'] === 'enum') {
-              inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${nameHeader}'), [${field['Observacoes'].split(',')}],{ required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${JSON.stringify(field['Observacoes'].split(',').map( i => {return {id: i.replace(/'/g, ''), value: i.replace(/'/g, '') }}))},{ required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             } else if (field['Observacoes'] === 'foreign key') {
-              inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+
               const nameService = field['Tabela'].replace(' ', '')
               //Replace up letter for same letter lower and underscore not can start with underscore
               const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '_$1').toLowerCase();
@@ -1393,7 +1411,7 @@ export class ${className}Component {
               mapFoDataTable += `const ${nameAttribute} = this.${nameAttribute}Data.filter( i => i.id == item.${nameAttribute});
                             ${nameAttribute}? item.${nameAttribute} = ${nameAttribute}[0].value : '';\n`;
             } else {
-              inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${nameHeader}'), { required: ${(field['Obrigatorio'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+              inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             }
 
           }
@@ -1409,11 +1427,13 @@ export class ${className}Component {
         }
         inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
         declareVariable += `suggestValues: any = {};\n`;
-        const setLoadSuggest = `async loadSuggests() {
+        let setLoadSuggest = ""
+        loadSuggest? setLoadSuggest = `async loadSuggests() {
                     const simpleWhere = "where="+JSON.stringify({situation: 'A'});\n
                     ${loadSuggest}\n
                     loadingHide();\n
-                }`
+                }`: '';
+
         const conditionRender = `
                 if(this.suggestValues) {
                     ${resgateSuggestToSave}
@@ -1427,7 +1447,7 @@ export class ${className}Component {
 
 
         //Start write file
-        let nameOfPath = 'docs/final/front/tables/' + nameFileFront + '/'
+        let nameOfPath = 'docs/files/front/tables/' + nameFileFront + '/'
         ensureDirectoryExistence(nameOfPath);
         await fs.writeFile(nameOfPath + nameFileFront + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
           if (err) {
@@ -1436,7 +1456,7 @@ export class ${className}Component {
           console.log("Saved api: ", className.replace('_', '-') + ".js");
         });
 
-        //      createfile: './${fileName}.component.html',
+        //      createfile: './${parsedFileName}.component.html',
         await fs.writeFile(nameOfPath + nameFileFront + '.component.html', '', {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
@@ -1444,7 +1464,7 @@ export class ${className}Component {
           console.log("Saved tables: ", nameFileFront + ".component.html");
         });
 
-        //      createfile: './${fileName}.component.scss'
+        //      createfile: './${parsedFileName}.component.scss'
         await fs.writeFile(nameOfPath + nameFileFront + '.component.scss', '', {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
@@ -1458,8 +1478,8 @@ export class ${className}Component {
 }
 
 // Verify fist key of the file is primary key
-// async function verifyPrimeryKey(fileName) {
-//     return fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
+// async function verifyPrimeryKey(parsedFileName) {
+//     return fs.readFile(readFolder + parsedFileName + '.json', 'utf8', async function (err, data) {
 //         if (data) {
 //             const fields = JSON.parse(data);
 //             let model = {};

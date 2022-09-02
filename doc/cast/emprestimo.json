@@ -1,0 +1,74 @@
+[
+  {
+    "Atributo": "cod_emprestimo",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do emprestimo",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+    {
+        "Atributo": "cod_usuario",
+        "Tipo": "number",
+        "Tamanho": 0,
+        "Descricao": "Código do usuário",
+        "Obrigatoriedade": "sim",
+        "Observacoes": ""
+    },
+    {
+        "Atributo": "email",
+        "Tipo": "varchar",
+        "Tamanho": 200,
+        "Descricao": "Email do usuário",
+        "Obrigatoriedade": "nao",
+        "Observacoes": ""
+    },
+    {
+        "Atributo": "area",
+        "Tipo": "varchar",
+        "Tamanho": 50,
+        "Descricao": "Área do usuário",
+        "Obrigatoriedade": "nao",
+        "Observacoes": ""
+    },
+    {
+        "Atributo": "dat_emprestimo",
+        "Tipo": "date",
+        "Tamanho": 0,
+        "Descricao": "Data do emprestimo",
+        "Obrigatoriedade": "sim",
+        "Observacoes": "yyyy-mm-dd hh:mm:ss"
+    },
+    {
+        "Atributo": "dat_prev_devol",
+        "Tipo": "date",
+        "Tamanho": 0,
+        "Descricao": "Data prevista de devolução",
+        "Obrigatoriedade": "nao",
+        "Observacoes": "yyyy-mm-dd hh:mm:ss"
+    },
+    {
+        "Atributo": "status",
+        "Tipo": "enum",
+        "Tamanho": 0,
+        "Descricao": "Status do emprestimo, E - Emprestado D - Devolvido",
+        "Obrigatoriedade": "sim",
+        "Observacoes": "'E', 'D'"
+    },
+    {
+        "Atributo": "dat_devolucao",
+        "Tipo": "date",
+        "Tamanho": 0,
+        "Descricao": "Data de devolução",
+        "Obrigatoriedade": "nao",
+        "Observacoes": "yyyy-mm-dd hh:mm:ss"
+    },
+    {
+        "Atributo": "usuario_devol",
+        "Tipo": "varchar",
+        "Tamanho": 50,
+        "Descricao": "Usuário que devolveu",
+        "Obrigatoriedade": "nao",
+        "Observacoes": ""
+    }
+]

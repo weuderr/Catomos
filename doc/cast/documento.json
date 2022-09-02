@@ -1,0 +1,100 @@
+[
+  {
+    "Atributo": "cod_documento",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do documento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "index_documento",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "É o código do documento de acordo com o tipo de indexação. É um código que será informado pelo usuário.",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "desc_documento",
+    "Tipo": "number",
+    "Tamanho": 500,
+    "Descricao": "Descricao do documento",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_item",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do item documental",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "ItemDocumental"
+  },
+  {
+    "Atributo": "cod_orgao",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do Tipo órgão",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "TipoOrgao"
+  },
+  {
+    "Atributo": "sta_documento",
+    "Tipo": "enum",
+    "Tamanho": 1,
+    "Descricao": "A - Ativo E - Eliminado S - Suspenso",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'A', 'E', 'S'"
+  },
+  {
+      "Atributo": "dat_inicial",
+      "Tipo": "date",
+      "Tamanho": 0,
+      "Descricao": "Data inicial",
+      "Obrigatoriedade": "sim",
+      "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+      "Atributo": "dat_final",
+      "Tipo": "date",
+      "Tamanho": 0,
+      "Descricao": "Data final",
+      "Obrigatoriedade": "sim",
+      "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+      "Atributo": "dat_recebimento",
+      "Tipo": "date",
+      "Tamanho": 0,
+      "Descricao": "Data de recebimento",
+      "Obrigatoriedade": "sim",
+      "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+      "Atributo": "dat_cadastramento",
+      "Tipo": "date",
+      "Tamanho": 0,
+      "Descricao": "Data cadastramento no sistema",
+      "Obrigatoriedade": "sim",
+      "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+      "Atributo": "dat_eliminacao",
+      "Tipo": "date",
+      "Tamanho": 0,
+      "Descricao": "Data de eliminação",
+      "Obrigatoriedade": "nao",
+      "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+      "Atributo": "cod_usuario_elimina",
+      "Tipo": "varchar",
+      "Tamanho": 7,
+      "Descricao": "Código do usuário que eliminou o documento",
+      "Obrigatoriedade": "nao",
+      "Observacoes": ""
+  }
+]

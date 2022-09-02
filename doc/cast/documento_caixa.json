@@ -1,0 +1,52 @@
+[
+  {
+    "Atributo": "cod_documento",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial do carregamento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Documento"
+  },
+  {
+    "Atributo": "cod_caixa",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Chave referencial de caixa",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "foreign key",
+    "Tabela": "Caixa"
+  },
+  {
+    "Atributo": "seq_caixa",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Sequencia caixa",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "doc_inicial",
+    "Tipo": "varchar",
+    "Tamanho": "200",
+    "Descricao": "Documento inicial",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "doc_final",
+    "Tipo": "varchar",
+    "Tamanho": "200",
+    "Descricao": "Documento final",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "status_doc_caixa",
+    "Tipo": "enum",
+    "Tamanho": "",
+    "Descricao": "Status do objeto",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'A', 'E'"
+  }
+]
