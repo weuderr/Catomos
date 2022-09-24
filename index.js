@@ -10,12 +10,14 @@ fs.readdir(readFolder, async (err, files) => {
         const fileName = file.replace('.json', '');
         let parsedFileName = fileName.replace(/ /g, "_").replace(/_/g, '-').toLowerCase(); //name of file without extension
         let camelCaseNameFile = upAllFistLetter(fileName); // name if camelCase
+        let nameWithSpace = upAllFistLetterWithSpace(fileName.replace(/-/g, " ").replace(/_/g, ' '));
 
 
         ensureDirectoryExistence('docs/');
         ensureDirectoryExistence('docs/files/');
         ensureDirectoryExistence('docs/files/front/');
         ensureDirectoryExistence('docs/files/front/services');
+        ensureDirectoryExistence('docs/files/front/enum/');
         ensureDirectoryExistence('docs/files/front/tables/');
         ensureDirectoryExistence('docs/files/front/models/');
         ensureDirectoryExistence('docs/files/back/');
@@ -24,15 +26,17 @@ fs.readdir(readFolder, async (err, files) => {
         ensureDirectoryExistence('docs/files/back/models/postgres/');
 
 
-        await makeModel(parsedFileName, camelCaseNameFile, fileName);
-        await makeEndPoint(parsedFileName, camelCaseNameFile, fileName);
+        await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
+          await makeModel(parsedFileName, camelCaseNameFile, fileName, data);
+          await makeEndPoint(parsedFileName, camelCaseNameFile, nameWithSpace);
 
-        await makeInterfaceDatabase(parsedFileName, camelCaseNameFile, fileName);
-        await makeValidates(parsedFileName, camelCaseNameFile, fileName);
+          await makeInterfaceDatabase(parsedFileName, camelCaseNameFile);
+          await makeValidates(parsedFileName, camelCaseNameFile, fileName, data);
 
-        await makeFrontModels(parsedFileName, camelCaseNameFile, fileName);
-        await makeFrontFileService(parsedFileName, camelCaseNameFile, fileName);
-        await makeFileFront(parsedFileName, camelCaseNameFile, fileName);
+          await makeFrontModels(parsedFileName, camelCaseNameFile, fileName, data);
+          await makeFrontFileService(parsedFileName, camelCaseNameFile, fileName, data);
+          await makeFileFront(parsedFileName, camelCaseNameFile, fileName, data);
+        });
       }
     }
   else {
@@ -111,6 +115,24 @@ function castValues(camelCaseNameFileArray) {
   });
 }
 
+function upAllFistLetterWithSpace(camelCaseNameFile) {
+  if (!camelCaseNameFile) return '';
+  // camelCase in all first letters of the string after space or underline
+  let newcamelCaseNameFile = '';
+  let camelCaseNameFileArray = camelCaseNameFile.split(' ');
+  if (!(camelCaseNameFileArray.length > 1)) {
+    camelCaseNameFileArray = camelCaseNameFile.split('_');
+  }
+  for (let i = 0; i < camelCaseNameFileArray.length; i++) {
+    if(i === camelCaseNameFileArray.length - 1) {
+      newcamelCaseNameFile += camelCaseNameFileArray[i].charAt(0).toUpperCase() + camelCaseNameFileArray[i].slice(1);
+    } else {
+      newcamelCaseNameFile += camelCaseNameFileArray[i].charAt(0).toUpperCase() + camelCaseNameFileArray[i].slice(1) + ' ';
+    }
+  }
+  return newcamelCaseNameFile;
+}
+
 function upAllFistLetter(camelCaseNameFile) {
   if (!camelCaseNameFile) return '';
   // camelCase in all first letters of the string after space or underline
@@ -167,110 +189,111 @@ function ensureDirectoryExistence(filePath) {
   fs.mkdirSync(filePath);
 }
 
-async function makeModel(parsedFileName, camelCaseNameFile, fileName) {
-  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
+async function makeModel(parsedFileName, camelCaseNameFile, fileName, data) {
 
-    function structureUp() {
-      return "import ApiConfig from '../../config/api.conf';\n" +
-        "import { BasicFields } from '../fields/postgres/basicFields';\n" +
-        "\n" +
-        "const " + camelCaseNameFile + " = (sequelize, DataTypes) => {\n" +
-        "\n" +
-        "    const basicFields = new BasicFields(DataTypes);\n" +
-        "\n" +
-        "    // Define environment object\n" +
-        "    const config = new ApiConfig();\n" +
-        "    const environment = config.getEnv();\n" +
-        "    let schema = environment.databases.postgres.schema;\n" +
-        "\n" +
-        "    const model = sequelize.define('" + camelCaseNameFile + "',";
-    }
+  function structureUp() {
+    return "import ApiConfig from '../../config/api.conf';\n" +
+      "import { BasicFields } from '../fields/postgres/basicFields';\n" +
+      "\n" +
+      "const " + camelCaseNameFile + " = (sequelize, DataTypes) => {\n" +
+      "\n" +
+      "    const basicFields = new BasicFields(DataTypes);\n" +
+      "\n" +
+      "    // Define environment object\n" +
+      "    const config = new ApiConfig();\n" +
+      "    const environment = config.getEnv();\n" +
+      "    let schema = environment.databases.postgres.schema;\n" +
+      "\n" +
+      "    const model = sequelize.define('" + camelCaseNameFile + "',";
+  }
 
-    function structureMiddle() {
-      return "     {\n" +
-        "            paranoid: true,\n" +
-        "            freezeTableName: true,\n" +
-        "            tableName: '" + fileName + "'\n" +
-        "        }).schema(schema);\n" +
-        "\n" +
-        "    model.associate = (models) => {\n";
-    }
+  function structureMiddle() {
+    return "     {\n" +
+      "            paranoid: true,\n" +
+      "            freezeTableName: true,\n" +
+      "            tableName: '" + fileName + "'\n" +
+      //TODO onDelete: 'RESTRICT'
+      // hooks: true, //  Not allow delete if exist relation of row
+      "        }).schema(schema);\n" +
+      "\n" +
+      "    model.associate = (models) => {\n";
+  }
 
-    function structureDown() {
-      return "   \n" +
-        "    };\n" +
-        "\n" +
-        "    return model;\n" +
-        "\n" +
-        "};\n" +
-        "\n" +
-        "module.exports = " + camelCaseNameFile + ";";
-    }
+  function structureDown() {
+    return "   \n" +
+      "    };\n" +
+      "\n" +
+      "    return model;\n" +
+      "\n" +
+      "};\n" +
+      "\n" +
+      "module.exports = " + camelCaseNameFile + ";";
+  }
 
-    if (data) {
-      let fields = JSON.parse(data)
-      structureUp = structureUp()
-      structureDown = structureDown()
-      structureMiddle = structureMiddle()
-      let model = {};
-      let foreignKey = '';
+  if (data) {
+    let fields = JSON.parse(data)
+    structureUp = structureUp()
+    structureDown = structureDown()
+    structureMiddle = structureMiddle()
+    let model = {};
+    let foreignKey = '';
 
-      fields.forEach(function (field, index) {
+    fields.forEach(function (field, index) {
 
-        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-        model[nameAttribute] = fieldsForModel(field);
+      const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+      model[nameAttribute] = fieldsForModel(field);
 
-        if (field['Observacoes'] === 'foreign key') {
-          // foreignKey += `model.hasMany( models.${upLetter(nameAttribute.replace('Id',''))}, { foreignKey: \'${nameAttribute}\' });`
-          foreignKey += `model.belongsTo( models.${field['Tabela']}, { foreignKey: \'${upLetter(nameAttribute)}\' } );`
+      if (field['Observacoes'] === 'foreign key') {
+        // foreignKey += `model.hasMany( models.${upLetter(nameAttribute.replace('Id',''))}, { foreignKey: \'${nameAttribute}\' });`
+        foreignKey += `model.belongsTo( models.${field['Tabela']}, { foreignKey: \'${upLetter(nameAttribute)}\' } );`
 
-          //TODO Buscar refrencia em todas as outra tabelas, para encontrar a chave estrangeira Hasmany
-        }
+        //TODO Buscar refrencia em todas as outra tabelas, para encontrar a chave estrangeira Hasmany
+      }
 
-      });
-      model['unit'] = 'basicFields.setFieldUnit()';
-      model['user'] = 'basicFields.setFieldUser()';
-      model['situation'] = 'basicFields.setFieldSituation()';
-      model['createdAt'] = 'basicFields.setFieldCreatedAt()';
-      model['updatedAt'] = 'basicFields.setFieldUpdatedAt()';
-      model['deletedAt'] = 'basicFields.setFieldDeletedAt()';
+    });
+    model['unit'] = 'basicFields.setFieldUnit()';
+    model['user'] = 'basicFields.setFieldUser()';
+    model['situation'] = 'basicFields.setFieldSituation()';
+    model['createdAt'] = 'basicFields.setFieldCreatedAt()';
+    model['updatedAt'] = 'basicFields.setFieldUpdatedAt()';
+    model['deletedAt'] = 'basicFields.setFieldDeletedAt()';
 
-      let pattern = new RegExp(/"([^"]+)":/g);
-      let stringFy = JSON.stringify(model);
-      //remove " with regex of all name fields
-      let stringMod = stringFy.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"').replace(',', ',\n');
-      //remove double quotes before beginning of phrase DataTypes and end of the same phrase
-      stringMod = stringMod.replace(/\"DataTypes/g, 'DataTypes').replace(/\",allowNull/g, ',allowNull');
-      stringMod = stringMod.replace(/\"basicFields/g, 'basicFields').replace(/\(\)\"/g, '()');
+    let pattern = new RegExp(/"([^"]+)":/g);
+    let stringFy = JSON.stringify(model);
+    //remove " with regex of all name fields
+    let stringMod = stringFy.replace(pattern, '$1:').replace(/\uFFFF/g, '\\\"').replace(',', ',\n');
+    //remove double quotes before beginning of phrase DataTypes and end of the same phrase
+    stringMod = stringMod.replace(/\"DataTypes/g, 'DataTypes').replace(/\",allowNull/g, ',allowNull');
+    stringMod = stringMod.replace(/\"basicFields/g, 'basicFields').replace(/\(\)\"/g, '()');
 
 
-      let fileWrite = structureUp + stringMod + ',' + structureMiddle + foreignKey + structureDown
+    let fileWrite = structureUp + stringMod + ',' + structureMiddle + foreignKey + structureDown
 
-      await fs.writeFile('docs/files/back/models/postgres/' + camelCaseNameFile + '.js', fileWrite, {flag: 'w'}, function (err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log("Saved " + camelCaseNameFile + ".js");
-      });
-    }
+    await fs.writeFile('docs/files/back/models/postgres/' + camelCaseNameFile + '.js', fileWrite, {flag: 'w'}, function (err) {
+      if (err) {
+        return console.log(err);
+      }
+      console.log("Saved " + camelCaseNameFile + ".js");
+    });
+  }
 
-  });
   // console.log('Make finish file: '+ file)
 }
 
-async function makeEndPoint(parsedFileName, camelCaseNameFile) {
+async function makeEndPoint(parsedFileName, camelCaseNameFile, nameWithSpace) {
   function structure() {
     return `import { ${camelCaseNameFile}Aplication } from './${camelCaseNameFile}Aplication';
 import createValidate from './validates/create.validate';
 import updateValidate from './validates/update.validate';
 
 /**
-* MiddleWare que obtem os ${camelCaseNameFile}
+* MiddleWare que obtem os ${nameWithSpace}(s) do banco de dados
 * @private
 */
 const get${camelCaseNameFile}MiddleWare = async (req, res) => { 
 return new ${camelCaseNameFile}Aplication()
-    .get(req.query.where, req.query.select, req.query.order, req.query.include, req.query.group)
+    const include = JSON.parse(req.query.include|| '[]') ;
+    .get(req.query.where, req.query.select, req.query.order, include, req.query.group)
     .then((success) => {
         res.api.send(success, res.api.codes.OK)
     })
@@ -280,7 +303,7 @@ return new ${camelCaseNameFile}Aplication()
 }
 
 /**
-* MiddleWare que obtem um ${camelCaseNameFile} por id
+* MiddleWare que obtem um ${nameWithSpace} por id do banco de dados
 * @private
 */
 const get${camelCaseNameFile}ByIdMiddleWare = async (req, res) => {
@@ -299,12 +322,11 @@ return new ${camelCaseNameFile}Aplication()
 }
 
 /**
-* MiddleWare que cria uma novo ${camelCaseNameFile}
+* MiddleWare que cria uma novo ${nameWithSpace} no banco de dados
 * @private
 */
 const create${camelCaseNameFile}MiddleWare = async (req, res) => {
 const body = req.body;
-
 return new ${camelCaseNameFile}Aplication()
     .create(body)
     .then((success) => {
@@ -319,14 +341,13 @@ return new ${camelCaseNameFile}Aplication()
 }
 
 /**
-* MiddleWare que atualiza um ${camelCaseNameFile}
+* MiddleWare que atualiza um ${nameWithSpace} no banco de dados
 * @private
 */
 const update${camelCaseNameFile}MiddleWare = async (req, res) => {
 const id = Number(req.params.id);
 const {where} = req.query;
 const body = req.body;
-
 return new ${camelCaseNameFile}Aplication()
     .update(id, body, where)
     .then((success) => {
@@ -341,14 +362,13 @@ return new ${camelCaseNameFile}Aplication()
 }
 
 /**
-* MiddleWare que atualiza ou cria um ${camelCaseNameFile}
+* MiddleWare que atualiza ou cria um ${nameWithSpace} no banco de dados
 * @private
 */
 const updateOrCreate${camelCaseNameFile}MiddleWare = async (req, res) => {
 const id = Number(req.params.id);
 const {where} = req.query;
 const body = req.body;
-
 return new ${camelCaseNameFile}Aplication()
     .upsert(id, body, where)
     .then((success) => {
@@ -363,13 +383,12 @@ return new ${camelCaseNameFile}Aplication()
 }
 
 /**
-* MiddleWare que remove um ${camelCaseNameFile}
+* MiddleWare que remove um ${nameWithSpace} no banco de dados
 * @private
 */
 const delete${camelCaseNameFile}MiddleWare = async (req, res) => {
 const id = Number(req.params.id);
 const {where} = req.query;
-
 return new ${camelCaseNameFile}Aplication()
     .delete(id, where)
     .then((success) => {
@@ -386,7 +405,7 @@ return new ${camelCaseNameFile}Aplication()
 // swagger-jsdoc
 
 /**
-* Endpoints para o recurso ${camelCaseNameFile}
+* Endpoints para o recurso ${nameWithSpace}
 * @public
 */
 const ${camelCaseNameFile}Routes = (route) => {
@@ -397,12 +416,12 @@ const ${camelCaseNameFile}Routes = (route) => {
  *   get:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Retorna todos os ${camelCaseNameFile}s
+ *     description: Retorna todos os ${nameWithSpace}s
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto data uma lista de ${camelCaseNameFile}s
+ *         reponse: Response contendo no objeto data uma lista de ${nameWithSpace}s
  */
 route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}all', get${camelCaseNameFile}MiddleWare)
 
@@ -412,12 +431,12 @@ route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}all', get${camelCaseNam
  *   get:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Retorna todos os ${camelCaseNameFile}s
+ *     description: Retorna todos os ${nameWithSpace}s
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto data uma lista de ${camelCaseNameFile}s
+ *         reponse: Response contendo no objeto data uma lista de ${nameWithSpace}s
  */
 route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}', get${camelCaseNameFile}MiddleWare)
 
@@ -427,12 +446,12 @@ route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}', get${camelCaseNameFil
  *   get:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Retorna a ${camelCaseNameFile}s pesquisada
+ *     description: Retorna a ${nameWithSpace}s pesquisada
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto data uma lista de ${camelCaseNameFile}s
+ *         reponse: Response contendo no objeto data uma lista de ${nameWithSpace}s
  */
 route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', get${camelCaseNameFile}ByIdMiddleWare)
 
@@ -442,12 +461,12 @@ route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', get${camelCaseNam
  *   post:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Cria uma nova ${camelCaseNameFile}s
+ *     description: Cria uma nova ${nameWithSpace}s
  *     produces:
  *       - application/json
  *     responses:
  *       200:
- *         reponse: Response contendo no objeto que foi salvo da ${camelCaseNameFile}s
+ *         reponse: Response contendo no objeto que foi salvo da ${nameWithSpace}s
  */
 route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}', createValidate, create${camelCaseNameFile}MiddleWare)
 
@@ -457,7 +476,7 @@ route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}', createValidate, crea
  *   put:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Altera os dados da ${camelCaseNameFile}s pelo id
+ *     description: Altera os dados da ${nameWithSpace}s pelo id
  *     produces:
  *       - application/json
  *     responses:
@@ -472,7 +491,7 @@ route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', updateValidate, u
  *   put:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Altera os dados da ${camelCaseNameFile}s pela query enviada
+ *     description: Altera os dados da ${nameWithSpace}s pela query enviada
  *     produces:
  *       - application/json
  *     responses:
@@ -487,7 +506,7 @@ route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}', updateValidate, updat
  *   put:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Altera os dados da ${camelCaseNameFile}s pela query enviada
+ *     description: Altera os dados da ${nameWithSpace}s pela query enviada
  *     produces:
  *       - application/json
  *     responses:
@@ -502,7 +521,7 @@ route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}UpdateOrCreate', updateV
  *   delete:
  *     tags:
  *       - ${camelCaseNameFile}s
- *     description: Remove uma ${camelCaseNameFile}s baseada no id
+ *     description: Remove uma ${nameWithSpace}s baseada no id
  *     produces:
  *       - application/json
  *     responses:
@@ -631,20 +650,18 @@ delete(id${camelCaseNameFile}, Where) {
   });
 }
 
-async function makeValidates(parsedFileName, camelCaseNameFile, fileName) {
+async function makeValidates(parsedFileName, camelCaseNameFile, fileName, data) {
 
-  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
-
-    const structure = () => {
-      return `import Joi from 'joi';
+  const structure = () => {
+    return `import Joi from 'joi';
 export default (req, res, next) => {
     return Joi
         .object(
 `
-    };
+  };
 
-    const structureDown = () => {
-      return `).validate(req.body, err => {
+  const structureDown = () => {
+    return `).validate(req.body, err => {
             if (err)
                 return res.api.send(err.details, res.api.codes.UNPROCESSABLE_ENTITY);
 
@@ -652,139 +669,132 @@ export default (req, res, next) => {
         });
 } 
 `
-    };
+  };
 
-    if (data) {
-      //Fields of validation with Joi
-      const fields = JSON.parse(data);
-      let modelCreate = {};
-      let modelUpdate = {};
-      fields.forEach(function (field, index) {
-        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-        // Values for create
-        modelCreate[nameAttribute] = 'Joi.';
-        if (field['Tipo'] === 'varchar') {
-          modelCreate[nameAttribute] += 'string().';
-          modelCreate[nameAttribute] += `max(${field['Tamanho']}).`;
-        }
-        else if (field['Tipo'] === 'enum')
-          modelCreate[nameAttribute] += 'valid(['+ field['Observacoes'] +']).';
-        else if (field['Tipo'] === 'number')
-          modelCreate[nameAttribute] += 'number().';
-        else
-          modelCreate[nameAttribute] += 'string().';
+  if (data) {
+    //Fields of validation with Joi
+    const fields = JSON.parse(data);
+    let modelCreate = {};
+    let modelUpdate = {};
+    fields.forEach(function (field, index) {
+      const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+      // Values for create
+      modelCreate[nameAttribute] = 'Joi.';
+      if (field['Tipo'] === 'varchar') {
+        modelCreate[nameAttribute] += 'string().';
+        modelCreate[nameAttribute] += `max(${field['Tamanho']}).`;
+      } else if (field['Tipo'] === 'enum')
+        modelCreate[nameAttribute] += 'valid([' + field['Observacoes'] + ']).';
+      else if (field['Tipo'] === 'number')
+        modelCreate[nameAttribute] += 'number().';
+      else
+        modelCreate[nameAttribute] += 'string().';
 
-        if (field['Obrigatoriedade'] === "sim" && index !== 0)
-          modelCreate[nameAttribute] += 'required()'
-        else
-          modelCreate[nameAttribute] += 'optional()';
+      if (field['Obrigatoriedade'] === "sim" && index !== 0)
+        modelCreate[nameAttribute] += 'required()'
+      else
+        modelCreate[nameAttribute] += 'optional()';
 
 
-        //Values for update
-        // const nameAttribute = upLetter(field['Atributo']);
-        modelUpdate[nameAttribute] = 'Joi.';
-        if (field['Tipo'] === 'varchar') {
-          modelUpdate[nameAttribute] += 'string().';
-          modelUpdate[nameAttribute] += `max(${field['Tamanho']}).`;
-        }
-        else if (field['Tipo'] === 'enum')
-          modelUpdate[nameAttribute] += 'valid(['+ field['Observacoes'] +']).';
-        else if (field['Tipo'] === 'number')
-          modelUpdate[nameAttribute] += 'number().';
-        else
-          modelUpdate[nameAttribute] += 'string().';
+      //Values for update
+      // const nameAttribute = upLetter(field['Atributo']);
+      modelUpdate[nameAttribute] = 'Joi.';
+      if (field['Tipo'] === 'varchar') {
+        modelUpdate[nameAttribute] += 'string().';
+        modelUpdate[nameAttribute] += `max(${field['Tamanho']}).`;
+      } else if (field['Tipo'] === 'enum')
+        modelUpdate[nameAttribute] += 'valid([' + field['Observacoes'] + ']).';
+      else if (field['Tipo'] === 'number')
+        modelUpdate[nameAttribute] += 'number().';
+      else
+        modelUpdate[nameAttribute] += 'string().';
 
-        modelUpdate[nameAttribute] += 'optional()';
-      });
+      modelUpdate[nameAttribute] += 'optional()';
+    });
 
-      modelCreate['unit'] = "Joi.string().min(1).max(150).required()";
-      modelCreate['user'] = "Joi.string().min(1).max(150).required()";
+    modelCreate['unit'] = "Joi.string().min(1).max(150).required()";
+    modelCreate['user'] = "Joi.string().min(1).max(150).required()";
 
-      modelUpdate['situation'] = "Joi.string().optional()";
-      modelUpdate['unit'] = "Joi.string().min(1).max(150).optional()";
-      modelUpdate['user'] = "Joi.string().min(1).max(150).required()";
+    modelUpdate['situation'] = "Joi.string().optional()";
+    modelUpdate['unit'] = "Joi.string().min(1).max(150).optional()";
+    modelUpdate['user'] = "Joi.string().min(1).max(150).required()";
 
-      const parseModelCreate = JSON.stringify(modelCreate);
-      const parseModelUpdate = JSON.stringify(modelUpdate);
-      //Clear parseModel of double quotes
-      const parseModelCreateClear = parseModelCreate.replace(/\"/g, '');
-      const parseModelUpdateClear = parseModelUpdate.replace(/\"/g, '');
+    const parseModelCreate = JSON.stringify(modelCreate);
+    const parseModelUpdate = JSON.stringify(modelUpdate);
+    //Clear parseModel of double quotes
+    const parseModelCreateClear = parseModelCreate.replace(/\"/g, '');
+    const parseModelUpdateClear = parseModelUpdate.replace(/\"/g, '');
 
-      let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
-      let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
+    let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
+    let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
 
-      const namePath = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/validates/';
-      ensureDirectoryExistence(namePath);
-      await fs.writeFile(namePath + 'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log("Saved endPointValidateCreate: ", camelCaseNameFile + ".js");
-      });
-      await fs.writeFile(namePath + 'update.validate.js', fileWriteUpdate, {flag: 'w'}, function (err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log("Saved endPointValidateUpdate: ", camelCaseNameFile + ".js");
-      });
-    }
-  });
-}
-
-async function makeFrontModels(parsedFileName, camelCaseNameFile, fileName) {
-
-  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
-    if (data) {
-      const fields = JSON.parse(data);
-      let doFile = false
-      fields.forEach(function (field, index) {
-        if (index === 0 && field['Observacoes'] === 'primary key')
-          doFile = true
-      });
-      if (doFile) {
-        const structure = (parsedFileName, fields) => {
-          return `export class ${parsedFileName} ${fields}`;
-        }
-
-        let fields = JSON.parse(data)
-        let inputs = {}
-        fields.forEach(function (field, index) {
-
-          const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-          let tipo = ''
-          field['Tipo'] === 'varchar' ? tipo = 'string' : field['Tipo'] === 'number' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
-          inputs[nameAttribute] = tipo
-        }.bind(this));
-
-        let stringFy = JSON.stringify(inputs);
-        let stringMod = stringFy.replace(/\"/g, '').replace(/,/g, ';');
-        let fileWrite = structure(camelCaseNameFile, stringMod)
-
-        let nameOfPath = 'docs/files/front/models/'
-        await fs.writeFile(nameOfPath + parsedFileName + '.ts', fileWrite, {flag: 'w'}, function (err) {
-          if (err) {
-            return console.log(err);
-          }
-          console.log("Saved Model API: ", camelCaseNameFile.replace('_', '-') + ".js");
-        });
+    const namePath = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/validates/';
+    ensureDirectoryExistence(namePath);
+    await fs.writeFile(namePath + 'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
+      if (err) {
+        return console.log(err);
       }
-    }
-  });
+      console.log("Saved endPointValidateCreate: ", camelCaseNameFile + ".js");
+    });
+    await fs.writeFile(namePath + 'update.validate.js', fileWriteUpdate, {flag: 'w'}, function (err) {
+      if (err) {
+        return console.log(err);
+      }
+      console.log("Saved endPointValidateUpdate: ", camelCaseNameFile + ".js");
+    });
+  }
 }
 
-async function makeFrontFileService(parsedFileName, camelCaseNameFile, fileName) {
-  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
-    if (data) {
-      const fields = JSON.parse(data);
-      let doFile = false
-      fields.forEach(function (field, index) {
-        if (index === 0 && field['Observacoes'] === 'primary key')
-          doFile = true
-      });
-      if (doFile) {
+async function makeFrontModels(parsedFileName, camelCaseNameFile, fileName, data) {
+  if (data) {
+    const fields = JSON.parse(data);
+    let doFile = false
+    fields.forEach(function (field, index) {
+      if (index === 0 && field['Observacoes'] === 'primary key')
+        doFile = true
+    });
+    if (doFile) {
+      const structure = (parsedFileName, fields) => {
+        return `export class ${parsedFileName} ${fields}`;
+      }
 
-        const structure = () => {
-          return `import {Injectable} from '@angular/core';
+      let fields = JSON.parse(data)
+      let inputs = {}
+      fields.forEach(function (field, index) {
+
+        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+        let tipo = ''
+        field['Tipo'] === 'varchar' ? tipo = 'string' : field['Tipo'] === 'number' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
+        inputs[nameAttribute] = tipo
+      }.bind(this));
+
+      let stringFy = JSON.stringify(inputs);
+      let stringMod = stringFy.replace(/\"/g, '').replace(/,/g, ';');
+      let fileWrite = structure(camelCaseNameFile, stringMod)
+
+      let nameOfPath = 'docs/files/front/models/'
+      await fs.writeFile(nameOfPath + parsedFileName + '.ts', fileWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("Saved Model API: ", camelCaseNameFile.replace('_', '-') + ".js");
+      });
+    }
+  }
+}
+
+async function makeFrontFileService(parsedFileName, camelCaseNameFile, fileName, data) {
+  if (data) {
+    const fields = JSON.parse(data);
+    let doFile = false
+    fields.forEach(function (field, index) {
+      if (index === 0 && field['Observacoes'] === 'primary key')
+        doFile = true
+    });
+    if (doFile) {
+
+      const structure = () => {
+        return `import {Injectable} from '@angular/core';
 import {SarcService} from '../sarc-service/sarc-api.service';
 import {HttpClient} from '@angular/common/http';
 import {${camelCaseNameFile}} from '../../models/${parsedFileName}';
@@ -798,35 +808,33 @@ export class ${camelCaseNameFile}Service extends SarcService< ${camelCaseNameFil
   }
 }
 `;
-        }
-
-        let fileWrite = structure()
-
-        let nameOfPath = 'docs/files/front/services/' + parsedFileName + '-service/'
-        ensureDirectoryExistence(nameOfPath);
-        await fs.writeFile(nameOfPath + camelCaseNameFile + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
-          if (err) {
-            return console.log(err);
-          }
-          console.log("Saved api: ", camelCaseNameFile + ".js");
-        });
       }
+
+      let fileWrite = structure()
+
+      let nameOfPath = 'docs/files/front/services/' + parsedFileName + '-service/'
+      ensureDirectoryExistence(nameOfPath);
+      await fs.writeFile(nameOfPath + camelCaseNameFile + 'Service.ts', fileWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("Saved api: ", camelCaseNameFile + ".js");
+      });
     }
-  });
+  }
 }
 
-async function makeFileFront(parsedFileName, className, fileName) {
-  await fs.readFile(readFolder + fileName + '.json', 'utf8', async function (err, data) {
-    if (data) {
-      const fields = JSON.parse(data);
-      let doFile = false
-      fields.forEach(function (field, index) {
-        if (index === 0 && field['Observacoes'] === 'primary key')
-          doFile = true
-      });
-      if (doFile) {
-        const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, reMapToGetIdSuggest, reMapToGetValue, mapToGetIdSelect) => {
-          return `import { Component } from '@angular/core';
+async function makeFileFront(parsedFileName, className, fileName, data) {
+  if (data) {
+    const fields = JSON.parse(data);
+    let doFile = false
+    fields.forEach(function (field, index) {
+      if (index === 0 && field['Observacoes'] === 'primary key')
+        doFile = true
+    });
+    if (doFile) {
+      const structure = (inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, includeVariables, reMapToGetIdSuggest, reMapToGetValue, mapToGetIdSelect) => {
+        return `import { Component } from '@angular/core';
 import { MessageService } from '../../../services/message/message.service';
 import { WebixInput } from 'src/app/classes/webix.input';
 import { WebixToolbar } from 'src/app/classes/webix.toolbar';
@@ -862,7 +870,7 @@ export class ${className}Component {
   webixUi: any;
   webix: any;
   $$: any;
-  ${declareVariable}
+  ${includeVariables} 
 
   /*
     Esse array faz a busca nas informações que estão no banco, é o mesmo select que se faz na tabela
@@ -1100,7 +1108,6 @@ export class ${className}Component {
     this.setReadOnly(true);
     const item = this.dataAll.find(select => select.id === row);
     const form = this.$$(this.formId)
-    ${mapToGetIdSelect ? mapToGetIdSelect : ''}
     form.setValues(item);
     this.$$(this.inputId.getId()).show();
     this.$$(this.inputId.getId()).setValue(item.id);
@@ -1144,7 +1151,6 @@ export class ${className}Component {
 
     if (isValid) {
       ${mapToGetIdSuggest}
-      ${mapToGetIdSelect ? mapToGetIdSelect : ''}
       if (item.id > 0) {
         this._update(item);
       } else {
@@ -1220,7 +1226,6 @@ export class ${className}Component {
    */
   _edit(item) {
     const form = this.$$(this.formId)
-    ${mapToGetIdSelect ? mapToGetIdSelect : ''}
     form.setValues(item);
     this.setReadOnly(false);
   }
@@ -1334,73 +1339,89 @@ export class ${className}Component {
         return this._i18nService.translate(key);
     }
 }`;
+      }
+
+
+      let fields = JSON.parse(data)
+      let fileEnum = []
+      let inputs = ``
+      let datatable = ``
+      let form = ``;
+      let cont = 0;
+      let close = true
+      let select = '';
+      let loadSuggest = ""
+      let importConstructor = ""
+      let fileImports = ""
+      let includeVariables = ""
+      let mapToGetIdSuggest = ""
+      let mapToGetValue = ""
+      let mapToGetIdSelect = ""
+
+      fields.forEach(function (field, index) {
+
+        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+        const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
+        const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
+        select += ` '${nameAttribute}',`
+        if (cont++ === 0) {
+          close = false
+          form += `{ cols: [\n`;
         }
+        if (index === 0) {
+          form += `this.inputId.getField(),\n`;
+          //regex to remove break lines
+          // const parten = /\n/g;
+          datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: false, sort: "${field['Tipo'] !== "number" ? "text" : "number"}" },\n`;
+          //TODO INSERT TITLE
+          inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { width: 200, disabled: true, ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+        } else {
+          form += `this.input${nameAttributeAllUp}.getField(),\n`;
+          if(field['Tipo'] !== 'enum')
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "${field['Tipo'] !== "number" ? "textFilter" : "numberFilter"}" }], fillspace: true, sort: "${field['Tipo'] !== "number" ? "text" : "number"}" },\n`;
+          else
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: true, sort: 'text', format: (value) => { return formatEnum(value, ${nameAttribute}Enum) } },\n`;
+          if (field['Tipo'] === 'date') {
+            inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            mapToGetValue += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
+          } else if (field['Tipo'] === 'enum') {
+            // START DEFINE O ENUM PARA CRIACAO DO ARQUIVO
+            fileEnum.push([nameAttribute, `export const ${nameAttribute}EnumFilter = ${
+              JSON.stringify(field['Observacoes'].split(',').map(i => {
+              return {id: i.replace(/'/g, ''), value: i.replace(/'/g, '')}
+            }))}; \n/*${field['Descricao']}*/\n
+            export const ${nameAttribute}Enum = ${nameAttribute}EnumFilter.filter((item) => {
+              if (item.id !== null) return {...item}
+            })
+            `]);
 
+            fileImports += `import {${nameAttribute}Enum} from "../../../enum/${nameAttribute}.enum";\n`;
 
-        let fields = JSON.parse(data)
-        let inputs = ``
-        let datatable = ``
-        let form = ``;
-        let cont = 0;
-        let close = true
-        let select = '';
-        let loadSuggest = ""
-        let importConstructor = ""
-        let importService = ""
-        let declareVariable = ""
-        let mapToGetIdSuggest = ""
-        let mapToGetValue = ""
-        let mapToGetIdSelect = ""
+            // END DEFINE O ENUM PARA CRIACAO DO ARQUIVO
 
-        fields.forEach(function (field, index) {
-
-          const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-          const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
-          const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
-          select += ` '${nameAttribute}',`
-          if (cont++ === 0) {
-            close = false
-            form += `{ cols: [\n`;
-          }
-          if (index === 0) {
-            form += `this.inputId.getField(),\n`;
-            //regex to remove break lines
-            // const parten = /\n/g;
-            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: false, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },\n`;
-            //TODO INSERT TITLE
-            inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { width: 200, disabled: true, ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-          } else {
-            form += `this.input${nameAttributeAllUp}.getField(),\n`;
-            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: true, sort: ${field['Tipo'] !== "number" ? "'text'" : "'number'"} },\n`;
-
-            if (field['Tipo'] === 'date') {
-              inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-              mapToGetValue += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
-            } else if (field['Tipo'] === 'enum') {
-              declareVariable += `${nameAttribute}Enum = ${JSON.stringify(field['Observacoes'].split(',').map( i => {return {id: i.replace(/'/g, ''), value: i.replace(/'/g, '') }}))}; /*${field['Descricao']}*/\n`;
-              inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), this.${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
-              //filter datatable by enum
-              mapToGetValue += `const ${nameAttribute}Id = this.${nameAttribute}Enum.find( select => select.id === item.${nameAttribute});
+            inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            //filter datatable by enum
+            mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find( select => select.id === item.${nameAttribute});
                                  ${nameAttribute}Id? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
-              mapToGetIdSelect += `const ${nameAttribute}Value = this.${nameAttribute}Enum.find( select => select.value === item.${nameAttribute});
+            mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find( select => select.value === item.${nameAttribute});
                                  ${nameAttribute}Value? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
-            } else if (field['Observacoes'] === 'foreign key') {
-              inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+          } else if (field['Observacoes'] === 'foreign key') {
+            inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
 
-              const nameService = field['Tabela'].replace(' ', '')
-              //Replace up letter for same letter lower and underscore not can start with underscore
-              const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '-$1').toLowerCase();
-              importService += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}-service/${nameService}Service';\n`;
+            const nameService = field['Tabela'].replace(' ', '')
+            //Replace up letter for same letter lower and underscore not can start with underscore
+            const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '-$1').toLowerCase();
+            fileImports += `import { ${nameService}Service } from '../../services/${nameServiceAllUp}-service/${nameService}Service';\n`;
 
-              declareVariable += `${nameAttribute}Data: any = [];\n`;
-              mapToGetIdSuggest += `this.suggestValues.${nameAttribute} ? item.${nameAttribute} = this.suggestValues.${nameAttribute} : item.${nameAttribute} = this.${nameAttribute}Data.find(select => select.value == item.${nameAttribute}).id;\n`;
-              if (importConstructor.indexOf(`private _${nameService}Service`) === -1) {
-                importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
-              }
-              //    Suggest
-              //  text //Start load ${nameService} not exit in loadSuggest
-              if (loadSuggest.indexOf(`Start load ${nameService}`) === -1) {
-                loadSuggest += `//Start load ${nameService}
+            includeVariables += `private ${nameAttribute}Data: any = [];\n`;
+            mapToGetIdSuggest += `this.suggestValues.${nameAttribute} ? item.${nameAttribute} = this.suggestValues.${nameAttribute} : item.${nameAttribute} = this.${nameAttribute}Data.find(select => select.value == item.${nameAttribute}).id;\n`;
+            if (importConstructor.indexOf(`private _${nameService}Service`) === -1) {
+              importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
+            }
+            //    Suggest
+            //  text //Start load ${nameService} not exit in loadSuggest
+            if (loadSuggest.indexOf(`Start load ${nameService}`) === -1) {
+              loadSuggest += `//Start load ${nameService}
                             let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
                             if (${nameService}Resp.data.length > 0) {
                                 this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
@@ -1417,75 +1438,84 @@ export class ${className}Component {
                             }
                             //End load ${nameService}\n
                             `
-              }
-              //filter in this.${nameAttribute}Data for ${nameAttribute}
-              mapToGetValue += `const ${nameAttribute} = this.${nameAttribute}Data.filter( select => select.id == item.${nameAttribute});\n
-                            ${nameAttribute}? item.${nameAttribute}= ${nameAttribute}[0].value : '';\n`;
-            } else {
-              inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             }
+            //filter in this.${nameAttribute}Data for ${nameAttribute}
+            mapToGetValue += `const ${nameAttribute} = this.${nameAttribute}Data.find( select => select.id == item.${nameAttribute});
+                            ${nameAttribute}? item.${nameAttribute}= ${nameAttribute}.value : '';\n`;
+          } else {
+            inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+          }
 
-          }
-          if (cont === 3) {
-            close = true
-            cont = 0;
-            form += `] },`;
-          }
-        }.bind(this));
-        form += `\nthis.inputSituation.getField()`
-        if (!close) {
-          form += `] },\n`;
         }
-        inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
-        declareVariable += `suggestValues: any = {};\n`;
-        let setLoadSuggest = ""
-        loadSuggest? setLoadSuggest = `async loadSuggests() {
+        if (cont === 3) {
+          close = true
+          cont = 0;
+          form += `] },`;
+        }
+      }.bind(this));
+      form += `\nthis.inputSituation.getField()`
+      if (!close) {
+        form += `] },\n`;
+      }
+      inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
+      includeVariables += `private suggestValues: any = {};\n`;
+      let setLoadSuggest = ""
+      loadSuggest ? setLoadSuggest = `async loadSuggests() {
                     const simpleWhere = "where="+JSON.stringify({situation: 'A'});\n
                     ${loadSuggest}\n
                     loadingHide();\n
-                }`: '';
+                }` : '';
 
-        const reMapToGetIdSuggest = `
+      const reMapToGetIdSuggest = `
                 if(this.suggestValues) {
                     ${mapToGetIdSuggest}
                 }\n
                 `
-        const reMapFoDataTable = `.map( (item) => {
+      const reMapFoDataTable = `.map( (item) => {
                     ${mapToGetValue}
                     return item;
                 })\n`
-        let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, importService, declareVariable, reMapToGetIdSuggest, reMapFoDataTable, mapToGetIdSelect)
+      let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, fileImports, includeVariables, reMapToGetIdSuggest, reMapFoDataTable, mapToGetIdSelect)
 
+      //Start write file
+      let nameOfPath = 'docs/files/front/tables/' + parsedFileName + '/'
+      ensureDirectoryExistence(nameOfPath);
+      await fs.writeFile(nameOfPath + parsedFileName + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("Saved api: ", parsedFileName + ".js");
+      });
 
-        //Start write file
-        let nameOfPath = 'docs/files/front/tables/' + parsedFileName + '/'
-        ensureDirectoryExistence(nameOfPath);
-        await fs.writeFile(nameOfPath + parsedFileName + '.component.ts', fileWrite, {flag: 'w'}, function (err) {
+      //      createfile: './${parsedFileName}.component.html',
+      await fs.writeFile(nameOfPath + parsedFileName + '.component.html', '', {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("Saved tables: ", parsedFileName + ".component.html");
+      });
+
+      //      createfile: './${parsedFileName}.component.scss'
+      await fs.writeFile(nameOfPath + parsedFileName + '.component.scss', '', {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("Saved tables: ", parsedFileName + ".component.scss");
+      });
+
+      // createfile: './${parsedFileName}Enum.ts'
+      fileEnum.forEach((file) => {
+        fs.writeFile('docs/files/front/enum/' + file[0] + '.enum.ts', file[1], {flag: 'w'}, function (err) {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved api: ", parsedFileName + ".js");
+          console.log("Saved tables: ", parsedFileName + file[0] + ".ts");
         });
+      });
 
-        //      createfile: './${parsedFileName}.component.html',
-        await fs.writeFile(nameOfPath + parsedFileName + '.component.html', '', {flag: 'w'}, function (err) {
-          if (err) {
-            return console.log(err);
-          }
-          console.log("Saved tables: ", parsedFileName + ".component.html");
-        });
 
-        //      createfile: './${parsedFileName}.component.scss'
-        await fs.writeFile(nameOfPath + parsedFileName + '.component.scss', '', {flag: 'w'}, function (err) {
-          if (err) {
-            return console.log(err);
-          }
-          console.log("Saved tables: ", parsedFileName + ".component.scss");
-        });
-
-      }
     }
-  });
+  }
 }
 
 // Verify fist key of the file is primary key
