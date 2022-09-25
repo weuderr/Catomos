@@ -200,7 +200,6 @@ async function makeModel(file) {
                 if (err) {
                     return console.log(err);
                 }
-                console.log("Saved " + fileName + ".js");
             });
         }
 

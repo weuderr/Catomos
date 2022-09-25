@@ -13,6 +13,10 @@ fs.readdir(readFolder, async (err, files) => {
         let nameWithSpace = upAllFistLetterWithSpace(fileName.replace(/-/g, " ").replace(/_/g, ' '));
 
 
+        // console.log(camelCaseNameFile+"Component,");
+        console.log("blank/application/tables/files/"+parsedFileName+".component,");
+
+
         ensureDirectoryExistence('docs/');
         ensureDirectoryExistence('docs/files/');
         ensureDirectoryExistence('docs/files/front/');
@@ -273,7 +277,6 @@ async function makeModel(parsedFileName, camelCaseNameFile, fileName, data) {
       if (err) {
         return console.log(err);
       }
-      console.log("Saved " + camelCaseNameFile + ".js");
     });
   }
 
@@ -293,6 +296,7 @@ import updateValidate from './validates/update.validate';
 const get${camelCaseNameFile}MiddleWare = async (req, res) => { 
 return new ${camelCaseNameFile}Aplication()
     const include = JSON.parse(req.query.include|| '[]') ;
+    return new ${camelCaseNameFile}Aplication()
     .get(req.query.where, req.query.select, req.query.order, include, req.query.group)
     .then((success) => {
         res.api.send(success, res.api.codes.OK)
@@ -557,7 +561,6 @@ export default ${camelCaseNameFile}Routes
     if (err) {
       return console.log(err);
     }
-    console.log("Saved api: ", camelCaseNameFile + ".js");
   });
 }
 
@@ -646,7 +649,6 @@ delete(id${camelCaseNameFile}, Where) {
     if (err) {
       return console.log(err);
     }
-    console.log("Saved api: ", camelCaseNameFile + ".js");
   });
 }
 
@@ -734,13 +736,11 @@ export default (req, res, next) => {
       if (err) {
         return console.log(err);
       }
-      console.log("Saved endPointValidateCreate: ", camelCaseNameFile + ".js");
     });
     await fs.writeFile(namePath + 'update.validate.js', fileWriteUpdate, {flag: 'w'}, function (err) {
       if (err) {
         return console.log(err);
       }
-      console.log("Saved endPointValidateUpdate: ", camelCaseNameFile + ".js");
     });
   }
 }
@@ -777,7 +777,6 @@ async function makeFrontModels(parsedFileName, camelCaseNameFile, fileName, data
         if (err) {
           return console.log(err);
         }
-        console.log("Saved Model API: ", camelCaseNameFile.replace('_', '-') + ".js");
       });
     }
   }
@@ -818,7 +817,6 @@ export class ${camelCaseNameFile}Service extends SarcService< ${camelCaseNameFil
         if (err) {
           return console.log(err);
         }
-        console.log("Saved api: ", camelCaseNameFile + ".js");
       });
     }
   }
@@ -1484,7 +1482,6 @@ export class ${className}Component {
         if (err) {
           return console.log(err);
         }
-        console.log("Saved api: ", parsedFileName + ".js");
       });
 
       //      createfile: './${parsedFileName}.component.html',
@@ -1492,7 +1489,6 @@ export class ${className}Component {
         if (err) {
           return console.log(err);
         }
-        console.log("Saved tables: ", parsedFileName + ".component.html");
       });
 
       //      createfile: './${parsedFileName}.component.scss'
@@ -1500,7 +1496,6 @@ export class ${className}Component {
         if (err) {
           return console.log(err);
         }
-        console.log("Saved tables: ", parsedFileName + ".component.scss");
       });
 
       // createfile: './${parsedFileName}Enum.ts'
@@ -1509,7 +1504,6 @@ export class ${className}Component {
           if (err) {
             return console.log(err);
           }
-          console.log("Saved tables: ", parsedFileName + file[0] + ".ts");
         });
       });
 

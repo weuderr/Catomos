@@ -35,10 +35,8 @@ function makeid(length) {
 }
 
 async function makeModel(file) {
-    // console.log('Make init file: '+ file)
     let parseName = file.replace('.json', '').replace(' ', '_').toLowerCase();
     let fileName = upFistLetter(parseName);
-    console.log(parseName+" - "+fileName)
     await fs.readFile(readFolder + file, 'utf8', async function (err, data) {
 
         if (data) {
@@ -70,10 +68,8 @@ async function makeModel(file) {
                 if (err) {
                     return console.log(err);
                 }
-                console.log("Saved "+fileName + ".js");
             });
         }
 
     });
-    // console.log('Make finish file: '+ file)
 }
