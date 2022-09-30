@@ -14,7 +14,11 @@ fs.readdir(readFolder, async (err, files) => {
 
 
         // console.log(camelCaseNameFile+"Component,");
-        console.log("blank/application/tables/files/"+parsedFileName+".component,");
+        console.log(camelCaseNameFile + "DocumentoReportComponent,");
+        console.log(camelCaseNameFile + "LayoutDocumentoReportComponent,");
+        // console.log("blank/application/tables/files/"+parsedFileName+".component,");
+        console.log("blank/application/tables/files/" + parsedFileName + "Report.component,");
+        console.log("blank/application/tables/files/Layout" + parsedFileName + "Report.component,");
 
 
         ensureDirectoryExistence('docs/');
@@ -23,6 +27,7 @@ fs.readdir(readFolder, async (err, files) => {
         ensureDirectoryExistence('docs/files/front/services');
         ensureDirectoryExistence('docs/files/front/enum/');
         ensureDirectoryExistence('docs/files/front/tables/');
+        ensureDirectoryExistence('docs/files/front/tables/report/');
         ensureDirectoryExistence('docs/files/front/models/');
         ensureDirectoryExistence('docs/files/back/');
         ensureDirectoryExistence('docs/files/back/api/');
@@ -40,6 +45,8 @@ fs.readdir(readFolder, async (err, files) => {
           await makeFrontModels(parsedFileName, camelCaseNameFile, fileName, data);
           await makeFrontFileService(parsedFileName, camelCaseNameFile, fileName, data);
           await makeFileFront(parsedFileName, camelCaseNameFile, fileName, data);
+
+          await makeFileFrontReport(parsedFileName, camelCaseNameFile, fileName, nameWithSpace, data);
         });
       }
     }
@@ -68,6 +75,57 @@ function getType(e) {
         type = 'DataTypes.DATE';
       else
         type = 'DataTypes.DATEONLY';
+      break;
+    case 'boolean' :
+      type = 'DataTypes.BOOLEAN';
+      break;
+    case 'text' :
+      type = 'DataTypes.TEXT';
+      break;
+    case 'json' :
+      type = 'DataTypes.JSON';
+      break;
+    case 'jsonb' :
+      type = 'DataTypes.JSONB';
+      break;
+    case 'uuid' :
+      type = 'DataTypes.UUID';
+      break;
+    case 'uuidv4' :
+      type = 'DataTypes.UUIDV4';
+      break;
+    case 'uuidv1' :
+      type = 'DataTypes.UUIDV1';
+      break;
+    case 'array' :
+      type = 'DataTypes.ARRAY';
+      break;
+    case 'real' :
+      type = 'DataTypes.REAL';
+      break;
+    case 'double' :
+      type = 'DataTypes.DOUBLE';
+      break;
+    case 'float' :
+      type = 'DataTypes.FLOAT';
+      break;
+    case 'decimal' :
+      type = 'DataTypes.DECIMAL';
+      break;
+    case 'time' :
+      type = 'DataTypes.TIME';
+      break;
+    case 'geometry' :
+      type = 'DataTypes.GEOMETRY';
+      break;
+    case 'geometrycollection' :
+      type = 'DataTypes.GEOMETRYCOLLECTION';
+      break;
+    case 'point' :
+      type = 'DataTypes.POINT';
+      break;
+    case 'linestring' :
+      type = 'DataTypes.LINESTRING';
       break;
   }
   return type;
@@ -237,8 +295,8 @@ async function makeModel(parsedFileName, camelCaseNameFile, fileName, data) {
   if (data) {
     let fields = JSON.parse(data)
     structureUp = structureUp()
-    structureDown = structureDown()
     structureMiddle = structureMiddle()
+    structureDown = structureDown()
     let model = {};
     let foreignKey = '';
 
@@ -294,7 +352,6 @@ import updateValidate from './validates/update.validate';
 * @private
 */
 const get${camelCaseNameFile}MiddleWare = async (req, res) => { 
-return new ${camelCaseNameFile}Aplication()
     const include = JSON.parse(req.query.include|| '[]') ;
     return new ${camelCaseNameFile}Aplication()
     .get(req.query.where, req.query.select, req.query.order, include, req.query.group)
@@ -311,8 +368,8 @@ return new ${camelCaseNameFile}Aplication()
 * @private
 */
 const get${camelCaseNameFile}ByIdMiddleWare = async (req, res) => {
-const id = Number(req.params.id)
-return new ${camelCaseNameFile}Aplication()
+    const id = Number(req.params.id)
+    return new ${camelCaseNameFile}Aplication()
     .getById(id, req.query.select)
     .then((success) => {
         if (success)
@@ -330,8 +387,8 @@ return new ${camelCaseNameFile}Aplication()
 * @private
 */
 const create${camelCaseNameFile}MiddleWare = async (req, res) => {
-const body = req.body;
-return new ${camelCaseNameFile}Aplication()
+    const body = req.body;
+    return new ${camelCaseNameFile}Aplication()
     .create(body)
     .then((success) => {
         if (success)
@@ -349,10 +406,10 @@ return new ${camelCaseNameFile}Aplication()
 * @private
 */
 const update${camelCaseNameFile}MiddleWare = async (req, res) => {
-const id = Number(req.params.id);
-const {where} = req.query;
-const body = req.body;
-return new ${camelCaseNameFile}Aplication()
+    const id = Number(req.params.id);
+    const {where} = req.query;
+    const body = req.body;
+    return new ${camelCaseNameFile}Aplication()
     .update(id, body, where)
     .then((success) => {
         if (success)
@@ -370,10 +427,10 @@ return new ${camelCaseNameFile}Aplication()
 * @private
 */
 const updateOrCreate${camelCaseNameFile}MiddleWare = async (req, res) => {
-const id = Number(req.params.id);
-const {where} = req.query;
-const body = req.body;
-return new ${camelCaseNameFile}Aplication()
+    const id = Number(req.params.id);
+    const {where} = req.query;
+    const body = req.body;
+    return new ${camelCaseNameFile}Aplication()
     .upsert(id, body, where)
     .then((success) => {
         if (success)
@@ -391,9 +448,9 @@ return new ${camelCaseNameFile}Aplication()
 * @private
 */
 const delete${camelCaseNameFile}MiddleWare = async (req, res) => {
-const id = Number(req.params.id);
-const {where} = req.query;
-return new ${camelCaseNameFile}Aplication()
+    const id = Number(req.params.id);
+    const {where} = req.query;
+    return new ${camelCaseNameFile}Aplication()
     .delete(id, where)
     .then((success) => {
         if (success)
@@ -652,6 +709,63 @@ delete(id${camelCaseNameFile}, Where) {
   });
 }
 
+function getTypeForValidate(field) {
+  let attr = '';
+  if (field['Tipo'] === 'varchar') {
+    attr += 'string().';
+    attr += `max(${field['Tamanho']}).`;
+  } else if (field['Tipo'] === 'enum')
+    attr += 'valid([' + field['Observacoes'] + ']).';
+  else if (field['Tipo'] === 'number')
+    attr += 'number().';
+  else if (field['Tipo'] === 'date')
+    attr += 'date().';
+  else if (field['Tipo'] === 'boolean')
+    attr += 'boolean().';
+  else if (field['Tipo'] === 'text')
+    attr += 'string().';
+  else if (field['Tipo'] === 'json')
+    attr += 'object().';
+  else if (field['Tipo'] === 'jsonb')
+    attr += 'object().';
+  else if (field['Tipo'] === 'uuid')
+    attr += 'string().';
+  else if (field['Tipo'] === 'integer')
+    attr += 'number().';
+  else if (field['Tipo'] === 'decimal')
+    attr += 'number().';
+  else if (field['Tipo'] === 'float')
+    attr += 'number().';
+  else if (field['Tipo'] === 'double')
+    attr += 'number().';
+  else if (field['Tipo'] === 'real')
+    attr += 'number().';
+  else if (field['Tipo'] === 'time')
+    attr += 'string().';
+  else if (field['Tipo'] === 'timestamp')
+    attr += 'date().';
+  else if (field['Tipo'] === 'timestamp with time zone')
+    attr += 'date().';
+  else if (field['Tipo'] === 'timestamp without time zone')
+    attr += 'date().';
+  else if (field['Tipo'] === 'bit')
+    attr += 'boolean().';
+  else if (field['Tipo'] === 'varbit')
+    attr += 'boolean().';
+  else if (field['Tipo'] === 'money')
+    attr += 'number().';
+  else if (field['Tipo'] === 'bytea')
+    attr += 'string().';
+  else if (field['Tipo'] === 'inet')
+    attr += 'string().';
+  else if (field['Tipo'] === 'cidr')
+    attr += 'string().';
+  else
+    attr += 'string().';
+
+  return attr;
+}
+
 async function makeValidates(parsedFileName, camelCaseNameFile, fileName, data) {
 
   const structure = () => {
@@ -679,39 +793,27 @@ export default (req, res, next) => {
     let modelCreate = {};
     let modelUpdate = {};
     fields.forEach(function (field, index) {
+      let baseModel = "Joi.";
       const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-      // Values for create
-      modelCreate[nameAttribute] = 'Joi.';
-      if (field['Tipo'] === 'varchar') {
-        modelCreate[nameAttribute] += 'string().';
-        modelCreate[nameAttribute] += `max(${field['Tamanho']}).`;
-      } else if (field['Tipo'] === 'enum')
-        modelCreate[nameAttribute] += 'valid([' + field['Observacoes'] + ']).';
-      else if (field['Tipo'] === 'number')
-        modelCreate[nameAttribute] += 'number().';
-      else
-        modelCreate[nameAttribute] += 'string().';
+      baseModel += getTypeForValidate(field);
+      // START Create
+      // modelCreate[nameAttribute] = 'Joi.';
+      modelCreate[nameAttribute] = baseModel;
 
       if (field['Obrigatoriedade'] === "sim" && index !== 0)
         modelCreate[nameAttribute] += 'required()'
       else
         modelCreate[nameAttribute] += 'optional()';
 
+      // END Create
 
-      //Values for update
+
+      //Start Update
       // const nameAttribute = upLetter(field['Atributo']);
-      modelUpdate[nameAttribute] = 'Joi.';
-      if (field['Tipo'] === 'varchar') {
-        modelUpdate[nameAttribute] += 'string().';
-        modelUpdate[nameAttribute] += `max(${field['Tamanho']}).`;
-      } else if (field['Tipo'] === 'enum')
-        modelUpdate[nameAttribute] += 'valid([' + field['Observacoes'] + ']).';
-      else if (field['Tipo'] === 'number')
-        modelUpdate[nameAttribute] += 'number().';
-      else
-        modelUpdate[nameAttribute] += 'string().';
-
+      // modelUpdate[nameAttribute] = 'Joi.';
+      modelUpdate[nameAttribute] = baseModel;
       modelUpdate[nameAttribute] += 'optional()';
+      //End Update
     });
 
     modelCreate['unit'] = "Joi.string().min(1).max(150).required()";
@@ -901,6 +1003,7 @@ export class ${className}Component {
   readonly = true;
 
   AtivoInativoFilter = AtivoInativoFilter.map(a => a.value = this.translate(a.value));
+  
   /*
    Declaração dos campos para montar o formulário
   */
@@ -971,7 +1074,7 @@ export class ${className}Component {
     private _querysBuilderService: QuerysBuilderService,
     private _localStorageService: LocalStorageService,
     private _messageService: MessageService,
-    private _service: ${className}Service,
+    private service: ${className}Service,
     ${importConstructor}
     ) {
     this.init()
@@ -1064,7 +1167,7 @@ export class ${className}Component {
   async _loadData() {
     loadingShow();
     const query = this._querysBuilderService.getSelect(this.select);
-    const result: any = await this._service.get(query).toPromise();
+    const result: any = await this.service.get(query).toPromise();
     if(result.data.length > 0) {
         this.dataAll = result.data${reMapToGetValue}.reverse();
         this.datatable.setData(this.dataAll);
@@ -1172,7 +1275,7 @@ export class ${className}Component {
     if (item.updatedAt)
       delete item.updatedAt
 
-    this._service.put(item.id, item).subscribe(
+    this.service.put(item.id, item).subscribe(
       () => _success(),
       (error) => _error(error)
     )
@@ -1180,7 +1283,7 @@ export class ${className}Component {
     const _success = () => {
       const datatable = this.$$(this.datatable.getId());
       datatable.updateItem(item.id, item);
-      const index = this.dataAll.findIndex( select => select.id === item.id);
+      const index = this.dataAll.findIndex( select => select.id == item.id);
       this.dataAll[index] = item;
       this._messageService.show('Atualizado com sucesso', 'success');
       this._cancelOrClear();
@@ -1200,7 +1303,7 @@ export class ${className}Component {
     delete item.id;
     delete item.situation;
 
-    this._service.post(item).subscribe(
+    this.service.post(item).subscribe(
       (success) => _success(success),
       (error) => _error(error)
     );
@@ -1232,7 +1335,7 @@ export class ${className}Component {
    * Confirma se realmente é para remover e exclui as informações na API
    */
   remove(item) {
-    this._service.delete(item.id).subscribe(
+    this.service.delete(item.id).subscribe(
       () => _success(),
       (error) => _error(error)
     )
@@ -1399,9 +1502,9 @@ export class ${className}Component {
 
             inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             //filter datatable by enum
-            mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find( select => select.id === item.${nameAttribute});
+            mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find( select => select.id == item.${nameAttribute});
                                  ${nameAttribute}Id? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
-            mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find( select => select.value === item.${nameAttribute});
+            mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find( select => select.value == item.${nameAttribute});
                                  ${nameAttribute}Value? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
           } else if (field['Observacoes'] === 'foreign key') {
             inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
@@ -1425,7 +1528,7 @@ export class ${className}Component {
                                 this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
                                     return {
                                         id: ${nameService}.id,
-                                        value: ${nameService}.desc${field['Tabela']}
+                                        value: ${nameService}.desc${nameAttribute.replace('cod', '')}
                                     };
                                 });
                                 await this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
@@ -1472,7 +1575,7 @@ export class ${className}Component {
       const reMapFoDataTable = `.map( (item) => {
                     ${mapToGetValue}
                     return item;
-                })\n`
+                })`
       let fileWrite = structure(inputs, datatable, form, select, setLoadSuggest, importConstructor, fileImports, includeVariables, reMapToGetIdSuggest, reMapFoDataTable, mapToGetIdSelect)
 
       //Start write file
@@ -1508,6 +1611,607 @@ export class ${className}Component {
       });
 
 
+    }
+  }
+}
+
+async function makeFileFrontReport(parsedFileName, className, fileName, nameWithSpace, data) {
+  if (data) {
+    const fields = JSON.parse(data);
+    let doFile = false
+    fields.forEach(function (field, index) {
+      if (index === 0 && field['Observacoes'] === 'primary key')
+        doFile = true
+    });
+    if (doFile) {
+
+      const structureScreen = (objectAll) => {
+        return `import {Component} from '@angular/core';
+import {MessageService} from '../../../../../services/message/message.service';
+import {WebixInput} from 'src/app/classes/webix.input';
+import {WebixToolbar} from 'src/app/classes/webix.toolbar';
+import {WebixSelect} from 'src/app/classes/webix.select';
+import {WebixDatatable} from 'src/app/classes/webix.datatable';
+import {DocumentoService} from '../../../../services/documento-service/DocumentoService';
+import {QuerysBuilderService} from '../../../../../services/querys-builder/querys-builder.service';
+import {WebixService} from '../../../../../services/webix/webix.service';
+import {WebixPaginate} from 'src/app/classes/webix.paginate';
+import {WebixVideo} from 'src/app/classes/webix.video';
+import {ProfileService} from 'src/app/services/profile/profile.service';
+import {formatEnum, loadingHide, loadingShow} from 'src/app/classes/Util';
+import {GoogleSheetsService} from 'src/app/services/google-sheets/google-sheets.service';
+import {AtivoInativoFilter} from '../../../../enum/AtivoInativo';
+import {LocalStorageService} from 'src/app/services/local-storage/local-storage.service';
+import {I18nService} from 'src/app/services/i18n/i18n.service';
+import {WebixSuggest} from "../../../../../classes/webix.suggest";
+import {ItemDocumentalService} from '../../../../services/item-documental-service/ItemDocumentalService';
+import {TipoOrgaoService} from '../../../../services/tipo-orgao-service/TipoOrgaoService';
+import {WebixButton} from "../../../../../classes/webix.button";
+import {WebixInputDateRange} from "../../../../../classes/webix.inputDateRange";
+import {WebixMultiCombo} from "../../../../../classes/webix.multiCombo";
+import {WebixInputDate} from "../../../../../classes/webix.inputDate";
+${objectAll.fileImports}
+
+@Component({
+  selector: 'app-${parsedFileName}-report',
+  templateUrl: './${parsedFileName}-report.component.html',
+  styleUrls: ['./${parsedFileName}-report.component.scss']
+})
+export class ${className}ReportComponent {
+  /*
+   Declaração das variaveis do Webix, as mesmas são setadas pelo serviço WebixService
+ */
+  webixUi: any;
+  webix: any;
+  $$: any;
+  ${objectAll.includeVariables}
+  
+  /*
+    Esse array faz a busca nas informações que estão no banco, é o mesmo select que se faz na tabela
+  */
+  select = [${objectAll.select} 'unit', 'user', 'situation', 'createdAt', 'updatedAt'];
+  /*
+    Declara a páginação
+  */
+  paginate = new WebixPaginate('pagination', {size: 50, group: 5});
+  /*
+    Insere todo o array que existe no datatable para eventuais pesquisas futuras
+  */
+  dataAll: any = [];
+  /*
+    Id do formulário é colocado numa variável para poder ser reutilizado no código abaixo
+  */
+  formId: string = 'FrmDocumento';
+  /*
+    Id do accordion onde tem o formulário é colocado numa variável para poder ser utilizado no código abaixo
+  */
+  accordionFormId: string = 'accordionItemFormDocumento';
+  /**
+   * Variavel de leitura/edição dos campos
+   */
+  readonly = true;
+  /**
+   * Definições de input para o filtro
+   */
+  ${objectAll.inputs}
+  
+  AtivoInativoFilter = AtivoInativoFilter.map(a => a.value = this.translate(a.value));
+  
+  /*
+    Declaração do video tutorial
+  */
+  video = new WebixVideo('tutorial', "assets/videotutorial1.webm", () => {
+    this.$$(this.video.getId()).close()
+  })
+  /*
+    Declaração da barra de tarefas que fica localizado no topo
+  */
+  toolbar = new WebixToolbar('toolbar', this.formId, [
+    {
+      tooltip: "Report", view: "icon", icon: "fa fa-file-pdf-o", click: () => {
+        this.generateReport();
+      }
+    },
+    {
+      view: "icon", icon: "fa fa-refresh", tooltip: "Atualizar", click: () => {
+        this._loadData();
+        this._messageService.show('Atualizado com sucesso!', 'success')
+      }
+    },
+    {
+      view: "icon", icon: "fa fa-file-video-o", tooltip: "Tutorial", click: () => {
+        this._loadTutorial()
+      }
+    },
+  ])
+  
+  /*
+    Declaração da tabela
+  */
+  datatable = new WebixDatatable(
+    'dt${className}Report',
+    this.formId,
+    [
+      ${objectAll.datatable}
+    ],
+    {
+      pager: this.paginate.getId(),
+      footer: true,
+      onClick: {
+      }
+    },
+    []
+  );
+
+  constructor(
+    private _webixService: WebixService,
+    private _profileService: ProfileService,
+    private _i18nService: I18nService,
+    private _googleSheetsService: GoogleSheetsService,
+    private _querysBuilderService: QuerysBuilderService,
+    private _localStorageService: LocalStorageService,
+    private _messageService: MessageService,
+    private service: ${className}Service,
+    ${objectAll.importConstructor}
+  ) {
+    this.init()
+  }
+
+  /**
+   * Inicia o processo do component, é chamado pelo constructor
+   * Essa função é separada para caso precisar chamar novamente
+   */
+  async init() {
+    this.webix = this._webixService.getWebix();
+    this.$$ = this._webixService.get$$();
+    this.datatable.footerInit();
+    await this.setWebixUi();
+  }
+
+  /**
+   * Configura a disposição com os componentes webix utilizando as variaveis declaradas acima
+   */
+  async setWebixUi() {
+    this.webix.ready(async () => {
+      this.webixUi = this.webix.ui({
+        rows: [
+          this.toolbar.getField(),
+          {
+            view: "accordion",
+            multi: true,
+            css: "accordion",
+            padding: {
+              top: 25,
+              right: 25,
+              left: 25,
+              bottom: 25
+            },
+            rows: [
+              {
+                view: "accordionitem",
+                id: this.accordionFormId + "Filter",
+                header: this.translate("Filtro"),
+                collapsed: true,
+                body: {
+                  rows: [
+                    this.setFormFilterInputs()
+                  ]
+                }
+              },
+              {height: 15},
+              {
+                view: "accordionitem",
+                header: this.translate("Pesquisa"),
+                body: {
+                  padding: {
+                    top: 15
+                  },
+                  rows: [
+                    this.datatable.getField(),
+                    {
+                      cols: [
+                        this.paginate.getField(),
+                      ]
+                    }
+                  ]
+                }
+              },
+            ]
+          }
+        ]
+      });
+
+      ${objectAll.setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
+      await this._loadData();
+    })
+  }
+
+  /**
+   * Retorna o objeto com as variaveis do formulário para dentro do webixUi
+   */
+  setFormFilterInputs() {
+    return {
+      id: this.formId + "Filter",
+      view: 'form',
+      rows: [
+        ${objectAll.form}
+      ]
+    }
+  }
+
+  /**
+   * Ao ser chamada ela recarrega todas as informações fazendo uma nova requisição na API
+   */
+  async _loadData() {
+    loadingShow();
+
+    let query = this._querysBuilderService.getSelect(this.select);
+    
+    ${objectAll.getValueInput}
+    let where: any = {};
+    ${objectAll.SetValueWhere}
+    
+    let include = [${objectAll.includeQuery}]
+    
+    query += "&where=" + JSON.stringify(where);
+    query += "&include=" + JSON.stringify(include);
+    
+    const result: any = await this.service.get(query).toPromise();
+    
+    if(result.data.length > 0) {
+      this.dataAll = result.data${objectAll.reMapFoDataTable}.reverse();
+      this.datatable.setData(this.dataAll);
+    } else {
+      this.dataAll = [];
+    }
+    this.datatable.setData(this.dataAll);
+    loadingHide();
+  }
+
+  ${objectAll.setLoadSuggest}
+
+  showView(row) {
+    const item = this.dataAll.find(select => select.id === row);
+    const form = this.$$(this.formId)
+    form.setValues(item);
+    this.$$(this.inputId.getId()).show();
+    this.$$(this.inputId.getId()).setValue(item.id);
+    this.$$(this.inputSituation.getId()).show();
+    this.$$(this.accordionFormId).expand();
+    form.setDirty(false);
+  }
+
+  /*
+  * Torna o video tutorial visivel
+  */
+  _loadTutorial() {
+    this.webix.ui(this.video.getField()).show();
+  }
+
+  /**
+   * Exportar para o Excel
+   */
+  translate(key) {
+    return this._i18nService.translate(key);
+  }
+
+  private generateReport() {
+    if (this.dataAll.length > 0) {
+      this._localStorageService.setItem('reportItem', this.dataAll);
+      window.open('/blank/application/tables/layout_${fileName}_report', '_blank')
+    } else
+      this._messageService.show('Nenhum registro selecionado, revise os filtros e tente novamente.', 'error');
+  }
+}
+`;
+      }
+
+      const structureReport = () => {
+        return `
+        import {Component, OnInit} from '@angular/core';
+import * as moment from 'moment';
+import {LocalStorageService} from 'src/app/services/local-storage/local-storage.service';
+
+@Component({
+  selector: 'app-layout-${parsedFileName}-report',
+  templateUrl: './layout-${parsedFileName}-report.component.html',
+  styleUrls: ['./layout-${parsedFileName}-report.component.scss']
+})
+export class Layout${className}ReportComponent {
+  report = {data: [], title: ''};
+  moment = moment
+
+  constructor( private _localStorageService: LocalStorageService) {
+    this.generate${className}Report();
+  }
+
+  private generate${className}Report() {
+    let report = this._localStorageService.getItem('reportItem');
+    if(report) {
+      this.report.data = report
+      this.report.title = 'Relacão de ${nameWithSpace} - '+moment().format('DD/MM/YYYY HH:mm');
+      this._localStorageService.removeItem('reportItem');
+    }
+  }
+}
+`;
+      }
+
+      const structureHtmlReport = (htmlReport) => {
+        return `
+        <!DOCTYPE HTML>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{report.title || 'None'}}</title>
+  <style>
+    @page {
+      size: 7in 9.25in;
+      margin: 27mm 16mm 27mm 16mm;
+    }
+  </style>
+</head>
+
+
+<body>
+  <header>
+    <div
+      style="background: #ffffff; width: 100%; height: 55px; color: #000000; display: flex; justify-content: space-between">
+      <h1 class="title"><strong>{{report.title}}</strong></h1>
+      <img src="./assets/logo_48.png" alt="Aperam BioEnergia" height="35">
+    </div>
+  </header>
+
+  <div style="border-top: 3px solid #c8c8"></div>
+  <div *ngFor="let item of report.data; let i = index">
+      <div style="    display: flex; flex-direction: row; justify-content: space-between; flex-wrap: nowrap;">
+          <div class="positionItem">
+            <div *ngIf="i==0" style="font-weight: bold">ID</div>
+            <div class="positionVaue">{{item.id}}</div>
+          </div>
+          ${htmlReport}
+    </div>
+    <div style="border-top: 3px solid #c8c8"></div>
+  </div>
+</body>
+
+</html>
+
+`;
+      }
+
+
+      let fields = JSON.parse(data)
+      let fileEnum = []
+      let inputs = ``
+      let datatable = ``
+      let form = ``;
+      let cont = 0;
+      let close = true
+      let select = '';
+      let loadSuggest = ""
+      let getValueInput = ""
+      let SetValueWhere = ""
+      let importConstructor = ""
+      let fileImports = `import { ${className}Service } from '../../../../services/${parsedFileName}-service/${className}Service';\n`
+      let includeVariables = ""
+      let includeQuery = "\n"
+      let mapToGetIdSuggest = ""
+      let mapToGetValue = ""
+      let mapToGetIdSelect = ""
+      let htmlReport = ""
+
+      fields.forEach(function (field, index) {
+
+        const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+        const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
+        const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
+        select += ` '${nameAttribute}',`
+        if (cont++ === 0) {
+          close = false
+          form += `{ cols: [\n`;
+        }
+        if (index === 0) {
+          form += `this.inputId.getField(),\n`;
+          //regex to remove break lines
+          // const parten = /\n/g;
+          datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: false, sort: "${field['Tipo'] !== "number" ? "text" : "number"}" },\n`;
+          //TODO INSERT TITLE
+          inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { width: 200, disabled: true, ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+        } else {
+          form += `this.input${nameAttributeAllUp}.getField(),\n`;
+          //START DEFINE DATATABLE
+          if (field['Tipo'] !== 'enum')
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "${field['Tipo'] !== "number" ? "textFilter" : "numberFilter"}" }], fillspace: true, sort: "${field['Tipo'] !== "number" ? "text" : "number"}" },\n`;
+          else
+            datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: true, sort: 'text', format: (value) => { return formatEnum(value, ${nameAttribute}Enum) } },\n`;
+          //END DEFINE DATATABLE
+
+          if (field['Tipo'] === 'date') {
+            inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            mapToGetValue += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
+
+            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            SetValueWhere += `${nameAttributeAllUp}Value ? where.${nameAttribute} = ${nameAttributeAllUp}Value : null;`
+          } else if (field['Tipo'] === 'enum') {
+            // START DEFINE O ENUM PARA CRIACAO DO ARQUIVO
+            fileEnum.push([nameAttribute, `export const ${nameAttribute}EnumFilter = ${
+              JSON.stringify(field['Observacoes'].split(',').map(i => {
+                return {id: i.replace(/'/g, ''), value: i.replace(/'/g, '')}
+              }))}; \n/*${field['Descricao']}*/\n
+            export const ${nameAttribute}Enum = ${nameAttribute}EnumFilter.filter((item) => {
+              if (item.id !== null) return {...item}
+            })
+            `]);
+
+            fileImports += `import {${nameAttribute}Enum} from "../../../../enum/${nameAttribute}.enum";\n`;
+
+            // END DEFINE O ENUM PARA CRIACAO DO ARQUIVO
+
+            inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            //filter datatable by enum
+            mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find( select => select.id === item.${nameAttribute});
+                                 ${nameAttribute}Id? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
+            mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find( select => select.value === item.${nameAttribute});
+                                 ${nameAttribute}Value? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
+
+            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            SetValueWhere += `${nameAttributeAllUp}Value ? where.${nameAttribute} = ${nameAttributeAllUp}Value : null;`
+          } else if (field['Observacoes'] === 'foreign key') {
+            inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+
+            const nameService = field['Tabela'].replace(' ', '')
+            //Replace up letter for same letter lower and underscore not can start with underscore
+            const nameServiceAllUp = nameService.charAt(0).toLowerCase() + nameService.slice(1).replace(/([A-Z])/g, '-$1').toLowerCase();
+            fileImports += `import { ${nameService}Service } from '../../../../services/${nameServiceAllUp}-service/${nameService}Service';\n`;
+
+            includeVariables += `private ${nameAttribute}Data: any = [];\n`;
+            includeQuery += `'${nameAttribute.replace('cod', '')}',\n`;
+            mapToGetIdSuggest += `this.suggestValues.${nameAttribute} ? item.${nameAttribute} = this.suggestValues.${nameAttribute} : item.${nameAttribute} = this.${nameAttribute}Data.find(select => select.value == item.${nameAttribute}).id;\n`;
+            if (importConstructor.indexOf(`private _${nameService}Service`) === -1) {
+              importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
+            }
+            //    Suggest
+            //  text //Start load ${nameService} not exit in loadSuggest
+            if (loadSuggest.indexOf(`Start load ${nameService}`) === -1) {
+              loadSuggest += `//Start load ${nameService}
+                            let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
+                            if (${nameService}Resp.data.length > 0) {
+                                this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
+                                    return {
+                                        id: ${nameService}.id,
+                                        value: ${nameService}.desc${nameAttribute.replace('cod', '')}
+                                    };
+                                });
+                                await this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
+                                    onValueSuggest: (item) => {
+                                        this.suggestValues.${nameAttribute} = item.id;
+                                    },
+                                });
+                            }
+                            //End load ${nameService}\n
+                            `
+            }
+            //filter in this.${nameAttribute}Data for ${nameAttribute}
+            mapToGetValue += `const ${nameAttribute} = this.${nameAttribute}Data.find( select => select.id == item.${nameAttribute});
+                            ${nameAttribute}? item.${nameAttribute}= ${nameAttribute}.value : '';\n`;
+
+            // getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            SetValueWhere += `this.suggestValues.${nameAttribute} ? where.${nameAttribute} = this.suggestValues.${nameAttribute} : null;`
+          } else {
+            inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+
+            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            SetValueWhere += `${nameAttributeAllUp}Value ? where.${nameAttribute} = ${nameAttributeAllUp}Value : null;`
+          }
+
+          htmlReport += `<div class="positionItem">
+                  <div *ngIf="i==0" style="font-weight: bold">${displayName}</div>
+                  <div class="positionVaue">{{item.${nameAttribute}}}</div>
+                </div>
+                `;
+
+        }
+        if (cont === 3) {
+          close = true
+          cont = 0;
+          form += `] },`;
+        }
+      }.bind(this));
+      form += `\nthis.inputSituation.getField()`
+      if (!close) {
+        form += `] },\n`;
+      }
+      inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
+      includeVariables += `private suggestValues: any = {};\n`;
+      let setLoadSuggest = ""
+      loadSuggest ? setLoadSuggest = `async loadSuggests() {
+                    const simpleWhere = "where="+JSON.stringify({situation: 'A'});\n
+                    ${loadSuggest}\n
+                    loadingHide();\n
+                }` : '';
+
+      const reMapToGetIdSuggest = `
+                if(this.suggestValues) {
+                    ${mapToGetIdSuggest}
+                }\n
+                `
+      const reMapFoDataTable = `.map( (item) => {
+                    ${mapToGetValue}
+                    return item;
+                })`
+
+      let objectAll = {
+        form: form,
+        inputs: inputs,
+        select: select,
+        includeVariables: includeVariables,
+        mapToGetIdSelect: mapToGetIdSelect,
+        mapToGetIdSuggest: mapToGetIdSuggest,
+        mapToGetValue: mapToGetValue,
+        getValueInput: getValueInput,
+        SetValueWhere: SetValueWhere,
+        htmlReport: htmlReport,
+        fileImports: fileImports,
+        importConstructor: importConstructor,
+        loadSuggest: loadSuggest,
+        setLoadSuggest: setLoadSuggest,
+        reMapToGetIdSuggest: reMapToGetIdSuggest,
+        reMapFoDataTable: reMapFoDataTable,
+        includeQuery: includeQuery,
+        datatable: datatable
+      }
+
+      let fileWrite = structureScreen(objectAll);
+      let fileReportWrite = structureReport();
+      let fileHtmlWrite = structureHtmlReport(htmlReport);
+
+
+      //Start write file
+      let nameOfPath = 'docs/files/front/tables/report/' + parsedFileName + '-report/'
+      ensureDirectoryExistence(nameOfPath);
+      await fs.writeFile(nameOfPath + parsedFileName + '-report.component.ts', fileWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+      //      createfile: './${parsedFileName}.component.html',
+      await fs.writeFile(nameOfPath + parsedFileName + '-report.component.html', '', {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+      //      createfile: './${parsedFileName}.component.scss'
+      await fs.writeFile(nameOfPath + parsedFileName + '-report.component.scss', '', {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+
+
+      nameOfPath = 'docs/files/front/tables/report/' + parsedFileName + '-report/layout-' + parsedFileName + '-report/'
+      ensureDirectoryExistence(nameOfPath);
+
+      await fs.writeFile(nameOfPath + 'layout-' + parsedFileName + '-report.component.ts', fileReportWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+      //      createfile: './${parsedFileName}.component.html',
+      await fs.writeFile(nameOfPath + 'layout-' + parsedFileName + '-report.component.html', fileHtmlWrite, {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
+      //      createfile: './${parsedFileName}.component.scss'
+      await fs.writeFile(nameOfPath + 'layout-' + parsedFileName + '-report.component.scss', '', {flag: 'w'}, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+      });
     }
   }
 }
