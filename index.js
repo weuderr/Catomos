@@ -44,7 +44,7 @@ fs.readdir(readFolder, async (err, files) => {
 
           await makeFrontModels(parsedFileName, camelCaseNameFile, fileName, data);
           await makeFrontFileService(parsedFileName, camelCaseNameFile, fileName, data);
-          await makeFileFront(parsedFileName, camelCaseNameFile, fileName, data);
+          await makeFileFront(parsedFileName, camelCaseNameFile, fileName, nameWithSpace, data);
 
           await makeFileFrontReport(parsedFileName, camelCaseNameFile, fileName, nameWithSpace, data);
         });
@@ -924,7 +924,7 @@ export class ${camelCaseNameFile}Service extends SarcService< ${camelCaseNameFil
   }
 }
 
-async function makeFileFront(parsedFileName, className, fileName, data) {
+async function makeFileFront(parsedFileName, className, fileName, nameWithSpace, data) {
   if (data) {
     const fields = JSON.parse(data);
     let doFile = false
@@ -995,7 +995,7 @@ export class ${className}Component {
   /*
     Id do accordion onde tem o formulário é colocado numa variável para poder ser utilizado no código abaixo
   */
-  accordionFormId: string = 'accordionItemForm${className}';
+  accordionFormId: string = 'accordion${className}';
 
   /**
   * Variavel de leitura/edição dos campos
@@ -1096,6 +1096,7 @@ export class ${className}Component {
    */
   async setWebixUi() {
     this.webix.ready(async () => {
+      loadingShow();
       this.webixUi = this.webix.ui({
         rows: [
           this.toolbar.getField(),
@@ -1117,7 +1118,7 @@ export class ${className}Component {
                 collapsed: true,
                 body: {
                   rows: [
-                    this.setFormAgentInputs()
+                    this.setForm${className}Inputs()
                   ]
                 }
               },
@@ -1145,13 +1146,14 @@ export class ${className}Component {
       });
       ${setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
       await this._loadData();
+      loadingHide();
     })
   }
 
   /**
    * Retorna o objeto com as variaveis do formulário para dentro do webixUi
    */
-  setFormAgentInputs() {
+  setForm${className}Inputs() {
     return {
       id: this.formId,
       view: 'form',
@@ -1257,7 +1259,6 @@ export class ${className}Component {
       } else {
         this._create(item);
       }
-      this._loadData();
     } else {
       this._messageService.show('Formulário Inválido', 'error');
     }
@@ -1267,13 +1268,9 @@ export class ${className}Component {
   * Envia os valores para API atualizar
   */
   _update(item) {
-    delete item.deletedAt;
-
-    if (item.createdAt)
-      delete item.createdAt
-
-    if (item.updatedAt)
-      delete item.updatedAt
+    item.createdAt ? delete item.createdAt : null;
+    item.updatedAt ? delete item.updatedAt : null;
+    item.deletedAt ? delete item.deletedAt : null;
 
     this.service.put(item.id, item).subscribe(
       () => _success(),
@@ -1424,10 +1421,10 @@ export class ${className}Component {
     loadingShow();
 
     this._googleSheetsService.createSheetFromDatatableAndOpen(this.$$(this.datatable.getId()),
-      \`Registros - ${parsedFileName} \${moment(new Date()).format('DD/MM/YYYY hh:mm:ss')}\`,
+      \`Registros - ${nameWithSpace} \${moment(new Date()).format('DD/MM/YYYY hh:mm:ss')}\`,
       \`Exportacao/SAIA/Registros\`,
       this._localStorageService.getItem('user').email,
-      'Locais', undefined, undefined, () => loadingHide(), () => {
+      '${nameWithSpace}', undefined, undefined, () => loadingHide(), () => {
         loadingHide();
         this._messageService.show('Erro ao gerar o relatório.', 'error');
       }, { ignoreColumnFooter: true });
@@ -1681,7 +1678,7 @@ export class ${className}ReportComponent {
   /*
     Id do formulário é colocado numa variável para poder ser reutilizado no código abaixo
   */
-  formId: string = 'FrmDocumento';
+  formId: string = 'Frm${className}';
   /*
     Id do accordion onde tem o formulário é colocado numa variável para poder ser utilizado no código abaixo
   */
@@ -1694,8 +1691,10 @@ export class ${className}ReportComponent {
    * Definições de input para o filtro
    */
   ${objectAll.inputs}
-  
-  AtivoInativoFilter = AtivoInativoFilter.map(a => a.value = this.translate(a.value));
+  buttonSearch = new WebixButton('Pesquisar', 'Pesquisar', 'primary', () => this._loadData(), {
+    icon: 'fa fa-search',
+    css: {'line-height': '0!important'},
+  });
   
   /*
     Declaração do video tutorial
@@ -1773,6 +1772,7 @@ export class ${className}ReportComponent {
    */
   async setWebixUi() {
     this.webix.ready(async () => {
+      loadingShow();
       this.webixUi = this.webix.ui({
         rows: [
           this.toolbar.getField(),
@@ -1823,6 +1823,7 @@ export class ${className}ReportComponent {
 
       ${objectAll.setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
       await this._loadData();
+      loadingHide();
     })
   }
 
@@ -1834,7 +1835,11 @@ export class ${className}ReportComponent {
       id: this.formId + "Filter",
       view: 'form',
       rows: [
-        ${objectAll.form}
+        ${objectAll.form} {
+          cols: [
+            this.buttonSearch.getField(),
+          ]
+        }
       ]
     }
   }
@@ -1874,9 +1879,9 @@ export class ${className}ReportComponent {
     const item = this.dataAll.find(select => select.id === row);
     const form = this.$$(this.formId)
     form.setValues(item);
-    this.$$(this.inputId.getId()).show();
-    this.$$(this.inputId.getId()).setValue(item.id);
-    this.$$(this.inputSituation.getId()).show();
+    this.$$(this.inputIdFilter.getId()).show();
+    this.$$(this.inputIdFilter.getId()).setValue(item.id);
+    this.$$(this.inputSituationFilter.getId()).show();
     this.$$(this.accordionFormId).expand();
     form.setDirty(false);
   }
@@ -1967,10 +1972,10 @@ export class Layout${className}ReportComponent {
 
   <div style="border-top: 3px solid #c8c8"></div>
   <div *ngFor="let item of report.data; let i = index">
-      <div style="    display: flex; flex-direction: row; justify-content: space-between; flex-wrap: nowrap;">
-          <div class="positionItem">
-            <div *ngIf="i==0" style="font-weight: bold">ID</div>
-            <div class="positionVaue">{{item.id}}</div>
+      <div class="wrapper">
+          <div class="info-item">
+            <div *ngIf="i==0" class="info-item-label">ID</div>
+            <div class="info-item-value">{{item.id}}</div>
           </div>
           ${htmlReport}
     </div>
@@ -1980,6 +1985,37 @@ export class Layout${className}ReportComponent {
 
 </html>
 
+`;
+      }
+
+      const structureCssReport = () => {
+        return `.wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-column-gap: 10px;
+  grid-row-gap: 1em;
+}
+
+.w400 {
+  width: 400px;
+}
+
+.w170 {
+  width: 170px;
+}
+
+.w200 {
+  width: 200px;
+}
+
+.info-item-label {
+  font-weight: bold; 
+  margin-bottom: 20px;
+}
+
+.info-item-value {
+  // margin-bottom: 20px;
+}
 `;
       }
 
@@ -2015,14 +2051,14 @@ export class Layout${className}ReportComponent {
           form += `{ cols: [\n`;
         }
         if (index === 0) {
-          form += `this.inputId.getField(),\n`;
+          form += `this.inputIdFilter.getField(),\n`;
           //regex to remove break lines
           // const parten = /\n/g;
           datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "textFilter" }], fillspace: false, sort: "${field['Tipo'] !== "number" ? "text" : "number"}" },\n`;
           //TODO INSERT TITLE
-          inputs += `inputId = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { width: 200, disabled: true, ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+          inputs += `inputIdFilter = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { width: 200, disabled: true, ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
         } else {
-          form += `this.input${nameAttributeAllUp}.getField(),\n`;
+          form += `this.input${nameAttributeAllUp}Filter.getField(),\n`;
           //START DEFINE DATATABLE
           if (field['Tipo'] !== 'enum')
             datatable += `{ id: "${nameAttribute}", header: [this.translate("${displayName}"), { content: "${field['Tipo'] !== "number" ? "textFilter" : "numberFilter"}" }], fillspace: true, sort: "${field['Tipo'] !== "number" ? "text" : "number"}" },\n`;
@@ -2031,10 +2067,10 @@ export class Layout${className}ReportComponent {
           //END DEFINE DATATABLE
 
           if (field['Tipo'] === 'date') {
-            inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            inputs += `input${nameAttributeAllUp}Filter = new WebixInputDate('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             mapToGetValue += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
 
-            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}Filter.getId()).getValue();`
             SetValueWhere += `${nameAttributeAllUp}Value ? where.${nameAttribute} = ${nameAttributeAllUp}Value : null;`
           } else if (field['Tipo'] === 'enum') {
             // START DEFINE O ENUM PARA CRIACAO DO ARQUIVO
@@ -2051,17 +2087,17 @@ export class Layout${className}ReportComponent {
 
             // END DEFINE O ENUM PARA CRIACAO DO ARQUIVO
 
-            inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            inputs += `input${nameAttributeAllUp}Filter = new WebixSelect('${nameAttribute}', this.translate('${displayName}'), ${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
             //filter datatable by enum
             mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find( select => select.id === item.${nameAttribute});
                                  ${nameAttribute}Id? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
             mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find( select => select.value === item.${nameAttribute});
                                  ${nameAttribute}Value? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
 
-            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.inputFilter${nameAttributeAllUp}.getId()).getValue();`
             SetValueWhere += `${nameAttributeAllUp}Value ? where.${nameAttribute} = ${nameAttributeAllUp}Value : null;`
           } else if (field['Observacoes'] === 'foreign key') {
-            inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            inputs += `input${nameAttributeAllUp}Filter = new WebixSuggest('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
 
             const nameService = field['Tabela'].replace(' ', '')
             //Replace up letter for same letter lower and underscore not can start with underscore
@@ -2086,7 +2122,7 @@ export class Layout${className}ReportComponent {
                                         value: ${nameService}.desc${nameAttribute.replace('cod', '')}
                                     };
                                 });
-                                await this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
+                                await this.input${nameAttributeAllUp}Filter.setSuggest(this.${nameAttribute}Data, {
                                     onValueSuggest: (item) => {
                                         this.suggestValues.${nameAttribute} = item.id;
                                     },
@@ -2102,15 +2138,15 @@ export class Layout${className}ReportComponent {
             // getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
             SetValueWhere += `this.suggestValues.${nameAttribute} ? where.${nameAttribute} = this.suggestValues.${nameAttribute} : null;`
           } else {
-            inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
+            inputs += `input${nameAttributeAllUp}Filter = new WebixInput('${nameAttribute}', this.translate('${displayName}'), { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: this.translate('${field['Descricao'].replace(/\n/g, '')}') });\n`;
 
-            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}.getId()).getValue();`
+            getValueInput += `const ${nameAttributeAllUp}Value = this.$$(this.input${nameAttributeAllUp}Filter.getId()).getValue();`
             SetValueWhere += `${nameAttributeAllUp}Value ? where.${nameAttribute} = ${nameAttributeAllUp}Value : null;`
           }
 
-          htmlReport += `<div class="positionItem">
-                  <div *ngIf="i==0" style="font-weight: bold">${displayName}</div>
-                  <div class="positionVaue">{{item.${nameAttribute}}}</div>
+          htmlReport += `<div class="info-item">
+                  <div *ngIf="i==0" class="info-item-label">${displayName}</div>
+                  <div class="info-item-value">{{item.${nameAttribute}}}</div>
                 </div>
                 `;
 
@@ -2121,11 +2157,11 @@ export class Layout${className}ReportComponent {
           form += `] },`;
         }
       }.bind(this));
-      form += `\nthis.inputSituation.getField()`
+      form += `\nthis.inputSituationFilter.getField()`
       if (!close) {
         form += `] },\n`;
       }
-      inputs += `inputSituation = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
+      inputs += `inputSituationFilter = new WebixSelect('situation', this.translate('Situação'), AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
       includeVariables += `private suggestValues: any = {};\n`;
       let setLoadSuggest = ""
       loadSuggest ? setLoadSuggest = `async loadSuggests() {
@@ -2154,7 +2190,7 @@ export class Layout${className}ReportComponent {
         mapToGetValue: mapToGetValue,
         getValueInput: getValueInput,
         SetValueWhere: SetValueWhere,
-        htmlReport: htmlReport,
+        // htmlReport: htmlReport,
         fileImports: fileImports,
         importConstructor: importConstructor,
         loadSuggest: loadSuggest,
@@ -2168,6 +2204,7 @@ export class Layout${className}ReportComponent {
       let fileWrite = structureScreen(objectAll);
       let fileReportWrite = structureReport();
       let fileHtmlWrite = structureHtmlReport(htmlReport);
+      let fileCssWrite = structureCssReport();
 
 
       //Start write file
@@ -2207,7 +2244,7 @@ export class Layout${className}ReportComponent {
         }
       });
       //      createfile: './${parsedFileName}.component.scss'
-      await fs.writeFile(nameOfPath + 'layout-' + parsedFileName + '-report.component.scss', '', {flag: 'w'}, function (err) {
+      await fs.writeFile(nameOfPath + 'layout-' + parsedFileName + '-report.component.scss', fileCssWrite, {flag: 'w'}, function (err) {
         if (err) {
           return console.log(err);
         }
