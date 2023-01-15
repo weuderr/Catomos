@@ -226,6 +226,9 @@ export class ${className}ReportComponent {
       rows: [
         ${objectAll.form} {
           cols: [
+            {
+                gravity: 2
+            },
             this.buttonSearch.getField(),
           ]
         }
