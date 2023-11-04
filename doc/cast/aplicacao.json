@@ -1,6 +1,5 @@
 [
   {
-    "displayName": "Id",
     "Atributo": "cod_aplicacao",
     "Tipo": "number",
     "Tamanho": 0,
@@ -9,7 +8,6 @@
     "Observacoes": "primary key"
   },
   {
-    "displayName": "Descrição",
     "Atributo": "desc_aplicacao",
     "Tipo": "varchar",
     "Tamanho": 200,
@@ -18,13 +16,11 @@
     "Observacoes": ""
   },
   {
-    "displayName": "Tipo",
     "Atributo": "cod_tipo_aplic",
     "Tipo": "number",
     "Tamanho": 0,
-    "Descricao": "Chave referencial do Tipo de Aplicação",
+    "Descricao": "Código do Tipo de Aplicação",
     "Obrigatoriedade": "sim",
-    "Observacoes": "foreign key",
-    "Tabela": "TipoAplicacao"
+    "Observacoes": ""
   }
 ]

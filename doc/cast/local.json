@@ -1,0 +1,42 @@
+[
+  {
+    "Atributo": "cod_local",
+    "Tipo": "varchar",
+    "Tamanho": 50,
+    "Descricao": "Código do local",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "desc_local",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao do local",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "linha",
+    "Tipo": "varchar",
+    "Tamanho": "2",
+    "Descricao": "",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "coluna",
+    "Tipo": "varchar",
+    "Tamanho": "2",
+    "Descricao": "",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "qtd_disponivel",
+    "Tipo": "varchar",
+    "Tamanho": "3",
+    "Descricao": "",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  }
+]

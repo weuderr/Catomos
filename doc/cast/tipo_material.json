@@ -1,0 +1,18 @@
+[
+  {
+    "Atributo": "cod_doc",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código do carregamento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "descricao",
+    "Tipo": "varchar",
+    "Tamanho": 50,
+    "Descricao": "Descricao de documento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  }
+]

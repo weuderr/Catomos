@@ -1,0 +1,130 @@
+[
+  {
+    "Atributo": "cod_microfilmagem",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código de microfilmagem",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "num_microfilmagem",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Número de microfilmagem",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_microfilmagem",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de microfilmagem",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "filme",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Filme",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "lote",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Lote",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "flash",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Flash",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_orgao",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código de órgão",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_empresa_inic",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código de empresa inicial",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_empresa_fim",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código de empresa final",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_movim",
+    "Tipo": "varchar",
+    "Tamanho": 1,
+    "Descricao": "Código de movimento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_desligamento",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de desligamento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "nome_func",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Nome do funcionário",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_nascimento",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de nascimento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "cod_reg_emprg",
+    "Tipo": "varchar",
+    "Tamanho": 7,
+    "Descricao": "Código de registro de empregado",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "dat_documento",
+    "Tipo": "date",
+    "Tamanho": 0,
+    "Descricao": "Data de documento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "yyyy-mm-dd hh:mm:ss"
+  },
+  {
+    "Atributo": "cod_tipo_aplic",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código de tipo de aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  }
+]

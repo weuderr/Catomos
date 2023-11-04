@@ -1,0 +1,18 @@
+[
+  {
+    "Atributo": "cod_sub_assunto",
+    "Tipo": "number",
+    "Tamanho": 15,
+    "Descricao": "Código do Sub-Assunto",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "desc_sub_assunto",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao do Sub-Assunto",
+    "Obrigatoriedade": "nao",
+    "Observacoes": ""
+  }
+]

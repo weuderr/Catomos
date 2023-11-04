@@ -1,0 +1,26 @@
+[
+  {
+    "Atributo": "cod_tipo_aplic",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do tipo de aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "desc_tipo_aplic",
+    "Tipo": "varchar",
+    "Tamanho": 200,
+    "Descricao": "Descricao do tipo de aplicação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "desligamento",
+    "Tipo": "enum",
+    "Tamanho": 0,
+    "Descricao": "Desligamento, S - Sim, N - Não",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "'S', 'N'"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "Atributo": "cod_solic",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código da solicitação",
+    "Obrigatoriedade": "sim",
+    "Observacoes": "primary key"
+  },
+  {
+    "Atributo": "cod_emprestimo",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do empréstimo",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  }
+]

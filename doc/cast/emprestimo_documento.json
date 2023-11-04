@@ -1,0 +1,18 @@
+[
+  {
+    "Atributo": "cod_documento",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do documento",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  },
+  {
+    "Atributo": "cod_emprestimo",
+    "Tipo": "number",
+    "Tamanho": 0,
+    "Descricao": "Código do empréstimo",
+    "Obrigatoriedade": "sim",
+    "Observacoes": ""
+  }
+]
