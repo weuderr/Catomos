@@ -103,7 +103,7 @@ exports.ensureDirectoryExistence = (filePath) => {
     fs.mkdirSync(filePath);
 }
 
-exports.upLetter = (camelCaseNameFile) => {
+exports.camelCaseLetter = (camelCaseNameFile) => {
     if (!camelCaseNameFile) return '';
     // camelCase in all first letters of the string after space or underline
     let newcamelCaseNameFile = '';

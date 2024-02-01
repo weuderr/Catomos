@@ -1,4 +1,4 @@
-const {fieldsForModel, upLetter, lowerFirstLetter} = require("../lib/Utils");
+const {fieldsForModel, camelCaseLetter, lowerFirstLetter} = require("../lib/Utils");
 const fs = require("fs");
 
 exports.makeModel = async (parsedFileName, camelCaseNameFile, fileName, data, allFiles) => {
@@ -52,11 +52,11 @@ exports.makeModel = async (parsedFileName, camelCaseNameFile, fileName, data, al
 
         fields.forEach(function (field, index) {
 
-            const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+            const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : camelCaseLetter(field['Atributo']) : camelCaseLetter(field['Atributo']);
             model[nameAttribute] = fieldsForModel(field);
 
             if (field['Observacoes'] === 'foreign key') {
-                foreignKey += `model.belongsTo( models.${field['Tabela']}, { foreignKey: '${upLetter(nameAttribute)}', onDelete: 'SET NULL' } );`
+                foreignKey += `model.belongsTo( models.${field['Tabela']}, { foreignKey: '${camelCaseLetter(nameAttribute)}', onDelete: 'SET NULL' } );`
             }
 
         });
@@ -72,11 +72,11 @@ exports.makeModel = async (parsedFileName, camelCaseNameFile, fileName, data, al
                     const vinculado = getLastLatterVinc !== 'a' ? 'vinculado' : 'vinculada';
                     const tabela = getLastLatterTab !== 'a' ? 'este' : 'esta';
 
-                    hookVariable += `const where${file.className} = { ${upLetter(item['Atributo'])}: options.where.${item['Atributo']} };
+                    hookVariable += `const where${file.className} = { ${camelCaseLetter(item['Atributo'])}: options.where.${item['Atributo']} };
                     const msg${file.className} = 'Existe uma ou mais ${file.className}(s) ${vinculado}(s) a ${tabela} ${item['Tabela']}.';`;
                     hookPromise += `promisse.push(new BasicHooks('${file.className}').verifyExistRelation(where${file.className}, msg${file.className}));`;
 
-                    foreignKey += `model.hasMany(models.${file.className}, {foreignKey: '${upLetter(item['Atributo'])}', as: '${lowerFirstLetter(file.className)}'});`
+                    foreignKey += `model.hasMany(models.${file.className}, {foreignKey: '${camelCaseLetter(item['Atributo'])}', as: '${lowerFirstLetter(file.className)}'});`
                 }
             })
 

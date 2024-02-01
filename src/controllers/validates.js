@@ -1,5 +1,5 @@
 const fs = require("fs");
-const {ensureDirectoryExistence, getTypeForValidate, upLetter} = require("../lib/Utils");
+const {ensureDirectoryExistence, getTypeForValidate, camelCaseLetter} = require("../lib/Utils");
 
 exports.makeValidates = async (parsedFileName, camelCaseNameFile, fileName, data) => {
 
@@ -29,7 +29,7 @@ export default (req, res, next) => {
         let modelUpdate = {};
         fields.forEach(function (field, index) {
             let baseModel = "Joi.";
-            const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+            const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : camelCaseLetter(field['Atributo']) : camelCaseLetter(field['Atributo']);
             baseModel += getTypeForValidate(field);
             // START Create
             // modelCreate[nameAttribute] = 'Joi.';
@@ -44,7 +44,7 @@ export default (req, res, next) => {
 
 
             //Start Update
-            // const nameAttribute = upLetter(field['Atributo']);
+            // const nameAttribute = camelCaseLetter(field['Atributo']);
             // modelUpdate[nameAttribute] = 'Joi.';
             modelUpdate[nameAttribute] = baseModel;
             modelUpdate[nameAttribute] += 'optional()';

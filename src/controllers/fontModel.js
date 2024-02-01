@@ -1,5 +1,5 @@
 const fs = require("fs");
-const {upLetter} = require("../lib/Utils");
+const {camelCaseLetter} = require("../lib/Utils");
 
 exports.makeFrontModels = async (parsedFileName, camelCaseNameFile, fileName, data) => {
     if (data) {
@@ -18,7 +18,7 @@ exports.makeFrontModels = async (parsedFileName, camelCaseNameFile, fileName, da
             let inputs = {}
             fields.forEach(function (field, index) {
 
-                const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
+                const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : camelCaseLetter(field['Atributo']) : camelCaseLetter(field['Atributo']);
                 let tipo = ''
                 field['Tipo'] === 'varchar' ? tipo = 'string' : field['Tipo'] === 'number' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
                 inputs[nameAttribute] = tipo

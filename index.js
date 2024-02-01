@@ -1,6 +1,7 @@
 const fs = require("fs");
 const {ensureDirectoryExistence, upAllFistLetter, upAllFistLetterWithSpace} = require("./src/lib/Utils");
 const {makeModel} = require("./src/controllers/model");
+const {modelNewVersions} = require("./src/controllers/modelNewVersions");
 const {makeRoute} = require("./src/controllers/route");
 const {makeInterfaceDatabase} = require("./src/controllers/controllers");
 const {makeValidates} = require("./src/controllers/validates");
@@ -8,13 +9,15 @@ const {makeFrontModels} = require("./src/controllers/fontModel");
 const {makeFileFront} = require("./src/controllers/screenFront");
 const {makeFrontFileService} = require("./src/controllers/services");
 const {makeFileFrontReport} = require("./src/controllers/report");
+const {join} = require("path");
 
-const readFolder = 'docs/cast/';
+const readFolder = join(__dirname, 'docs/cast/');
 
 
 async function start(allFiles) {
 
   async function beaginFiles(parsedFileName, className, fileName, data, nameWithSpace) {
+    await modelNewVersions(parsedFileName, className, fileName, data, allFiles);
     await makeModel(parsedFileName, className, fileName, data, allFiles);
     await makeRoute(parsedFileName, className, nameWithSpace);
 
@@ -42,10 +45,18 @@ function createDirectors() {
   ensureDirectoryExistence('docs/files/front/tables/');
   ensureDirectoryExistence('docs/files/front/tables/report/');
   ensureDirectoryExistence('docs/files/front/models/');
+
   ensureDirectoryExistence('docs/files/back/');
   ensureDirectoryExistence('docs/files/back/api/');
   ensureDirectoryExistence('docs/files/back/models/');
   ensureDirectoryExistence('docs/files/back/models/postgres/');
+
+  ensureDirectoryExistence('docs/files/backNew/');
+  ensureDirectoryExistence('docs/files/backNew/api/');
+  ensureDirectoryExistence('docs/files/backNew/api/controllers/');
+  ensureDirectoryExistence('docs/files/backNew/api/routes/');
+  ensureDirectoryExistence('docs/files/backNew/models/');
+  ensureDirectoryExistence('docs/files/backNew/models/postgres/');
 }
 
 function showFileCreateConsole(className, parsedFileName) {

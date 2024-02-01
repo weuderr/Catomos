@@ -1,5 +1,5 @@
 const fs = require("fs");
-const {ensureDirectoryExistence, upLetter, upSpaceLetter, upAllFistLetter} = require("../lib/Utils");
+const {ensureDirectoryExistence, camelCaseLetter, upSpaceLetter, upAllFistLetter} = require("../lib/Utils");
 
 exports.makeFileFront = async (parsedFileName, className, fileName, nameWithSpace, data) => {
     if (data) {
@@ -533,8 +533,8 @@ export class ${className}Component {
 
             fields.forEach(function (field, index) {
 
-                const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']);
-                const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : upLetter(field['Atributo']) : upLetter(field['Atributo']));
+                const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : camelCaseLetter(field['Atributo']) : camelCaseLetter(field['Atributo']);
+                const nameAttributeAllUp = upAllFistLetter(index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : camelCaseLetter(field['Atributo']) : camelCaseLetter(field['Atributo']));
                 const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
                 select += ` '${nameAttribute}',`
                 if (cont++ === 0) {
