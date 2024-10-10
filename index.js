@@ -10,6 +10,8 @@ const {makeFileFront} = require("./src/controllers/screenFront");
 const {makeFrontFileService} = require("./src/controllers/services");
 const {makeFileFrontReport} = require("./src/controllers/report");
 const {join} = require("path");
+const {makeMigration} = require("./src/controllers/migration");
+const {makeSeed} = require("./src/controllers/seeds");
 
 const readFolder = join(__dirname, 'docs/cast/');
 
@@ -18,6 +20,8 @@ async function start(allFiles) {
 
   async function beaginFiles(parsedFileName, className, fileName, data, nameWithSpace) {
     await modelNewVersions(parsedFileName, className, fileName, data, allFiles);
+    await makeMigration(parsedFileName, className, fileName, data, allFiles);
+    await makeSeed(fileName, data);
     await makeModel(parsedFileName, className, fileName, data, allFiles);
     await makeRoute(parsedFileName, className, nameWithSpace);
 
@@ -36,6 +40,17 @@ async function start(allFiles) {
   }
 }
 
+function clearAllFilesFromFolder(folderName) {
+  fs.readdir(folderName, (err, files) => {
+    if (err) throw err;
+    for (const file of files) {
+      fs.unlink(folderName+`${file}`, err => {
+        if (err) throw err;
+      });
+    }
+  });
+}
+
 function createDirectors() {
   ensureDirectoryExistence('docs/');
   ensureDirectoryExistence('docs/files/');
@@ -47,6 +62,8 @@ function createDirectors() {
   ensureDirectoryExistence('docs/files/front/models/');
 
   ensureDirectoryExistence('docs/files/back/');
+  ensureDirectoryExistence('docs/files/back/migrations/');
+  ensureDirectoryExistence('docs/files/back/seeds/');
   ensureDirectoryExistence('docs/files/back/api/');
   ensureDirectoryExistence('docs/files/back/models/');
   ensureDirectoryExistence('docs/files/back/models/postgres/');
@@ -57,6 +74,9 @@ function createDirectors() {
   ensureDirectoryExistence('docs/files/backNew/api/routes/');
   ensureDirectoryExistence('docs/files/backNew/models/');
   ensureDirectoryExistence('docs/files/backNew/models/postgres/');
+
+  clearAllFilesFromFolder('docs/files/back/migrations/')
+  clearAllFilesFromFolder('docs/files/back/seeds/');
 }
 
 function showFileCreateConsole(className, parsedFileName) {

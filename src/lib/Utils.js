@@ -113,7 +113,7 @@ exports.camelCaseLetter = (camelCaseNameFile) => {
     }
 
     for (let i = 0; i < camelCaseNameFileArray.length; i++) {
-        newcamelCaseNameFile += camelCaseNameFileArray[i].charAt(0).toUpperCase() + camelCaseNameFileArray[i].slice(1);
+        newcamelCaseNameFile += camelCaseNameFileArray[i].charAt(0).toUpperCase() + camelCaseNameFileArray[i].slice(1).toLowerCase();
     }
 
     return newcamelCaseNameFile.charAt(0).toLowerCase() + newcamelCaseNameFile.slice(1);
