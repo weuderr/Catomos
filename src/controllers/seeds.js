@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 exports.makeSeed = async (fileName, columns, rowCount = 10) => {
+    columns = JSON.parse(columns)
 
     // Cabeçalho do arquivo de seed
     const structureUp = () => `
@@ -22,7 +23,7 @@ module.exports = {
 };
     `;
 
-    // Função para gerar palavras ou frases aleatórias de acordo com o tamanho
+    // Função para gerar texto aleatório de acordo com o tamanho
     const generateRandomText = (size) => {
         const syllables = ["ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu", "da", "de", "di", "do", "du",
             "fa", "fe", "fi", "fo", "fu", "ga", "ge", "gi", "go", "gu", "la", "le", "li", "lo", "lu",
@@ -81,15 +82,17 @@ module.exports = {
         return text.length > size ? text.substring(0, size).trim() : text;
     };
 
-
-    // Função para gerar valores aleatórios para cada tipo de dado
-    const generateValue = (type, size, options) => {
-        let month,day;
+    // Função para gerar valores aleatórios de acordo com o tipo de dado
+    const generateValue = (type, size, options, isForeignKey = false, primaryKeyValue = 1, foreignValues = []) => {
+        let month, day;
+        if (isForeignKey) {
+            return Math.floor(Math.random() * 10) + 1;  // ID aleatório para chave estrangeira, ajustável conforme necessário
+        }
         switch (type.toUpperCase()) {
             case 'VARCHAR':
                 return `'${generateRandomText(size)}'`;
             case 'INT':
-                return Math.floor(Math.random() * 1000) + 1;
+                return primaryKeyValue || Math.floor(Math.random() * 1000);
             case 'TINYINT':
                 return Math.floor(Math.random() * 2);
             case 'DATE':
@@ -106,8 +109,7 @@ module.exports = {
                 day = String(Math.floor(Math.random() * 28) + 1).padStart(2, '0');
                 return `'2021-${month}-${day} ${hour}:${minute}:${second}'`;
             case 'TEXT':
-                // Gera um texto aleatório mais longo
-                return `'${Math.random().toString(36).substring(2, 20)} ${Math.random().toString(36).substring(2, 20)}'`;
+                return `'${generateRandomText(size)}'`;
             case 'ENUM':
                 // Seleciona aleatoriamente uma das opções fornecidas em Observacoes
                 const enumOptions = options.replace(/'/g, "").split(',').map(opt => opt.trim());
@@ -119,12 +121,34 @@ module.exports = {
     };
 
     let seedData = '';
+    let primaryKeyValue = 1;
 
-    // Gera as linhas de dados aleatórios
+    // Simulando IDs para chaves estrangeiras (exemplo)
+    const foreignKeyCache = {
+        // 'foreign_table': [1, 2, 3, ..., rowCount]
+    };
+    // Preencha o cache de chaves estrangeiras com valores de teste (1 até rowCount)
+    columns.forEach((column) => {
+        if (column.Observacoes && column.Observacoes.includes('foreign key')) {
+            foreignKeyCache[column.Tabela] = Array.from({ length: rowCount }, (_, i) => i + 1);
+        }
+    });
+
+    // Gera as linhas de dados aleatórios para o seed
     for (let i = 0; i < rowCount; i++) {
         let rowData = '      { ';
-        JSON.parse(columns).forEach((column, index) => {
-            const value = generateValue(column.Tipo.toUpperCase(), column.Tamanho, column.Observacoes);
+        columns.forEach((column, index) => {
+            const isPrimaryKey = column.Observacoes && column.Observacoes.toLowerCase().includes('primary key');
+            const isForeignKey = column.Observacoes && column.Observacoes.toLowerCase().includes('foreign key');
+            const foreignValues = isForeignKey ? foreignKeyCache[column.Tabela] || [] : [];
+            const value = generateValue(
+                column.Tipo.toUpperCase(),
+                column.Tamanho,
+                column.Observacoes,
+                isForeignKey,
+                isPrimaryKey ? primaryKeyValue++ : null,
+                foreignValues
+            );
             rowData += `${column.Atributo}: ${value}${index < columns.length - 1 ? ',' : ''} `;
         });
         rowData += `}${i < rowCount - 1 ? ',' : ''}\n`;

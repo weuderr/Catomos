@@ -21,7 +21,7 @@ async function start(allFiles) {
   async function beaginFiles(parsedFileName, className, fileName, data, nameWithSpace) {
     await modelNewVersions(parsedFileName, className, fileName, data, allFiles);
     await makeMigration(parsedFileName, className, fileName, data, allFiles);
-    await makeSeed(fileName, data);
+    await makeSeed(fileName, data, 10, allFiles);
     await makeModel(parsedFileName, className, fileName, data, allFiles);
     await makeRoute(parsedFileName, className, nameWithSpace);
 
