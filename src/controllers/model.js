@@ -1,138 +1,116 @@
-const { fieldsForModel, camelCaseLetter, lowerFirstLetter } = require("../lib/Utils");
 const fs = require("fs");
+const { camelCaseLetter, upAllFistLetterWithSpace, castCamelCaseToFileName } = require("../lib/Utils");
 
 exports.makeModel = async (parsedFileName, camelCaseNameFile, fileName, data, allFiles) => {
-
-    // Estrutura de cabeçalho do arquivo de modelo
-    const structureUp = () => `
-import ApiConfig from '../../config/api.conf';
-import { BasicFields } from '../fields/postgres/basicFields';
-import { BasicHooks } from '../fields/postgres/basicHooks';
-
-const ${camelCaseNameFile} = (sequelize, DataTypes) => {
-
-    const basicFields = new BasicFields(DataTypes);
-
-    // Define environment object
-    const config = new ApiConfig();
-    const environment = config.getEnv();
-    let schema = environment.databases.postgres.schema;
-
-    const model = sequelize.define('${camelCaseNameFile}', `;
-
-    // Estrutura intermediária que define hooks e configurações da tabela
-    const structureMiddle = (hook) => `, {
-        paranoid: true,
-        freezeTableName: true,
-        tableName: '${fileName}',
-        hooks: ${!!hook}
-    }).schema(schema);
-
-    model.associate = (models) => {
-    `;
-
-    // Estrutura final que fecha o arquivo e exporta o modelo
-    const structureDown = (hook) => `
-    };
-
-    ${hook}
-
-    return model;
-};
-
-module.exports = ${camelCaseNameFile};
-`;
+    let imports = '';
 
     if (data) {
         const fields = JSON.parse(data);
-        let model = {};
-        let foreignKeyAssociations = '';
-        let hookVariable = '';
-        let hookPromise = '';
-        let bodyHook = '';
+        let attributes = {};
+        let associations = '';
+        let hooks = '';
 
-        // Itera pelos campos para configurar o modelo e chaves estrangeiras
-        fields.forEach((field, index) => {
-            const nameAttribute = index === 0 && field['Observacoes'] === 'primary key'
-                ? 'id'
-                : camelCaseLetter(field['Atributo']);
+        // Processa os campos para criar os atributos do modelo
+        fields.forEach((field) => {
+            const fieldName = field['Atributo'].toUpperCase();
+            const fieldReName = camelCaseLetter(fieldName);
+            const fieldType = field['Tipo'].toUpperCase();
 
-            model[nameAttribute] = fieldsForModel(field);
+            const attribute = {
+                type: `DataTypes.${fieldType}`,
+                field: fieldName,
+            };
 
-            if (field['Observacoes'] === 'foreign key') {
-                foreignKeyAssociations += `
-    model.belongsTo(models.${field['Tabela']}, { 
-        foreignKey: '${camelCaseLetter(nameAttribute)}', 
-        onDelete: 'SET NULL' 
-    });
-                `;
+            if (field['PermiteNull'] === 'não') {
+                attribute.allowNull = false;
+            } else {
+                attribute.allowNull = true;
+            }
+
+            // Define a coluna como chave primária, se indicado
+            if (field['Observacoes'] && field['Observacoes'].toLowerCase().includes('primary key')) {
+                attribute.primaryKey = true;
+            }
+
+            attributes[fieldReName] = attribute;
+
+            // Adiciona associações se o campo for uma chave estrangeira
+            if (field['Observacoes'] && field['Observacoes'].toLowerCase().includes('foreign key')) {
+                const associatedModelName = upAllFistLetterWithSpace(field['Tabela']);
+                const associatedModelFileName = castCamelCaseToFileName(field['Tabela']);
+                imports += `import ${associatedModelName} from "./${associatedModelFileName}.js";\n`;
+
+                associations += `
+      this.belongsTo(models.${associatedModelName}, { 
+        foreignKey: '${fieldReName}',
+        targetKey: '${field['ChaveEstrangeira'] || 'id'}',
+        as: '${camelCaseLetter(associatedModelName)}',
+        onDelete: 'SET NULL',
+      });
+        `;
             }
         });
 
-        // Configura hooks para verificações de relação entre tabelas
+        // Processa associações adicionais de outros modelos
         allFiles.forEach((file) => {
-            const data = JSON.parse(file.data);
-            data.forEach((item) => {
+            const fileData = JSON.parse(file.data);
+            fileData.forEach((item) => {
                 if (item['Tabela'] === camelCaseNameFile) {
+                    const relatedModelName = upAllFistLetterWithSpace(file.className);
+                    const relatedModelFileName = castCamelCaseToFileName(file.className);
+                    imports += `import ${relatedModelName} from "./${relatedModelFileName}.js";\n`;
+
                     const vinculado = file.className.endsWith('a') ? 'vinculada' : 'vinculado';
                     const tabela = item['displayName'].endsWith('a') ? 'esta' : 'este';
 
-                    hookVariable += `
-    const where${file.className} = { ${camelCaseLetter(item['Atributo'])}: options.where.${item['Atributo']} };
-    const msg${file.className} = 'Existe uma ou mais ${file.className}(s) ${vinculado}(s) a ${tabela} ${item['Tabela']}.';
-                    `;
-                    hookPromise += `
-    promisse.push(new BasicHooks('${file.className}').verifyExistRelation(where${file.className}, msg${file.className}));
-                    `;
-                    foreignKeyAssociations += `
-    model.hasMany(models.${file.className}, {
-        foreignKey: '${camelCaseLetter(item['Atributo'])}', 
-        as: '${lowerFirstLetter(file.className)}'
-    });
-                    `;
+                    hooks += `
+  beforeBulkDestroy: async (options) => {
+    const where${relatedModelName} = { ${camelCaseLetter(item['Atributo'])}: options.where.${camelCaseLetter(item['Atributo'])} };
+    const msg${relatedModelName} = 'Existe uma ou mais ${relatedModelName}(s) ${vinculado}(s) a ${tabela} ${item['Tabela']}.';
+    await new BasicHooks('${relatedModelName}').verifyExistRelation(where${relatedModelName}, msg${relatedModelName});
+  },
+          `;
+
+                    associations += `
+      this.hasMany(models.${relatedModelName}, {
+        foreignKey: '${camelCaseLetter(item['Atributo'])}',
+        sourceKey: '${camelCaseLetter(item['Atributo'])}',
+        as: '${camelCaseLetter(relatedModelName)}',
+      });
+          `;
                 }
             });
         });
 
-        // Campos básicos padrão para o modelo
-        Object.assign(model, {
-            unit: 'basicFields.setFieldUnit()',
-            user: 'basicFields.setFieldUser()',
-            situation: 'basicFields.setFieldSituation()',
-            createdAt: 'basicFields.setFieldCreatedAt()',
-            updatedAt: 'basicFields.setFieldUpdatedAt()',
-            deletedAt: 'basicFields.setFieldDeletedAt()'
-        });
+        // Gera o conteúdo do arquivo do modelo
+        const fileContent = `
+import { Model, DataTypes } from "sequelize";
+import { sequelizePostgres } from "../database/postgres";
+${imports ? imports + 'import BasicHooks from "./core/basic-hooks";' : ''}
 
-        // Formatação do modelo como string
-        let modelString = JSON.stringify(model, null, 4)
-            .replace(/"([^"]+)":/g, '$1:')
-            .replace(/"DataTypes/g, 'DataTypes')
-            .replace(/\",allowNull/g, ',allowNull')
-            .replace(/\"basicFields/g, 'basicFields')
-            .replace(/\(\)\"/g, '()');
+class ${camelCaseNameFile}Model extends Model {
+  static associate(models) {${associations}
+  }
+}
 
-        // Configuração dos hooks, caso existam
-        if (hookVariable) {
-            bodyHook = `
-    model.addHook('beforeBulkDestroy', (options) => {
-        let promisse = [];
-        ${hookVariable}
-        
-        ${hookPromise}
+${camelCaseNameFile}Model.init(${JSON.stringify(attributes, null, 2).replace(/"DataTypes\.(\w+)"/g, 'DataTypes.$1')}, {
+  sequelize: sequelizePostgres,
+  tableName: "${fileName.toUpperCase()}",
+  modelName: "${camelCaseNameFile}",
+  timestamps: false,
+  ${hooks ? `hooks: {
+    ${hooks}
+  }` : ''}
+});
 
-        return promisse;
-    });
-            `;
-        }
-
-        // Concatena as partes do arquivo final
-        const fileContent = structureUp() + modelString + structureMiddle(!!hookVariable) + foreignKeyAssociations + structureDown(bodyHook);
+export default ${camelCaseNameFile}Model;
+`;
 
         // Escreve o arquivo
         try {
-            await fs.promises.writeFile(`docs/files/back/models/postgres/${camelCaseNameFile}.js`, fileContent, { flag: 'w' });
-            console.log(`Model file created successfully: ${camelCaseNameFile}.js`);
+            const path = `docs/files/back/models/postgres/${parsedFileName}.js`;
+            await fs.promises.writeFile(path, fileContent, { flag: 'w' });
+            console.log(`Model file created successfully: ${camelCaseNameFile}Model.js`);
         } catch (err) {
             console.error(`Error writing model file: ${err}`);
         }

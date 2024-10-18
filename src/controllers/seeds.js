@@ -1,7 +1,10 @@
 const fs = require("fs");
+const {generateRandomText} = require("../lib/Utils");
 
 exports.makeSeed = async (fileName, columns, rowCount = 10) => {
+    fileName = fileName.toUpperCase();
     columns = JSON.parse(columns)
+    const schema = 'sgv';
 
     // Cabeçalho do arquivo de seed
     const structureUp = () => `
@@ -9,7 +12,7 @@ exports.makeSeed = async (fileName, columns, rowCount = 10) => {
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('${fileName}', [
+    await queryInterface.bulkInsert(${!!schema ? `{schema: '${schema}', tableName: '${fileName}'}` : `'${fileName}'`}, [
     `;
 
     // Rodapé do arquivo de seed
@@ -18,69 +21,10 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('${fileName}', null, {});
+    await queryInterface.bulkDelete('${!!schema ? schema+'.' : ''}${fileName}', null, {});
   }
 };
     `;
-
-    // Função para gerar texto aleatório de acordo com o tamanho
-    const generateRandomText = (size) => {
-        const syllables = ["ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu", "da", "de", "di", "do", "du",
-            "fa", "fe", "fi", "fo", "fu", "ga", "ge", "gi", "go", "gu", "la", "le", "li", "lo", "lu",
-            "ma", "me", "mi", "mo", "mu", "na", "ne", "ni", "no", "nu", "pa", "pe", "pi", "po", "pu",
-            "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su", "ta", "te", "ti", "to", "tu",
-            "va", "ve", "vi", "vo", "vu"];
-
-        let text = '';
-        let currentLength = 0;
-
-        // Decide se será uma palavra, frase ou parágrafo
-        const textType = Math.random();
-
-        // Gera uma palavra
-        const generateWord = () => {
-            const wordLength = Math.floor(Math.random() * 3) + 2; // Entre 2 e 5 sílabas
-            let word = '';
-            for (let i = 0; i < wordLength; i++) {
-                word += syllables[Math.floor(Math.random() * syllables.length)];
-            }
-            return word;
-        };
-
-        // Gera uma frase com várias palavras
-        const generateSentence = () => {
-            const sentenceLength = Math.floor(Math.random() * 5) + 5; // Entre 5 e 10 palavras
-            let sentence = '';
-            for (let i = 0; i < sentenceLength; i++) {
-                let word = generateWord();
-                sentence += (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word);
-                if (i < sentenceLength - 1) sentence += ' ';
-            }
-            return sentence + '.';
-        };
-
-        // Gera um parágrafo com várias frases
-        const generateParagraph = () => {
-            const paragraphLength = Math.floor(Math.random() * 3) + 2; // Entre 2 e 4 frases
-            let paragraph = '';
-            for (let i = 0; i < paragraphLength; i++) {
-                paragraph += generateSentence() + ' ';
-            }
-            return paragraph.trim();
-        };
-
-        // Baseado no tipo, gera o texto correspondente
-        if (textType < 0.3) {
-            text = generateWord();
-        } else if (textType < 0.7) {
-            text = generateSentence();
-        } else {
-            text = generateParagraph();
-        }
-
-        // Limita ao tamanho máximo permitido
-        return text.length > size ? text.substring(0, size).trim() : text;
-    };
 
     // Função para gerar valores aleatórios de acordo com o tipo de dado
     const generateValue = (type, size, options, isForeignKey = false, primaryKeyValue = 1, foreignValues = []) => {
@@ -89,12 +33,12 @@ module.exports = {
             return Math.floor(Math.random() * 10) + 1;  // ID aleatório para chave estrangeira, ajustável conforme necessário
         }
         switch (type.toUpperCase()) {
-            case 'VARCHAR':
+            case 'STRING':
                 return `'${generateRandomText(size)}'`;
-            case 'INT':
+            case 'INTEGER':
                 return primaryKeyValue || Math.floor(Math.random() * 1000);
-            case 'TINYINT':
-                return Math.floor(Math.random() * 2);
+            case 'BOOLEAN':
+                return Math.floor(Math.random() * 2) === 0;
             case 'DATE':
                 const year = 2023;
                 month = String(Math.floor(Math.random() * 12) + 1).padStart(2, '0');

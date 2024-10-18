@@ -1,282 +1,76 @@
 const fs = require("fs");
-const {ensureDirectoryExistence} = require("../lib/Utils");
+const { ensureDirectoryExistence } = require("../lib/Utils");
 
 exports.makeRoute = async (parsedFileName, camelCaseNameFile, nameWithSpace) => {
+    const namefile = parsedFileName.split('_');
     function structure() {
-        return `import { ${camelCaseNameFile}Aplication } from './${camelCaseNameFile}Aplication';
-import createValidate from './validates/create.validate';
-import updateValidate from './validates/update.validate';
+        return `import { ${camelCaseNameFile}Controller } from "../api/${namefile}/${namefile}-controller";
+import createValidate from "../api/${namefile}/validators/create.validate";
+import updateValidate from "../api/${namefile}/validators/update.validate";
 
 /**
-* MiddleWare que obtem os ${nameWithSpace}(s) do banco de dados
-* @private
-*/
-const get${camelCaseNameFile}MiddleWare = async (req, res) => { 
-    const include = JSON.parse(req.query.include|| '[]') ;
-    return new ${camelCaseNameFile}Aplication()
-    .get(req.query.where, req.query.select, req.query.order, include, req.query.group)
-    .then((success) => {
-        res.api.send(success, res.api.codes.OK)
-    })
-    .catch((err) => {
-        res.api.send(err, res.api.codes.INTERNAL_SERVER_ERROR)
-    });
-}
-
-/**
-* MiddleWare que obtem um ${nameWithSpace} por id do banco de dados
-* @private
-*/
-const get${camelCaseNameFile}ByIdMiddleWare = async (req, res) => {
-    const id = Number(req.params.id)
-    return new ${camelCaseNameFile}Aplication()
-    .getById(id, req.query.select)
-    .then((success) => {
-        if (success)
-            res.api.send(success, res.api.codes.OK)
-        else
-            res.api.send({}, res.api.codes.OK)
-    })
-    .catch((err) => {
-        res.api.send(err, res.api.codes.INTERNAL_SERVER_ERROR)
-    });
-}
-
-/**
-* MiddleWare que cria uma novo ${nameWithSpace} no banco de dados
-* @private
-*/
-const create${camelCaseNameFile}MiddleWare = async (req, res) => {
-    const body = req.body;
-    return new ${camelCaseNameFile}Aplication()
-    .create(body)
-    .then((success) => {
-        if (success)
-            res.api.send(success, res.api.codes.CREATED)
-        else
-            res.api.send({}, res.api.codes.OK)
-    })
-    .catch((err) => {
-        res.api.send(err, res.api.codes.INTERNAL_SERVER_ERROR)
-    });
-}
-
-/**
-* MiddleWare que atualiza um ${nameWithSpace} no banco de dados
-* @private
-*/
-const update${camelCaseNameFile}MiddleWare = async (req, res) => {
-    const id = Number(req.params.id);
-    const {where} = req.query;
-    const body = req.body;
-    return new ${camelCaseNameFile}Aplication()
-    .update(id, body, where)
-    .then((success) => {
-        if (success)
-            res.api.send(success, res.api.codes.OK)
-        else
-            res.api.send({}, res.api.codes.OK)
-    })
-    .catch((err) => {
-        res.api.send(err, res.api.codes.INTERNAL_SERVER_ERROR)
-    });
-}
-
-/**
-* MiddleWare que atualiza ou cria um ${nameWithSpace} no banco de dados
-* @private
-*/
-const updateOrCreate${camelCaseNameFile}MiddleWare = async (req, res) => {
-    const id = Number(req.params.id);
-    const {where} = req.query;
-    const body = req.body;
-    return new ${camelCaseNameFile}Aplication()
-    .upsert(id, body, where)
-    .then((success) => {
-        if (success)
-            res.api.send(success, res.api.codes.OK)
-        else
-            res.api.send({}, res.api.codes.OK)
-    })
-    .catch((err) => {
-        res.api.send(err, res.api.codes.INTERNAL_SERVER_ERROR)
-    });
-}
-
-/**
-* MiddleWare que remove um ${nameWithSpace} no banco de dados
-* @private
-*/
-const delete${camelCaseNameFile}MiddleWare = async (req, res) => {
-    const id = Number(req.params.id);
-    const {where} = req.query;
-    return new ${camelCaseNameFile}Aplication()
-    .delete(id, where)
-    .then((success) => {
-        if (success)
-            res.api.send(success, res.api.codes.OK)
-        else
-            res.api.send({}, res.api.codes.OK)
-    })
-    .catch((err) => {
-        res.api.send(err, res.api.codes.INTERNAL_SERVER_ERROR)
-    });
-}
-
-// swagger-jsdoc
-
-/**
-* Endpoints para o recurso ${nameWithSpace}
-* @public
-*/
-const ${camelCaseNameFile}Routes = (route) => {
-
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}all:
- *   get:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Retorna todos os ${nameWithSpace}s
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo no objeto data uma lista de ${nameWithSpace}s
+ * Endpoints para o recurso ${nameWithSpace}
+ * @public
  */
-route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}all', get${camelCaseNameFile}MiddleWare)
+export const setup${camelCaseNameFile}Routes = app => {
 
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}:
- *   get:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Retorna todos os ${nameWithSpace}s
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo no objeto data uma lista de ${nameWithSpace}s
- */
-route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}', get${camelCaseNameFile}MiddleWare)
+  /**
+   * @route POST /${parsedFileName.toLowerCase()}
+   * @group ${nameWithSpace} - Operações relacionadas a ${nameWithSpace}
+   * @param {${camelCaseNameFile}.model} ${camelCaseNameFile.toLowerCase()}.body.required - Dados do ${nameWithSpace} a ser criado
+   * @returns {Object} 201 - ${nameWithSpace} criado com sucesso
+   * @returns {Error} 406 - Erro na criação do ${nameWithSpace}
+   * @returns {Error} 409 - ${nameWithSpace} já cadastrado
+   */
+  app.post("/${parsedFileName.toLowerCase()}", createValidate, ${camelCaseNameFile}Controller.create);
 
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}/:id:
- *   get:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Retorna a ${nameWithSpace}s pesquisada
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo no objeto data uma lista de ${nameWithSpace}s
- */
-route.get('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', get${camelCaseNameFile}ByIdMiddleWare)
+  /**
+   * @route PUT /${parsedFileName.toLowerCase()}/:id
+   * @group ${nameWithSpace} - Operações relacionadas a ${nameWithSpace}
+   * @param {${camelCaseNameFile}.model} ${camelCaseNameFile.toLowerCase()}.body.required - Dados do ${nameWithSpace} a ser atualizado
+   * @returns {Object} 200 - ${nameWithSpace} atualizado com sucesso
+   * @returns {Error} 406 - Erro na atualização do ${nameWithSpace}
+   * @returns {Error} 409 - ${nameWithSpace} não cadastrado
+   */
+  app.put("/${parsedFileName.toLowerCase()}/:id", updateValidate, ${camelCaseNameFile}Controller.update);
 
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}:
- *   post:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Cria uma nova ${nameWithSpace}s
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo no objeto que foi salvo da ${nameWithSpace}s
- */
-route.post('/api/${camelCaseNameFile.toLocaleLowerCase()}', createValidate, create${camelCaseNameFile}MiddleWare)
+  /**
+   * @route GET /${parsedFileName.toLowerCase()}
+   * @group ${nameWithSpace} - Operações relacionadas a ${nameWithSpace}
+   * @returns {Array.<${camelCaseNameFile}>} 200 - Lista de todos os ${nameWithSpace}s
+   * @returns {Error} 404 - Erro ao buscar ${nameWithSpace}s
+   */
+  app.get("/${parsedFileName.toLowerCase()}", ${camelCaseNameFile}Controller.getAll);
 
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}/:id:
- *   put:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Altera os dados da ${nameWithSpace}s pelo id
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo um array de string onde 1 - alterado 0 - não alterado
- */
-route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', updateValidate, update${camelCaseNameFile}MiddleWare)
+  /**
+   * @route GET /${parsedFileName.toLowerCase()}/:id
+   * @group ${nameWithSpace} - Operações relacionadas a ${nameWithSpace}
+   * @param {number} id.path.required - ID do ${nameWithSpace}
+   * @returns {${camelCaseNameFile}.model} 200 - ${nameWithSpace} encontrado
+   * @returns {Error} 404 - ${nameWithSpace} não encontrado
+   */
+  app.get("/${parsedFileName.toLowerCase()}/:id", ${camelCaseNameFile}Controller.getById);
 
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}:
- *   put:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Altera os dados da ${nameWithSpace}s pela query enviada
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo um array de string onde 1 - alterado 0 - não alterado
- */
-route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}', updateValidate, update${camelCaseNameFile}MiddleWare)
+  /**
+   * @route DELETE /${parsedFileName.toLowerCase()}/:id
+   * @group ${nameWithSpace} - Operações relacionadas a ${nameWithSpace}
+   * @param {number} id.path.required - ID do ${nameWithSpace}
+   * @returns {Object} 200 - ${nameWithSpace} removido com sucesso
+   * @returns {Error} 404 - ${nameWithSpace} não encontrado
+   */
+  app.delete("/${parsedFileName.toLowerCase()}/:id", ${camelCaseNameFile}Controller.delete);
+};
 
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}UpdateOrCreate:
- *   put:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Altera os dados da ${nameWithSpace}s pela query enviada
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo um array de string onde 1 - alterado 0 - não alterado
- */
-route.put('/api/${camelCaseNameFile.toLocaleLowerCase()}UpdateOrCreate', updateValidate, updateOrCreate${camelCaseNameFile}MiddleWare)
-
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}/:id:
- *   delete:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Remove uma ${nameWithSpace}s baseada no id
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo 1 - deletado 0 - não deletado
- */
-route.delete('/api/${camelCaseNameFile.toLocaleLowerCase()}/:id', delete${camelCaseNameFile}MiddleWare)
-
-/**
- * @swagger
- * /api/${camelCaseNameFile.toLocaleLowerCase()}:
- *   delete:
- *     tags:
- *       - ${camelCaseNameFile}s
- *     description: Renive yna ${camelCaseNameFile}s baseado na query enviada
- *     produces:
- *       - application/json
- *     responses:
- *       200:
- *         reponse: Response contendo 1 - deletado 0 - não deletado
- */
-route.delete('/api/${camelCaseNameFile.toLocaleLowerCase()}', delete${camelCaseNameFile}MiddleWare)
-}
-
-export default ${camelCaseNameFile}Routes
-`;
+export default setup${camelCaseNameFile}Routes;
+    `;
     }
 
-    let fileWrite = structure()
-    const pathName = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/'
+    const fileWrite = structure();
+    const pathName = 'docs/files/back/routes/';
     ensureDirectoryExistence(pathName);
-    await fs.writeFile(pathName + 'index' + '.js', fileWrite, {flag: 'w'}, function (err) {
+    await fs.writeFile(`${pathName}${parsedFileName.replace(/_/g, '-')}-routers.js`, fileWrite, { flag: 'w' }, (err) => {
         if (err) {
             return console.log(err);
         }
     });
-}
+};

@@ -3,15 +3,18 @@ const {ensureDirectoryExistence, upAllFistLetter, upAllFistLetterWithSpace} = re
 const {makeModel} = require("./src/controllers/model");
 const {modelNewVersions} = require("./src/controllers/modelNewVersions");
 const {makeRoute} = require("./src/controllers/route");
-const {makeInterfaceDatabase} = require("./src/controllers/controllers");
+const {makeController} = require("./src/controllers/controller");
 const {makeValidates} = require("./src/controllers/validates");
 const {makeFrontModels} = require("./src/controllers/fontModel");
 const {makeFileFront} = require("./src/controllers/screenFront");
-const {makeFrontFileService} = require("./src/controllers/services");
+const {makeFrontFileService} = require("./src/controllers/servicesFront");
 const {makeFileFrontReport} = require("./src/controllers/report");
 const {join} = require("path");
 const {makeMigration} = require("./src/controllers/migration");
 const {makeSeed} = require("./src/controllers/seeds");
+const {makeServiceBack} = require("./src/controllers/serviceBack");
+const {makeCrudRequests} = require("./src/controllers/requests");
+const {makePostmanCollection} = require("./src/controllers/requests-postman");
 
 const readFolder = join(__dirname, 'docs/cast/');
 
@@ -24,8 +27,11 @@ async function start(allFiles) {
     await makeSeed(fileName, data, 10, allFiles);
     await makeModel(parsedFileName, className, fileName, data, allFiles);
     await makeRoute(parsedFileName, className, nameWithSpace);
+    await makeController(parsedFileName, className, nameWithSpace);
+    await makeCrudRequests(parsedFileName, className, nameWithSpace);
+    await makePostmanCollection(parsedFileName, className, nameWithSpace, data);
 
-    await makeInterfaceDatabase(parsedFileName, className);
+    await makeServiceBack(parsedFileName, className);
     await makeValidates(parsedFileName, className, fileName, data);
 
     await makeFrontModels(parsedFileName, className, fileName, data);
@@ -55,6 +61,8 @@ function createDirectors() {
   ensureDirectoryExistence('docs/');
   ensureDirectoryExistence('docs/files/');
   ensureDirectoryExistence('docs/files/front/');
+  ensureDirectoryExistence('docs/files/requests/');
+  ensureDirectoryExistence('docs/files/requests/postman_collections/');
   ensureDirectoryExistence('docs/files/front/services');
   ensureDirectoryExistence('docs/files/front/enum/');
   ensureDirectoryExistence('docs/files/front/tables/');
@@ -65,6 +73,7 @@ function createDirectors() {
   ensureDirectoryExistence('docs/files/back/migrations/');
   ensureDirectoryExistence('docs/files/back/seeds/');
   ensureDirectoryExistence('docs/files/back/api/');
+  ensureDirectoryExistence('docs/files/back/routes/');
   ensureDirectoryExistence('docs/files/back/models/');
   ensureDirectoryExistence('docs/files/back/models/postgres/');
 

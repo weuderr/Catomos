@@ -67,7 +67,7 @@ export default (req, res, next) => {
         let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
         let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
 
-        const namePath = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/validates/';
+        const namePath = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/validators/';
         ensureDirectoryExistence(namePath);
         await fs.writeFile(namePath + 'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
             if (err) {

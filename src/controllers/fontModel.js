@@ -4,11 +4,14 @@ const {camelCaseLetter} = require("../lib/Utils");
 exports.makeFrontModels = async (parsedFileName, camelCaseNameFile, fileName, data) => {
     if (data) {
         const fields = JSON.parse(data);
-        let doFile = false
-        fields.forEach(function (field, index) {
-            if (index === 0 && field['Observacoes'] === 'primary key')
-                doFile = true
-        });
+        let doFile = true
+        for (let index = 0; index < fields.length; index++) {
+            const field = fields[index];
+            if (index === 0 && field['Observacoes'].toLowerCase().includes('primary key')) {
+                doFile = true;
+                break;
+            }
+        }
         if (doFile) {
             const structure = (parsedFileName, fields) => {
                 return `export class ${parsedFileName} ${fields}`;
@@ -20,7 +23,8 @@ exports.makeFrontModels = async (parsedFileName, camelCaseNameFile, fileName, da
 
                 const nameAttribute = index === 0 ? field['Observacoes'] === 'primary key' ? 'id' : camelCaseLetter(field['Atributo']) : camelCaseLetter(field['Atributo']);
                 let tipo = ''
-                field['Tipo'] === 'varchar' ? tipo = 'string' : field['Tipo'] === 'number' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
+                field['Tipo'] = field['Tipo'].toLowerCase();
+                field['Tipo'] === 'varchar' || field['Tipo'] === 'string' ? tipo = 'string' : field['Tipo'] === 'number' || field['Tipo'] === 'integer' ? tipo = 'number' : field['Tipo'] === 'date' ? tipo = 'Date' : field['Tipo'] === 'boolean' ? tipo = 'boolean' : field['Tipo'] === 'enum' ? tipo = 'string' : tipo = 'any'
                 inputs[nameAttribute] = tipo
             }.bind(this));
 

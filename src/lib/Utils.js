@@ -103,6 +103,13 @@ exports.ensureDirectoryExistence = (filePath) => {
     fs.mkdirSync(filePath);
 }
 
+exports.createFile = (file, data = '') =>{
+    fs.writeFile(file, data, {flag: 'w'}, function (err) {
+        if (err) {
+            return console.log(err);
+        }
+    });
+}
 exports.camelCaseLetter = (camelCaseNameFile) => {
     if (!camelCaseNameFile) return '';
     // camelCase in all first letters of the string after space or underline
@@ -239,6 +246,27 @@ exports.upAllFistLetterWithSpace = (camelCaseNameFile) => {
     return newcamelCaseNameFile;
 }
 
+// nome-de-aquivo-assim
+exports.castCamelCaseToFileName = (camelCaseNameFile) => {
+    if (!camelCaseNameFile) return '';
+    // find upletter and replace for -letter. the first letter is lower case
+    let newcamelCaseNameFile = '';
+    let firstLetter = true;
+    for (let i = 0; i < camelCaseNameFile.length; i++) {
+        if (camelCaseNameFile.charAt(i) === camelCaseNameFile.charAt(i).toUpperCase()) {
+            if (firstLetter) {
+                newcamelCaseNameFile += camelCaseNameFile.charAt(i).toLowerCase();
+                firstLetter = false;
+            } else {
+                newcamelCaseNameFile += '-' + camelCaseNameFile.charAt(i).toLowerCase();
+            }
+        } else {
+            newcamelCaseNameFile += camelCaseNameFile.charAt(i);
+        }
+    }
+    return newcamelCaseNameFile;
+}
+
 exports.upAllFistLetter = (camelCaseNameFile) => {
     if (!camelCaseNameFile) return '';
     // camelCase in all first letters of the string after space or underline
@@ -293,6 +321,10 @@ exports.lowerFirstLetter = (string) => {
     return string.charAt(0).toLowerCase() + string.slice(1);
 }
 
+exports.upAllFirstLetter = (string) => {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
 // Verify fist key of the file is primary key
 // async function verifyPrimeryKey(parsedFileName) {
 //     return fs.readFile(readFolder + parsedFileName + '.json', 'utf8', async function (err, data) {
@@ -308,3 +340,63 @@ exports.lowerFirstLetter = (string) => {
 //         }
 //     });
 // }
+
+
+// Função para gerar texto aleatório de acordo com o tamanho
+exports.generateRandomText = (size) => {
+    const syllables = ["ba", "be", "bi", "bo", "bu", "ca", "ce", "ci", "co", "cu", "da", "de", "di", "do", "du",
+        "fa", "fe", "fi", "fo", "fu", "ga", "ge", "gi", "go", "gu", "la", "le", "li", "lo", "lu",
+        "ma", "me", "mi", "mo", "mu", "na", "ne", "ni", "no", "nu", "pa", "pe", "pi", "po", "pu",
+        "ra", "re", "ri", "ro", "ru", "sa", "se", "si", "so", "su", "ta", "te", "ti", "to", "tu",
+        "va", "ve", "vi", "vo", "vu"];
+
+    let text = '';
+    let currentLength = 0;
+
+    // Decide se será uma palavra, frase ou parágrafo
+    const textType = Math.random();
+
+    // Gera uma palavra
+    const generateWord = () => {
+        const wordLength = Math.floor(Math.random() * 3) + 2; // Entre 2 e 5 sílabas
+        let word = '';
+        for (let i = 0; i < wordLength; i++) {
+            word += syllables[Math.floor(Math.random() * syllables.length)];
+        }
+        return word;
+    };
+
+    // Gera uma frase com várias palavras
+    const generateSentence = () => {
+        const sentenceLength = Math.floor(Math.random() * 5) + 5; // Entre 5 e 10 palavras
+        let sentence = '';
+        for (let i = 0; i < sentenceLength; i++) {
+            let word = generateWord();
+            sentence += (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word);
+            if (i < sentenceLength - 1) sentence += ' ';
+        }
+        return sentence + '.';
+    };
+
+    // Gera um parágrafo com várias frases
+    const generateParagraph = () => {
+        const paragraphLength = Math.floor(Math.random() * 3) + 2; // Entre 2 e 4 frases
+        let paragraph = '';
+        for (let i = 0; i < paragraphLength; i++) {
+            paragraph += generateSentence() + ' ';
+        }
+        return paragraph.trim();
+    };
+
+    // Baseado no tipo, gera o texto correspondente
+    if (textType < 0.3) {
+        text = generateWord();
+    } else if (textType < 0.7) {
+        text = generateSentence();
+    } else {
+        text = generateParagraph();
+    }
+
+    // Limita ao tamanho máximo permitido
+    return text.length > size ? text.substring(0, size).trim() : text;
+};
