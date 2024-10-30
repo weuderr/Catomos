@@ -108,7 +108,7 @@ export default ${camelCaseNameFile}Model;
 
         // Escreve o arquivo
         try {
-            const path = `docs/files/back/models/postgres/${parsedFileName}.js`;
+            const path = `docs/files/backNew/models/postgres/${parsedFileName}.js`;
             await fs.promises.writeFile(path, fileContent, { flag: 'w' });
             console.log(`Model file created successfully: ${camelCaseNameFile}Model.js`);
         } catch (err) {

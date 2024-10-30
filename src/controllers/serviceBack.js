@@ -52,9 +52,9 @@ class ${camelCaseNameFile}Service {
    * @returns {Promise<Array<Object>>} - Lista de ${camelCaseNameFile}s.
    * @throws {Error} - Se ocorrer erro na busca.
    */
-  async getAll${camelCaseNameFile}s() {
+  async getAll${camelCaseNameFile}s(select = [], where = {}, order = [], include = [], group = []) {
     try {
-      return await ${camelCaseNameFile}Model.findAll();
+      return await ${camelCaseNameFile}Model.findAll({ attributes: select, order: order, include: include, group: group, where: where });
     } catch (error) {
       this.handleError(error, 404);
     }
@@ -71,7 +71,7 @@ class ${camelCaseNameFile}Service {
    * @returns {Promise<Object>} - Campanha encontrado.
    * @throws {Error} - Se o Campanha não for encontrado.
    */
-  async getCampanhaById(id, order = [], include = [], group = []) {
+  async get${camelCaseNameFile}ById(id, order = [], include = [], group = []) {
     try {
       const instance = await ${camelCaseNameFile}Model.findByPk(id, {order: order, include: include, group: group});
       if (!instance) throw new Error(\`${camelCaseNameFile} com ID \${id} não encontrado.\`);
@@ -130,7 +130,7 @@ export default new ${camelCaseNameFile}Service();
     }
 
     const fileWrite = structure();
-    const pathName = `docs/files/back/api/${parsedFileName.replace(/_/g, '-')}/`;
+    const pathName = `docs/files/backNew/api/${parsedFileName.replace(/_/g, '-')}/`;
     ensureDirectoryExistence(pathName);
 
     await fs.writeFile(`${pathName}${parsedFileName.replace(/_/g, '-')}-service.js`, fileWrite, { flag: 'w' }, (err) => {

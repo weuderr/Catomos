@@ -6,19 +6,20 @@ exports.makeValidates = async (parsedFileName, camelCaseNameFile, fileName, data
     const structure = () => {
         return `import Joi from 'joi';
 export default (req, res, next) => {
-    return Joi
-        .object(
-`
+    const schema = Joi.object(`
     };
 
     const structureDown = () => {
-        return `).validate(req.body, err => {
-            if (err)
-                return res.api.send(err.details, res.api.codes.UNPROCESSABLE_ENTITY);
+        return `);
 
-            return next();
-        });
-} 
+  const { error, value } = schema.validate(req.body, { abortEarly: false });
+
+  if (error) {
+    console.log("Validation failed", error.details);
+    return  res.status(422).json(error.details);
+  }
+  return next();
+}
 `
     };
 
@@ -67,7 +68,7 @@ export default (req, res, next) => {
         let fileWriteCreate = structure() + parseModelCreateClear + structureDown()
         let fileWriteUpdate = structure() + parseModelUpdateClear + structureDown()
 
-        const namePath = 'docs/files/back/api/' + parsedFileName.replace(/_/g, '-') + '/validators/';
+        const namePath = 'docs/files/backNew/api/' + parsedFileName.replace(/_/g, '-') + '/validators/';
         ensureDirectoryExistence(namePath);
         await fs.writeFile(namePath + 'create.validate.js', fileWriteCreate, {flag: 'w'}, function (err) {
             if (err) {

@@ -73,7 +73,7 @@ module.exports = {
 
         // Escreve o arquivo de migração
         try {
-            await fs.promises.writeFile(`docs/files/back/migrations/${Date.now()}-create-${fileName.toLowerCase()}.js`, migrationContent, {flag: 'w'});
+            await fs.promises.writeFile(`docs/files/backNew/migrations/${Date.now()}-create-${fileName.toLowerCase()}.js`, migrationContent, {flag: 'w'});
             console.log(`Migration file created successfully: ${fileName}`);
         } catch (err) {
             console.error(`Error writing migration file: ${err}`);

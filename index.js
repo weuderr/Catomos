@@ -79,13 +79,15 @@ function createDirectors() {
 
   ensureDirectoryExistence('docs/files/backNew/');
   ensureDirectoryExistence('docs/files/backNew/api/');
-  ensureDirectoryExistence('docs/files/backNew/api/controllers/');
-  ensureDirectoryExistence('docs/files/backNew/api/routes/');
+  ensureDirectoryExistence('docs/files/backNew/migrations/');
+  ensureDirectoryExistence('docs/files/backNew/seeds/');
+  // ensureDirectoryExistence('docs/files/backNew/api/controllers/');
+  // ensureDirectoryExistence('docs/files/backNew/api/routes/');
   ensureDirectoryExistence('docs/files/backNew/models/');
   ensureDirectoryExistence('docs/files/backNew/models/postgres/');
 
-  clearAllFilesFromFolder('docs/files/back/migrations/')
-  clearAllFilesFromFolder('docs/files/back/seeds/');
+  clearAllFilesFromFolder('docs/files/backNew/migrations/')
+  clearAllFilesFromFolder('docs/files/backNew/seeds/');
 }
 
 function showFileCreateConsole(className, parsedFileName) {

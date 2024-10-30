@@ -104,7 +104,8 @@ module.exports = {
 
     // Escreve o arquivo de seed
     try {
-        await fs.promises.writeFile(`docs/files/back/seeds/${Date.now()}-seed-${fileName}.js`, seedContent, { flag: 'w' });
+        fileName = fileName.toLowerCase();
+        await fs.promises.writeFile(`docs/files/backNew/seeds/${Date.now()}-seed-${fileName}.js`, seedContent, { flag: 'w' });
         console.log(`Seed file created successfully: ${fileName}`);
     } catch (err) {
         console.error(`Error writing seed file: ${err}`);

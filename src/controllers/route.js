@@ -66,7 +66,7 @@ export default setup${camelCaseNameFile}Routes;
     }
 
     const fileWrite = structure();
-    const pathName = 'docs/files/back/routes/';
+    const pathName = 'docs/files/backNew/routes/';
     ensureDirectoryExistence(pathName);
     await fs.writeFile(`${pathName}${parsedFileName.replace(/_/g, '-')}-routers.js`, fileWrite, { flag: 'w' }, (err) => {
         if (err) {

@@ -7,10 +7,8 @@ const makeCreateFile = async (parsedFileName, className, nameWithSpace, data) =>
     let fields = JSON.parse(data);
     let fileEnum = [];
     let inputs = ``;
-    let form = ``;
-    let cont = 0;
-    let close = true;
     let select = '';
+    let form = ``;
     let loadSuggest = "";
     let importConstructor = "";
     let fileImports = "";
@@ -19,46 +17,68 @@ const makeCreateFile = async (parsedFileName, className, nameWithSpace, data) =>
     let mapToGetValue = "";
     let mapToGetIdSelect = "";
 
-    // Processamento dos campos para gerar código
-    fields.forEach(function (field, index) {
-        const nameAttribute = camelCaseLetter(field['Atributo']);
-        const nameAttributeAllUp = upAllFistLetter(camelCaseLetter(field['Atributo']));
-        const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
-        select += ` '${nameAttribute}',`;
-        if (cont++ === 0) {
-            close = false;
-            form += `{ cols: [\n`;
-        }
+// Arrays para organizar os campos em colunas e linhas
+    let firstColumnRows = [];
+    let secondColumnRows = [];
 
-        form += `this.input${nameAttributeAllUp}.getField(),\n`;
+// Função para calcular o número de colunas com base em um parâmetro ou configuração
+    function getNumberOfColumns(configColumns = 3) {
+        return configColumns; // Número fixo de colunas, mas poderia ser configurado dinamicamente pela aplicação
+    }
+
+// Função para dividir os campos em colunas
+    function distributeFieldsIntoColumns(fields, numColumns) {
+        const columns = Array.from({ length: numColumns }, () => []);
+
+        fields.forEach((field, index) => {
+            const columnIndex = index % numColumns;
+            columns[columnIndex].push(field);
+        });
+
+        return columns;
+    }
+// Processamento dos campos para gerar código
+    fields.forEach(function (field) {
+        const nameAttribute = camelCaseLetter(field['Atributo']);
+        const nameAttributeAllUp = upAllFistLetter(nameAttribute);
+        const displayName = upSpaceLetter(field['displayName'] || field['Atributo']);
+        field['Tipo'] = field['Tipo'].toLowerCase();
+
+        select += ` '${nameAttribute}',`;
+
+        // Geração dos inputs
+        let inputCode = '';
         if (field['Tipo'] === 'date') {
-            inputs += `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', '${displayName}', { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
+            inputCode = `input${nameAttributeAllUp} = new WebixInputDate('${nameAttribute}', '${displayName}', { required: ${field['Obrigatoriedade'] === 'sim'} }, { hidden: ${field['Visivel'] === 'não'}, placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
             mapToGetValue += `item.${nameAttribute} = new Date(item.${nameAttribute});\n`;
+
+            if (!fileImports.includes(`import {WebixInputDate} from "../../../../classes/webix.inputDate";`))
+                fileImports += `import {WebixInputDate} from "../../../../classes/webix.inputDate";\n`;
         } else if (field['Tipo'] === 'enum') {
             // Definição do enum para criação do arquivo
             fileEnum.push([nameAttribute, `export const ${nameAttribute}EnumFilter = ${
                 JSON.stringify(field['Observacoes'].split(',').map(i => {
-                    return { id: i.replace(/'/g, '').replace(/'/g, ' '), value: i.replace(/'/g, '').replace(/'/g, ' ') }
+                    return { id: i.trim(), value: i.trim() }
                 }))}; \n/*${field['Descricao']}*/\n
-                        export const ${nameAttribute}Enum = ${nameAttribute}EnumFilter.filter((item) => {
-                          if (item.id !== null) return { ...item }
-                        })
-                    `]);
+            export const ${nameAttribute}Enum = ${nameAttribute}EnumFilter.filter((item) => {
+                if (item.id !== null) return { ...item }
+            })
+    `]);
 
             fileImports += `import { ${nameAttribute}Enum } from "../../../../enum/${nameAttribute}.enum";\n`;
 
-            inputs += `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', '${displayName}', ${nameAttribute}Enum, { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
-            mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find( select => select.id == item.${nameAttribute});
-                             ${nameAttribute}Id? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
-            mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find( select => select.value == item.${nameAttribute});
-                             ${nameAttribute}Value? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
+            inputCode = `input${nameAttributeAllUp} = new WebixSelect('${nameAttribute}', '${displayName}', ${nameAttribute}Enum, { required: ${field['Obrigatoriedade'] === 'sim'} }, { hidden: ${field['Visivel'] === 'não'}, placeholder: 'Selecione ${field['Descricao'].replace(/\n/g, '')}' });\n`;
+            mapToGetValue += `const ${nameAttribute}Id = ${nameAttribute}Enum.find(select => select.id == item.${nameAttribute});
+        ${nameAttribute}Id ? item.${nameAttribute} = ${nameAttribute}Id.value : null;\n`;
+            mapToGetIdSelect += `const ${nameAttribute}Value = ${nameAttribute}Enum.find(select => select.value == item.${nameAttribute});
+        ${nameAttribute}Value ? item.${nameAttribute} = ${nameAttribute}Value.id : null;\n`;
         } else if (field['Observacoes'].toLowerCase().includes('foreign key')) {
-            inputs += `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', '${displayName}', { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
+            inputCode = `input${nameAttributeAllUp} = new WebixSuggest('${nameAttribute}', '${displayName}', { required: ${field['Obrigatoriedade'] === 'sim'} }, { hidden: ${field['Visivel'] === 'não'}, placeholder: 'Escolha ${field['Descricao'].replace(/\n/g, '')}' });\n`;
 
             const nameService = upAllFistLetter(camelCaseLetter(field['Tabela']));
             const nameServiceAllUp = castCamelCaseToFileName(nameService);
 
-            if(!fileImports.includes(`import {WebixSuggest} from "../../../../classes/webix.suggest";`))
+            if (!fileImports.includes(`import {WebixSuggest} from "../../../../classes/webix.suggest";`))
                 fileImports += `import {WebixSuggest} from "../../../../classes/webix.suggest";\n`;
             fileImports += `import { ${nameService}Service } from '../../../../services/${nameServiceAllUp}-service/${nameServiceAllUp}-service';\n`;
 
@@ -68,61 +88,82 @@ const makeCreateFile = async (parsedFileName, className, nameWithSpace, data) =>
                 importConstructor += `private _${nameService}Service: ${nameService}Service,\n`;
             }
             if (loadSuggest.indexOf(`Start load ${nameService}`) === -1) {
-                loadSuggest += `//Start load ${nameService}
-                        let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
-                        if (${nameService}Resp.data.length > 0) {
-                            this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
-                                return {
-                                    id: ${nameService}.id,
-                                    value: ${nameService}.desc${nameAttribute.replace('cod', '')}
-                                };
-                            });
-                            this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
-                                onValueSuggest: (item) => {
-                                    this.suggestValues.${nameAttribute} = item.id;
-                                },
-                            });
-                        }
-                        //End load ${nameService}\n
-                        `
+                loadSuggest += `// Start load ${nameService}
+            let ${nameService}Resp = await this._${nameService}Service.get(simpleWhere).toPromise();
+            if (${nameService}Resp.data.length > 0) {
+                this.${nameAttribute}Data = ${nameService}Resp.data.map((${nameService}) => {
+                    return {
+                        id: ${nameService}.id,
+                        value: ${nameService}.desc${nameAttribute.replace('cod', '')}
+                    };
+                });
+                this.input${nameAttributeAllUp}.setSuggest(this.${nameAttribute}Data, {
+                    onValueSuggest: (item) => {
+                        this.suggestValues.${nameAttribute} = item.id;
+                    },
+                });
             }
-            mapToGetValue += `const ${nameAttribute} = this.${nameAttribute}Data.find( select => select.id == item.${nameAttribute});
-                        ${nameAttribute}? item.${nameAttribute}= ${nameAttribute}.value : '';\n`;
+            // End load ${nameService}\n`;
+            }
+            mapToGetValue += `const ${nameAttribute} = this.${nameAttribute}Data.find(select => select.id == item.${nameAttribute});
+        ${nameAttribute} ? item.${nameAttribute} = ${nameAttribute}.value : '';\n`;
         } else {
-            if(field['Tipo'] === 'boolean') {
-                inputs += `input${nameAttributeAllUp} = new WebixSwitch('${nameAttribute}', '${displayName}', { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
-            } else if(field['Tipo'] === 'intger') {
-                inputs += `input${nameAttributeAllUp} = new WebixNumber('${nameAttribute}', '${displayName}', { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
+            if (field['Tipo'] === 'boolean') {
+                inputCode = `input${nameAttributeAllUp} = new WebixSwitch('${nameAttribute}', '${displayName}', { required: ${field['Obrigatoriedade'] === 'sim'} }, { hidden: ${field['Visivel'] === 'não'}, placeholder: 'Escolha ${field['Descricao'].replace(/\n/g, '')}' });\n`;
+            } else if (field['Tipo'] === 'integer') {
+                inputCode = `input${nameAttributeAllUp} = new WebixNumber('${nameAttribute}', '${displayName}', { required: ${field['Obrigatoriedade'] === 'sim'} }, { hidden: ${field['Visivel'] === 'não'}, placeholder: 'Digite ${field['Descricao'].replace(/\n/g, '')}' });\n`;
             } else {
-                inputs += `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', '${displayName}', { required: ${(field['Obrigatoriedade'] === 'sim')} }, { ${field['Tipo'] === 'varchar' ? 'attributes: { maxlength: ' + field['Tamanho'] + ' }, ' : ''} placeholder: '${field['Descricao'].replace(/\n/g, '')}' });\n`;
+                inputCode = `input${nameAttributeAllUp} = new WebixInput('${nameAttribute}', '${displayName}', { required: ${field['Obrigatoriedade'] === 'sim'} }, { hidden: ${field['Visivel'] === 'não'}, placeholder: 'Digite ${field['Descricao'].replace(/\n/g, '')}' });\n`;
             }
         }
 
-        if (cont === 3) {
-            close = true;
-            cont = 0;
-            form += `] },`;
-        }
+        inputs += `${inputCode}`;
+
+        // Montagem do componente de campo
+        let fieldComponent = `
+{
+    minWidth: this.minWidth,
+    cols: [this.input${nameAttributeAllUp}.getField()]
+}`;
     }.bind(this));
-    form += `\nthis.inputSituation.getField()`;
-    if (!close) {
-        form += `] },\n`;
-    }
-    inputs += `inputSituation = new WebixSelect('situation', 'Situação', AtivoInativoFilter, { required: false }, { width: 120, disabled: false, hidden: true });\n`;
+
+// Define o número de colunas (pode ser ajustado de acordo com a aplicação)
+    const numColumns = getNumberOfColumns(3); // Aqui definimos para 3 colunas, mas pode ser ajustável
+
+// Divisão dos campos em colunas
+    const columns = distributeFieldsIntoColumns(fields, numColumns);
+// Montagem da variável 'form' com n colunas
+    form = `
+{
+    type: "clean",
+    view: "flexlayout",
+    cols: [
+        ${columns.map(column => `
+            {
+                rows: [
+                    ${column.map(field => `this.input${upAllFistLetter(camelCaseLetter(field['Atributo']))}.getField()`).join(',\n')}
+                ]
+            }`).join(',')}
+    ]
+}
+`;
+
+// Variáveis auxiliares
     includeVariables += `private suggestValues: any = {};\n`;
+
     let setLoadSuggest = "";
     if (loadSuggest) {
         setLoadSuggest = `async loadSuggests() {
-                    const simpleWhere = "where="+JSON.stringify({situation: 'A'});\n
-                    ${loadSuggest}\n
-                    loadingHide();\n
-                }`;
+        const simpleWhere = "where=" + JSON.stringify({ situation: 'A' });
+        ${loadSuggest}
+        loadingHide();
+    }`;
     }
-    const reMapFoDataTable = `.map( (item) => {
-                    ${mapToGetValue}
-                    return item;
-                })`;
 
+    const reMapFoDataTable = `.map((item) => {
+    ${mapToGetValue}
+    return item;
+})`;
 
     let createCreateStructure = `import { Component } from "@angular/core";
 import { WebixInput } from "src/app/classes/webix.input";
@@ -161,6 +202,7 @@ export class ${className}CreateComponent extends AbstractWindowComponent {
   $$: any;
   ${includeVariables}
   private editMode: boolean = false;
+  private minWidth: number = 230;
 
   /*
     Esse array faz a busca nas informações que estão no banco
@@ -198,6 +240,7 @@ export class ${className}CreateComponent extends AbstractWindowComponent {
     Declaração da barra de ferramentas
   */
   toolbar = new WebixToolbar("toolbar", this.formId, [
+    { view: "icon", icon: "fa fa-reply", tooltip: "Voltar", click: async () => { await this._windowOpen.openWindow({ path: "${parsedFileName}/list" }); } },
     { view: "icon", icon: "fa fa-file-text-o", tooltip: "Novo", hidden: !this.editMode, click: () => { this._cancelOrClearConfirm(true); } },
     { view: "icon", icon: "fa fa-floppy-o", tooltip: "Salvar", click: () => this._save() },
     { view: "icon", icon: "fa fa-eraser", tooltip: "Limpar", click: () => this._cancelOrClearConfirm() },
@@ -212,6 +255,7 @@ export class ${className}CreateComponent extends AbstractWindowComponent {
   constructor(
     private _webixService: WebixService,
     private _i18nService: I18nService,
+        private _windowOpen: WindowManagerService,
     private _googleSheetsService: GoogleSheetsService,
     private _querysBuilderService: QuerysBuilderService,
     private _localStorageService: LocalStorageService,
@@ -229,10 +273,10 @@ export class ${className}CreateComponent extends AbstractWindowComponent {
 
   async posBuildWindow() {
     await this._loadData();
+    ${setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
   }
 
   async getWebixComponent() {
-    ${setLoadSuggest !== "" ? 'await this.loadSuggests();' : ''}
     return {
       view: "scrollview",
       body: this.setForm${className}Inputs()
@@ -562,6 +606,7 @@ export class ${className}ListComponent extends AbstractWindowComponent {
   webix: any;
   $$: any;
   ${includeVariables}
+  
 
   // Declaração das colunas selecionadas
   select = [${select} 'unit', 'user', 'situation', 'createdAt', 'updatedAt'];
@@ -574,6 +619,7 @@ export class ${className}ListComponent extends AbstractWindowComponent {
 
   // Declaração da barra de ferramentas
   toolbar = new WebixToolbar('toolbar', null, [
+    { view: "icon", icon: "fa fa-file-text-o", tooltip: "Novo", click: async () => { await this._windowOpen.openWindow({ path: "${parsedFileName}/create" }); } },
     { view: "icon", icon: "fa fa-refresh", tooltip: "Atualizar", click: () => { this._loadData(); this._messageService.show('Atualizado com sucesso!', 'success') } },
     { view: "icon", icon: "fa fa-file-excel-o", tooltip: "Exportar", click: async () => { await this._exportSheets() } },
   ]);
@@ -584,14 +630,6 @@ export class ${className}ListComponent extends AbstractWindowComponent {
     null,
     [
       ${datatable}
-      {
-        id: "actions",
-        header: this.translate("Ações"),
-        template: (obj) => {
-          return \`<span class='view webix_icon fa-eye'></span>\`;
-        },
-        fillspace: true,
-      },
     ],
     {
       pager: this.paginate.getId(),
@@ -607,11 +645,12 @@ export class ${className}ListComponent extends AbstractWindowComponent {
   constructor(
     private _webixService: WebixService,
     private _i18nService: I18nService,
+    private _windowOpen: WindowManagerService,
     private _googleSheetsService: GoogleSheetsService,
     private _querysBuilderService: QuerysBuilderService,
     private _localStorageService: LocalStorageService,
     private _messageService: MessageService,
-    private service: ${className}Service,
+    private mainService: ${className}Service,
     ${importConstructor}
   ) {
     super();
@@ -729,6 +768,10 @@ export class ${className}ListComponent extends AbstractWindowComponent {
     );
   }
 
+  translate(key: string) {
+    return this._i18nService.translate(key);
+  }
+}
 `;
 
     const path = `docs/files/front/tables/${parsedFileName}/`;

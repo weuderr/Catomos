@@ -43,7 +43,10 @@ export class ${camelCaseNameFile}Controller {
    */
   static async getAll(req, res) {
     try {
-      const data = await ${camelCaseNameFile}Service.getAll${camelCaseNameFile}();
+      let select = [];
+      if (req.query.select)
+        select = req.query.select.split(",");
+      const data = await ${camelCaseNameFile}Service.getAll${camelCaseNameFile}s(select, req.query.where, req.query.order, req.query.include, req.query.group);
       return handleSuccess(res, 200, "Successfully retrieved ${nameWithSpace}s", data);
     } catch (error) {
       return handleError(res, error);
@@ -87,7 +90,7 @@ export default ${camelCaseNameFile}Controller;
     }
 
     const fileWrite = structure();
-    const pathName = `docs/files/back/api/${parsedFileName.replace(/_/g, '-')}/`;
+    const pathName = `docs/files/backNew/api/${parsedFileName.replace(/_/g, '-')}/`;
     ensureDirectoryExistence(pathName);
     await fs.writeFile(`${pathName}${parsedFileName.replace(/_/g, '-')}-controller.js`, fileWrite, { flag: 'w' }, (err) => {
         if (err) {

@@ -4,7 +4,7 @@ const {ensureDirectoryExistence, upAllFistLetter, camelCaseLetter, upSpaceLetter
 exports.makeFileFrontReport = async (parsedFileName, className, fileName, nameWithSpace, data) => {
     if (data) {
         const fields = JSON.parse(data);
-        let doFile = false
+        let doFile = true
         fields.forEach(function (field, index) {
             if (index === 0 && field['Observacoes'] === 'primary key')
                 doFile = true
@@ -139,7 +139,7 @@ export class ${className}ReportComponent {
     private _querysBuilderService: QuerysBuilderService,
     private _localStorageService: LocalStorageService,
     private _messageService: MessageService,
-    private service: ${className}Service,
+    private mainService: ${className}Service,
     ${objectAll.importConstructor}
   ) {
     this.init()
