@@ -4,6 +4,15 @@ const path = require("path");
 const readFolder = 'docs/cast/';
 
 fs.readdir(readFolder, async (err, files) => {
+  ensureDirectoryExistence('docs/final/');
+  ensureDirectoryExistence('docs/final/api/');
+  ensureDirectoryExistence('docs/final/front/');
+  ensureDirectoryExistence('docs/final/front/model/');
+  ensureDirectoryExistence('docs/final/front/');
+  ensureDirectoryExistence('docs/final/front/tables/');
+  ensureDirectoryExistence('docs/final/models/');
+  ensureDirectoryExistence('docs/final/front/services/');
+  ensureDirectoryExistence('docs/final/front/tables/campanha/');
   if (files)
     for (const file of files) {
       if (file) {
